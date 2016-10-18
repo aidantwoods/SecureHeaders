@@ -59,3 +59,7 @@ $pageSpecificCSP = array(
 $headers->csp($pageSpecificCSP);
 ```
 
+etc...
+
+This readme is incomplete, please refer to the source, or the (partial) example file `CustomSecureHeaders.php` for full usage.
+
