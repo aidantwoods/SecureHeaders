@@ -123,8 +123,8 @@ class SecureHeaders{
         elseif ( ! isset($report_only_uri)) $report_only_uri = false;
 
         $this->csp_reporting = array(
-            'report-uri' 		=> $report_uri, 
-            'report-only-uri' 	=> $report_only_uri
+            'report-uri'        => $report_uri, 
+            'report-only-uri'   => $report_only_uri
         );
     }
 
@@ -190,9 +190,9 @@ class SecureHeaders{
 
     public function hsts(int $max_age = null, $subdomains = false, $preload = false)
     {
-        $this->hsts['max-age'] 		= $max_age;
-        $this->hsts['subdomains'] 	= ($subdomains == true);
-        $this->hsts['preload'] 		= ($preload == true);
+        $this->hsts['max-age']      = $max_age;
+        $this->hsts['subdomains']   = ($subdomains == true);
+        $this->hsts['preload']      = ($preload == true);
     }
 
     public function hsts_subdomains($mode = null)
@@ -605,6 +605,5 @@ class CustomSecureHeaders extends SecureHeaders{
         "object-src" => ["'none'"],
         'block-all-mixed-content' => [null]
     );
-
 }
 ?>
