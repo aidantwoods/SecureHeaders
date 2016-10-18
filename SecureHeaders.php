@@ -36,8 +36,10 @@ class SecureHeaders{
     # ~~
     # public functions: settings
 
-    # safe-mode enforces settings that shouldn't cause too much accidental down-time
-    # safe-mode intentionally overwrites user specified settings
+    /**
+     * safe-mode enforces settings that shouldn't cause too much accidental down-time
+     * safe-mode intentionally overwrites user specified settings
+     */
     public function safe_mode($mode = null)
     {
         if ($mode === false or strtolower($mode) === 'off')
@@ -46,8 +48,10 @@ class SecureHeaders{
             $this->safe_mode = true;
     }
 
-    # if operating in safe mode, use this to manually allow or prevent an overwrite
-    # of a specific header
+    /**
+     * if operating in safe mode, use this to manually allow or prevent an overwrite
+     * of a specific header
+     */
     public function allow_in_safe_mode(string $name)
     {
         if (($key = array_search($name, $this->safe_mode_unsafe_headers)) !== false)
@@ -137,9 +141,11 @@ class SecureHeaders{
 
     public function csp_duplicate($mode)
     {
-        # ($mode == true) indicates that if a report-only URI is set, but 
-        # no report-only CSP has been specified the enforced CSP should be 
-        # duplicated onto the report-only header.
+        /** 
+         * ($mode == true) indicates that if a report-only URI is set, but 
+         * no report-only CSP has been specified the enforced CSP should be 
+         * duplicated onto the report-only header.
+         */
 
         if ($mode == false)
             $this->csp_duplicate = false;
@@ -248,9 +254,9 @@ class SecureHeaders{
     public function hpkp_subdomains($mode = null)
     {
         if ($mode == false)
-            $this->hsts['subdomains'] = false;
+            $this->hpkp['subdomains'] = false;
         else
-            $this->hsts['subdomains'] = true;
+            $this->hpkp['subdomains'] = true;
     }
 
     # ~~
