@@ -2,6 +2,9 @@
 
 A PHP class aiming to make the use of browser security features more accessible, while allowing developers to safely experiment with these features to ensure they are configured correctly.
 
+## Notice
+This project is currently under initial development, so expect changes to the source code at any time which may break forwards compatability or change/remove functionality. That said, bug and issue reports are still welcome from anyone who wants to test it out.
+
 ## Usage
 e.g. the following will combine `$baseCSP` with `$csp` to create an overall Content-Security-Policy.
 ```php
