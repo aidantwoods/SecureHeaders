@@ -4,6 +4,8 @@ class SecureHeaders{
     private $headers = array();
     private $removed_headers = array();
 
+    private $cookies = array();
+
     private $errors = array();
     private $error_reporting = true;
 
@@ -15,6 +17,8 @@ class SecureHeaders{
         'block-all-mixed-content',
         'upgrade-insecure-requests'
     );
+
+    private $csp_legacy = false;
 
     private $safe_mode = false;
     private $safe_mode_unsafe_headers = array(
@@ -28,7 +32,12 @@ class SecureHeaders{
         'sha256'
     );
 
-    private $automatic_headers = true;
+    private $automatic_headers = array(
+        'add' => true,
+        'remove' => true,
+        'secure-session-cookie' => true,
+        'safe-session-cookie' => true
+    );
 
     # ~~
     # Public Functions
@@ -75,19 +84,26 @@ class SecureHeaders{
             $name = $match[1];
         }
 
-        $this->headers[$name] = $value;
+        # if its actually a cookie, PHP can't send more than
+        # one header by the same name, unless sending a cookie
+        # but this requires special handling
 
-        unset($this->removed_headers[$name]);
+        if (strtolower($name) === 'set-cookie')
+        {
+            $this->add_cookie($value);
+        }
+        else
+        {
+            $this->headers[$name] = $value;
+
+            unset($this->removed_headers[$name]);
+        }
     }
 
     public function remove_header(string $name)
     {
-        if (! empty($headers = array_merge(
-                    $this->preg_match_array('/^'.preg_quote($name).'/i', array_keys($this->headers)),
-                    $this->preg_match_array('/^'.preg_quote($name).'(?=[:])/i', headers_list())
-                )
-            )
-        ){
+        if (! empty($headers = $this->get_header_aliases($name)))
+        {
             foreach ($headers as $header)
             {
                 unset($this->headers[$header]);
@@ -100,6 +116,49 @@ class SecureHeaders{
 
         return false;
     }
+
+    # ~~
+    # public functions: cookies
+
+    public function add_cookie(string $name, string $value = null, $extract_cookie = null)
+    {
+        # if extract_cookie loosely compares to true, the value will be extracted from
+        # the cookie name e.g. the from the form ('name=value; attribute=abc; attrib;')
+
+        $cookie = array();
+
+        if ($extract_cookie)
+        {
+            if (preg_match_all('/[; ]*([^=; ]+)(?:(?:=)([^;]+)|)/', $name, $matches, PREG_SET_ORDER))
+            {
+                $name = $matches[0][1];
+
+                if (isset($matches[0][2]))  $cookie[0] = $matches[0][2];
+                else                        $cookie[0] = '';
+
+                unset($matches[0]);
+
+                foreach ($matches as $match)
+                {
+                    if ( ! isset($match[2])) $match[2] = null;
+
+                    $cookie[strtolower($match[1])] = $match[2];
+                }
+            }
+        }
+        else
+        {
+            $cookie[0] = $value;
+        }
+
+        $this->cookies[$name] = $cookie;
+    }
+
+    public function remove_cookie(string $name)
+    {
+        unset($this->cookies[$name]);
+    }
+
 
     # ~~
     # public functions: Content-Security-Policy (CSP)
@@ -151,6 +210,16 @@ class SecureHeaders{
             $this->csp_duplicate = false;
         else
             $this->csp_duplicate = true;
+    }
+
+    public function add_csp_legacy()
+    {
+        $this->csp_legacy = true;
+    }
+
+    public function remove_csp_legacy()
+    {
+        $this->csp_legacy = false;
     }
 
     public function add_csp_source(string $directive, string $source = null, $report_only = null)
@@ -264,6 +333,7 @@ class SecureHeaders{
 
     public function done()
     {
+        $this->compile_cookies();
         $this->automatic_headers();
 
         $this->compile_csp();
@@ -276,15 +346,6 @@ class SecureHeaders{
         $this->report_errors();
     }
 
-    public function www_if_not_localhost()
-    {
-        if ($_SERVER['SERVER_NAME'] !== 'localhost' and substr($_SERVER['HTTP_HOST'], 0, 4) !== 'www.')
-        {
-            $this->add_header('HTTP/1.1 301 Moved Permanently');
-            $this->add_header('Location', 'https://www.'.$_SERVER['SERVER_NAME'].$_SERVER['REQUEST_URI']);
-        }
-    }
-
     public function error_reporting($mode)
     {
         if ($mode == false)
@@ -293,14 +354,42 @@ class SecureHeaders{
             $this->error_reporting = true;
     }
 
-    public function add_automatic_headers()
+    public function add_automatic_headers($mode = null)
     {
-        $this->automatic_headers = true;
+        foreach ($this->automatic_headers as $name => $state)
+        {
+            if (    ! isset($mode) 
+                or
+                ( 
+                    is_string($mode) and $name === strtolower($mode)
+                )
+                or
+                (
+                    is_array($mode) and ! empty(preg_grep('/^'.preg_quote($name).'$/i', $mode))
+                )
+            ){
+                $this->automatic_headers[$name] = true;
+            }
+        }
     }
 
-    public function remove_automatic_headers()
+    public function remove_automatic_headers($mode = null)
     {
-        $this->automatic_headers = false;
+        foreach ($this->automatic_headers as $name => $state)
+        {
+            if (    ! isset($mode) 
+                or
+                ( 
+                    is_string($mode) and $name === strtolower($mode)
+                )
+                or
+                (
+                    is_array($mode) and ! empty(preg_grep('/^'.preg_quote($name).'$/i', $mode))
+                )
+            ){
+                $this->automatic_headers[$name] = false;
+            }
+        }
     }
 
     # ~~
@@ -311,7 +400,7 @@ class SecureHeaders{
     
     private function remove_headers()
     {
-        foreach($this->removed_headers as $name => $value)
+        foreach ($this->removed_headers as $name => $value)
         { 
             header_remove($name);
         }
@@ -319,9 +408,31 @@ class SecureHeaders{
     
     private function send_headers()
     {
-        foreach($this->headers as $key => $value)
+        foreach ($this->headers as $key => $value)
         {
             header($key . ($value === '' ? '' : ': ' . $value));
+        }
+
+        foreach ($this->cookies as $name => $cookie)
+        {
+            if ( ! isset($cookie['expire']) and isset($cookie['max-age'])) $cookie['expire'] = $cookie['max-age'];
+
+            $cookie_att = array('expire', 'path', 'domain', 'secure', 'httponly');
+
+            foreach ($cookie_att as $att)
+            {
+                if ( ! isset($cookie[$att])) $cookie[$att] = null;
+            }
+
+            setcookie(
+                $name,
+                $cookie[0],
+                $cookie['expire'],
+                $cookie['path'],
+                $cookie['domain'],
+                $cookie['secure'],
+                $cookie['httponly']
+            );
         }
     }
 
@@ -336,7 +447,7 @@ class SecureHeaders{
         $csp 	= $this->get_csp_object(false);
         $csp_ro = $this->get_csp_object(true);
 
-        if($this->csp_duplicate and ! empty($this->csp_reporting) and empty($csp_ro))
+        if($this->csp_duplicate and isset($this->csp_reporting['report-only-uri']) and empty($csp_ro))
         {
             $csp_ro = $csp;
         }
@@ -362,28 +473,42 @@ class SecureHeaders{
 
         if( ! empty($this->csp_reporting))
         { 
-            $csp_string .= 'report-uri ' . $this->csp_reporting['report-uri'] . '; ';
-
-            if ($this->csp_reporting['report-only-uri'] === true)
+            if ( ! empty($csp_string))
             {
+                $csp_string .= 'report-uri ' . $this->csp_reporting['report-uri'] . '; ';
+            }
+
+            if (
+                    $this->csp_reporting['report-only-uri'] === true 
+                or (empty($csp_string) and ! isset($this->csp_reporting['report-only-uri']))
+            ){
                 $csp_ro_string .= 'report-uri ' . $this->csp_reporting['report-uri'] . '; ';
             }
             elseif (is_string($this->csp_reporting['report-only-uri']))
             {
                 $csp_ro_string .= 'report-uri ' . $this->csp_reporting['report-only-uri'] . '; ';
             }
-
-            if($this->csp_reporting['report-only-uri'] !== false)
-            {
-                $this->add_header('Content-Security-Policy-Report-Only', substr($csp_ro_string, 0, -1));
-            }
         }
 
         if ( ! empty($csp_string))
-            $this->add_header('Content-Security-Policy', substr($csp_string, 0, -1));
+        {
+            $csp_string = substr($csp_string, 0, -1);
+
+            $this->add_header('Content-Security-Policy', $csp_string);
+
+            if($this->csp_legacy)
+                $this->add_header('X-Content-Security-Policy', $csp_string);
+        }
         
         if ( ! empty($csp_ro_string))
-            $this->add_header('Content-Security-Policy-Report-Only', substr($csp_ro_string, 0, -1));
+        {
+            $csp_ro_string = substr($csp_ro_string, 0, -1);
+
+            $this->add_header('Content-Security-Policy-Report-Only', $csp_ro_string);
+
+            if($this->csp_legacy)
+                $this->add_header('X-Content-Security-Policy-Report-Only', $csp_ro_string);
+        }
     }	
 
     private function &get_csp_object($report_only)
@@ -453,7 +578,7 @@ class SecureHeaders{
     }
 
     # ~~
-    # private functions: HSTS
+    # private functions: HPKP
 
     private function compile_hpkp()
     {
@@ -499,6 +624,34 @@ class SecureHeaders{
     }
 
     # ~~
+    # private functions: Cookies
+
+    private function compile_cookies()
+    {
+        # first grab any cookies out of already set PHP headers_list
+
+        $set_cookies = $this->preg_match_array('/^(set-cookie)[:][ ](.*)$/i', headers_list(), 1, 2);
+        header_remove('set-cookie');
+
+        # if any, add these to our internal cookie list
+        foreach ($set_cookies as $set_cookie)
+        {
+            $this->add_cookie($set_cookie[1], null, 1);
+        }
+    }
+
+    private function modify_cookie(string $substr, string $flag)
+    {
+        foreach ($this->cookies as $cookie_name => $cookie)
+        {
+            if (strpos($cookie_name, $substr) !== false)
+            {
+                $this->cookies[$cookie_name][strtolower($flag)] = true;
+            }
+        }
+    }
+
+    # ~~
     # private functions: general
 
     private function report_errors()
@@ -515,17 +668,18 @@ class SecureHeaders{
         restore_error_handler();
     }
 
-    private function preg_match_array(string $pattern, array $subjects, int $capture_group = null)
+    private function preg_match_array(string $pattern, array $subjects, int $value_capture_group = null, int $pair_value_capture_group = null)
     {
-        if ( ! isset($capture_group)) $capture_group = 0;
+        if ( ! isset($value_capture_group)) $value_capture_group = 0;
 
         $matches = array();
 
         foreach ($subjects as $subject)
         {
-            if (preg_match($pattern, $subject, $match) and isset($match[$capture_group]))
+            if (preg_match($pattern, $subject, $match) and isset($match[$value_capture_group]))
             {
-                $matches[] = $match[$capture_group];
+                if ( ! isset($pair_value_capture_group)) $matches[] = $match[$value_capture_group];
+                else $matches[] = array($match[$value_capture_group], $match[$pair_value_capture_group]);
             }
         }
 
@@ -539,10 +693,32 @@ class SecureHeaders{
 
     private function automatic_headers()
     {
-        if ($this->automatic_headers)
+        if ($this->automatic_headers['add'])
         {
+            # security headers for all (HTTP and HTTPS) connections
             $this->add_header('X-XSS-Protection', '1; mode=block');
             $this->add_header('X-Content-Type-Options', 'nosniff');
+        }
+
+        if($this->automatic_headers['remove'])
+        {
+            # remove headers leaking server information
+            $this->remove_header('Server');
+            $this->remove_header('X-Powered-By');
+        }
+
+        if($this->automatic_headers['secure-session-cookie'])
+        {
+            $this->modify_cookie('sess', 'Secure');
+            $this->modify_cookie('auth', 'Secure');
+            $this->modify_cookie('login', 'Secure');
+        }
+
+        if($this->automatic_headers['safe-session-cookie'])
+        {
+            $this->modify_cookie('sess', 'HTTPOnly');
+            $this->modify_cookie('auth', 'HTTPOnly');
+            $this->modify_cookie('login', 'HTTPOnly');
         }
     }
 
@@ -554,6 +730,20 @@ class SecureHeaders{
             return true;
         }
         return false;
+    }
+
+    private function get_header_aliases(string $name)
+    {
+        if (! empty($headers = array_merge(
+                    $this->preg_match_array('/^'.preg_quote($name).'$/i', array_keys($this->headers)),
+                    $this->preg_match_array('/^'.preg_quote($name).'(?=[:])/i', headers_list())
+                )
+            )
+        ){
+            return $headers;
+        }
+
+        return null;
     }
 }
 ?>

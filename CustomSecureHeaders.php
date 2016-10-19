@@ -19,11 +19,17 @@ class CustomSecureHeaders extends SecureHeaders{
         $this->csp($this->base);
         $this->add_csp_reporting('https://report-uri.example.com/csp', 1);
 
+        setcookie('sess1', 'secret');
+        setcookie('preference', 'not a secret');
+        setcookie('another-preference', 'not a secret', 10, '/', null, 1);
+
         # add a hpkp policy
         $this->hpkp(
             array(
-                'd6qzRu9zOECb90Uez27xWltNsj0e1Md7GkYYkVoZWmM=', 
-                ['E9CZ9INDbd+2eRQozYqqbQ2yXLVKB9+xcprMF+44U1g=', 'sha256']
+                'pin1', 
+                ['pin2', 'sha256'],
+                ['sha256', 'pin3'],
+                ['pin4']
             ),
             15,
             1
@@ -40,6 +46,15 @@ class CustomSecureHeaders extends SecureHeaders{
         # uncomment the next line to specifically allow HSTS in safe mode
         // $this->allow_in_safe_mode('Strict-Transport-Security');
 
+    }
+
+    public function www_if_not_localhost()
+    {
+        if ($_SERVER['SERVER_NAME'] !== 'localhost' and substr($_SERVER['HTTP_HOST'], 0, 4) !== 'www.')
+        {
+            $this->add_header('HTTP/1.1 301 Moved Permanently');
+            $this->add_header('Location', 'https://www.'.$_SERVER['SERVER_NAME'].$_SERVER['REQUEST_URI']);
+        }
     }
 
     private $base = array(
