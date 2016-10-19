@@ -5,6 +5,13 @@ A PHP class aiming to make the use of browser security features more accessible,
 ## Notice
 This project is currently under initial development, so expect changes to the source code at any time which may break forwards compatability or change/remove functionality. That said, bug and issue reports are still welcome from anyone who wants to test it out.
 
+## Features
+* Add/remove and manage headers easily
+* Build a Content Security Policy, or combine multiple together
+* Correct cookie flags on already set cookies to add httpOnly and secure flags, (if the cookies appear to be session related)
+* Safe mode prevents accidential self-DOS when using HSTS, or HPKP
+* Receive warnings about missing security headers (level E_USER_WARNING)
+
 ## Usage
 e.g. the following will combine `$baseCSP` with `$csp` to create an overall Content-Security-Policy.
 ```php
@@ -25,8 +32,8 @@ $csp = array(
 $headers->csp($csp);
 ```
 
-The `SecureHeaders` class can also be extended to include the `$baseCSP` on all pages.
-e.g.
+The `SecureHeaders` class can also be extended to so that custom settings can be applied on all instances of the extension.
+e.g. `$baseCSP` on all pages.
 
 ```php
 class CustomSecureHeaders extends SecureHeaders{
