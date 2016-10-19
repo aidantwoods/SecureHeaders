@@ -5,13 +5,6 @@ class CustomSecureHeaders extends SecureHeaders{
         # content headers
         $this->add_header('Content-type', 'text/html; charset=utf-8');
 
-        # remove headers leaking server information
-        $this->remove_header('Server');
-        $this->remove_header('X-Powered-By');
-
-        # security headers for all (HTTP and HTTPS) connections
-        $this->add_header('X-Frame-Options', 'Deny');
-
         # redirect to www subdomain if not on localhost
         $this->www_if_not_localhost();
 
@@ -20,6 +13,12 @@ class CustomSecureHeaders extends SecureHeaders{
         $this->add_csp_reporting('https://report-uri.example.com/csp', 1);
 
         setcookie('sess1', 'secret');
+        setcookie('auth1', 'not a secret');
+        setcookie('sId', 'secret');
+
+        $this->add_protected_cookie_substring('SID');
+        $this->remove_protected_cookie_substring('auth');
+
         setcookie('preference', 'not a secret');
         setcookie('another-preference', 'not a secret', 10, '/', null, 1);
 
