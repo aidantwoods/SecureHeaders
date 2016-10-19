@@ -10,7 +10,7 @@ This project is currently under initial development, so expect changes to the so
 * Build a Content Security Policy, or combine multiple together
 * Correct cookie flags on already set cookies to add httpOnly and secure flags, (if the cookies appear to be session related)
 * Safe mode prevents accidential self-DOS when using HSTS, or HPKP
-* Receive warnings about missing security headers (level E_USER_WARNING)
+* Receive warnings about missing security headers (`level E_USER_WARNING`)
 
 ## Usage
 e.g. the following will combine `$baseCSP` with `$csp` to create an overall Content-Security-Policy.
