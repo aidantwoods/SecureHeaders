@@ -1,9 +1,12 @@
 # SecureHeaders
-
 A PHP class aiming to make the use of browser security features more accessible, while allowing developers to safely experiment with these features to ensure they are configured correctly.
 
-## Notice
-This project is currently under initial development, so expect changes to the source code at any time which may break forwards compatability or change/remove functionality. That said, bug and issue reports are still welcome from anyone who wants to test it out.
+The project aims help increase the overall security of an application in-which it runs within. SecureHeaders will do so by issuing warnings an notices at runtime when it notices something is wrong. Additionally, SecureHeaders will pro-actively modify or add headers (where safe to do so). This includes adding flags to cookies with certain keywords in their name to protect session data, and adding missing security headers to automatically enable client browser security features. 
+
+Additional security headers also can be configured, or built using SecureHeaders. 
+
+## Development Notice
+This project is currently under initial development, so there is the potential for non-backwards compatible changes etc.. That said, bug reports are still welcome from anyone who wants to test it out.
 
 ## Features
 * Add/remove and manage headers easily
