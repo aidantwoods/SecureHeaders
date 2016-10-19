@@ -75,6 +75,60 @@ class SecureHeaders{
         }
     }
 
+    public function add_automatic_headers($mode = null)
+    {
+        foreach ($this->automatic_headers as $name => $state)
+        {
+            if (    ! isset($mode) 
+                or
+                ( 
+                    is_string($mode) and $name === strtolower($mode)
+                )
+                or
+                (
+                    is_array($mode) and ! empty(preg_grep('/^'.preg_quote($name).'$/i', $mode))
+                )
+            ){
+                $this->automatic_headers[$name] = true;
+            }
+        }
+    }
+
+    public function remove_automatic_headers($mode = null)
+    {
+        foreach ($this->automatic_headers as $name => $state)
+        {
+            if (    ! isset($mode) 
+                or
+                ( 
+                    is_string($mode) and $name === strtolower($mode)
+                )
+                or
+                (
+                    is_array($mode) and ! empty(preg_grep('/^'.preg_quote($name).'$/i', $mode))
+                )
+            ){
+                $this->automatic_headers[$name] = false;
+            }
+        }
+    }
+
+    public function add_protected_cookie_substring(string $substr)
+    {
+        if ( ! in_array($substr, $this->protected_cookie_substrings))
+        {
+            $this->protected_cookie_substrings[] = strtolower($substr);
+        }
+    }
+
+    public function remove_protected_cookie_substring(string $substr)
+    {
+        if (($key = array_search($substr, $this->protected_cookie_substrings)) !== false)
+        {
+            unset($this->protected_cookie_substrings[$key]);
+        }
+    }
+
     # ~~
     # public functions: raw headers
 
@@ -163,22 +217,6 @@ class SecureHeaders{
     public function remove_cookie(string $name)
     {
         unset($this->cookies[$name]);
-    }
-
-    public function add_protected_cookie_substring(string $substr)
-    {
-        if ( ! in_array($substr, $this->protected_cookie_substrings))
-        {
-            $this->protected_cookie_substrings[] = strtolower($substr);
-        }
-    }
-
-    public function remove_protected_cookie_substring(string $substr)
-    {
-        if (($key = array_search($substr, $this->protected_cookie_substrings)) !== false)
-        {
-            unset($this->protected_cookie_substrings[$key]);
-        }
     }
 
     # ~~
@@ -373,44 +411,6 @@ class SecureHeaders{
             $this->error_reporting = false;
         else
             $this->error_reporting = true;
-    }
-
-    public function add_automatic_headers($mode = null)
-    {
-        foreach ($this->automatic_headers as $name => $state)
-        {
-            if (    ! isset($mode) 
-                or
-                ( 
-                    is_string($mode) and $name === strtolower($mode)
-                )
-                or
-                (
-                    is_array($mode) and ! empty(preg_grep('/^'.preg_quote($name).'$/i', $mode))
-                )
-            ){
-                $this->automatic_headers[$name] = true;
-            }
-        }
-    }
-
-    public function remove_automatic_headers($mode = null)
-    {
-        foreach ($this->automatic_headers as $name => $state)
-        {
-            if (    ! isset($mode) 
-                or
-                ( 
-                    is_string($mode) and $name === strtolower($mode)
-                )
-                or
-                (
-                    is_array($mode) and ! empty(preg_grep('/^'.preg_quote($name).'$/i', $mode))
-                )
-            ){
-                $this->automatic_headers[$name] = false;
-            }
-        }
     }
 
     # ~~
