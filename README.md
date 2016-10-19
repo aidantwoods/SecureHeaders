@@ -1,9 +1,11 @@
 # SecureHeaders
-A PHP class aiming to make the use of browser security features more accessible, while allowing developers to safely experiment with these features to ensure they are configured correctly.
+A PHP class aiming to make the use of browser security features more accessible, while allowing developers to safely experiment with these features to ensure they are configured correctly. Security headers also can be configured, or built using SecureHeaders. 
 
-The project aims help increase the overall security of an application in-which it runs within. SecureHeaders will do so by issuing warnings an notices at runtime when it notices something is wrong. Additionally, SecureHeaders will pro-actively modify or add headers (where safe to do so). This includes adding flags to cookies with certain keywords in their name to protect session data, and adding missing security headers to automatically enable client browser security features. 
+The project aims help increase the overall security of an application in-which it runs within. 
 
-Additional security headers also can be configured, or built using SecureHeaders. 
+Sometimes this is most appropriately applied through feedback. SecureHeaders will issue warnings (`level E_USER_WARNING`) and notices (`level E_USER_NOTICE`) at runtime when it notices something is wrong. 
+
+In some cases, correcting insecure behaviour is best done pro-actively. SecureHeaders will modify or add headers (where safe to do so). (This can of course be granularly controlled, or outright disabled). This includes adding security flags to cookies with certain keywords in their names in an effort to protect session data. And also by adding missing security headers to automatically enable client browser security features.
 
 ## Development Notice
 This project is currently under initial development, so there is the potential for non-backwards compatible changes etc.. That said, bug reports are still welcome from anyone who wants to test it out.
@@ -16,6 +18,8 @@ This project is currently under initial development, so there is the potential f
 * Receive warnings about missing security headers (`level E_USER_WARNING`)
 
 ## Usage
+*(section nowhere close to complete)*
+
 e.g. the following will combine `$baseCSP` with `$csp` to create an overall Content-Security-Policy.
 ```php
 import('SecureHeaders.php');
