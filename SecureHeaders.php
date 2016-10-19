@@ -64,10 +64,9 @@ class SecureHeaders{
             $this->safe_mode = true;
     }
 
-    /**
-     * if operating in safe mode, use this to manually allow or prevent an overwrite
-     * of a specific header
-     */
+
+    # if operating in safe mode, use this to manually allow a specific header
+    
     public function allow_in_safe_mode(string $name)
     {
         if (($key = array_search($name, $this->safe_mode_unsafe_headers)) !== false)
