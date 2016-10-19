@@ -39,6 +39,12 @@ class SecureHeaders{
         'safe-session-cookie' => true
     );
 
+    private $protected_cookie_substrings = array(
+        'sess',
+        'auth',
+        'login'
+    );
+
     # ~~
     # Public Functions
 
@@ -159,6 +165,21 @@ class SecureHeaders{
         unset($this->cookies[$name]);
     }
 
+    public function add_protected_cookie_substring(string $substr)
+    {
+        if ( ! in_array($substr, $this->protected_cookie_substrings))
+        {
+            $this->protected_cookie_substrings[] = strtolower($substr);
+        }
+    }
+
+    public function remove_protected_cookie_substring(string $substr)
+    {
+        if (($key = array_search($substr, $this->protected_cookie_substrings)) !== false)
+        {
+            unset($this->protected_cookie_substrings[$key]);
+        }
+    }
 
     # ~~
     # public functions: Content-Security-Policy (CSP)
@@ -644,7 +665,7 @@ class SecureHeaders{
     {
         foreach ($this->cookies as $cookie_name => $cookie)
         {
-            if (strpos($cookie_name, $substr) !== false)
+            if (strpos(strtolower($cookie_name), $substr) !== false)
             {
                 $this->cookies[$cookie_name][strtolower($flag)] = true;
             }
@@ -698,6 +719,7 @@ class SecureHeaders{
             # security headers for all (HTTP and HTTPS) connections
             $this->add_header('X-XSS-Protection', '1; mode=block');
             $this->add_header('X-Content-Type-Options', 'nosniff');
+            $this->add_header('X-Frame-Options', 'Deny');
         }
 
         if($this->automatic_headers['remove'])
@@ -709,16 +731,20 @@ class SecureHeaders{
 
         if($this->automatic_headers['secure-session-cookie'])
         {
-            $this->modify_cookie('sess', 'Secure');
-            $this->modify_cookie('auth', 'Secure');
-            $this->modify_cookie('login', 'Secure');
+            # add a secure flag to cookies that look like they hold session data
+            foreach ($this->protected_cookie_substrings as $substr)
+            {
+                $this->modify_cookie($substr, 'secure');
+            }
         }
 
         if($this->automatic_headers['safe-session-cookie'])
         {
-            $this->modify_cookie('sess', 'HTTPOnly');
-            $this->modify_cookie('auth', 'HTTPOnly');
-            $this->modify_cookie('login', 'HTTPOnly');
+            # add a httpOnly flag to cookies that look like they hold session data
+            foreach ($this->protected_cookie_substrings as $substr)
+            {
+                $this->modify_cookie($substr, 'httpOnly');
+            }
         }
     }
 
