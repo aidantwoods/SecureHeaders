@@ -264,11 +264,11 @@ class SecureHeaders{
 
     public function done()
     {
+        $this->automatic_headers();
+
         $this->compile_csp();
         $this->compile_hsts();
         $this->compile_hpkp();
-
-        $this->automatic_headers();
 
         $this->remove_headers();
 
@@ -505,10 +505,14 @@ class SecureHeaders{
     {
         if ( ! $this->error_reporting) return;
 
+        set_error_handler(array(get_class(), 'error_handler'));
+
         foreach ($this->errors as $error)
         {
-            trigger_error($error);
+            trigger_error($error, E_USER_NOTICE);
         }
+
+        restore_error_handler();
     }
 
     private function preg_match_array(string $pattern, array $subjects, int $capture_group = null)
@@ -540,6 +544,16 @@ class SecureHeaders{
             $this->add_header('X-XSS-Protection', '1; mode=block');
             $this->add_header('X-Content-Type-Options', 'nosniff');
         }
+    }
+
+    private static function error_handler($level, $message)
+    {
+        if ($level === E_USER_NOTICE and (error_reporting() & $level))
+        {
+            echo '<strong>Notice:</strong> ' . $message . "<br><br>\n\n";
+            return true;
+        }
+        return false;
     }
 }
 ?>
