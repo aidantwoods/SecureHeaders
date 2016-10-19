@@ -39,7 +39,7 @@ $csp = array(
 $headers->csp($csp);
 ```
 
-The `SecureHeaders` class can also be extended to so that custom settings can be applied on all instances of the extension.
+The `SecureHeaders` class can also be extended, so that custom settings can be applied on all instances of the extension.
 e.g. `$baseCSP` on all pages.
 
 ```php
