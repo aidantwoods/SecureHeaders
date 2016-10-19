@@ -37,6 +37,15 @@ class SecureHeaders{
         'login'
     );
 
+    private $report_missing_headers = array(
+        'Strict-Transport-Security',
+        // 'Public-Key-Pins',
+        'Content-Security-Policy',
+        'X-XSS-Protection',
+        'X-Content-Type-Options',
+        'X-Frame-Options'
+    );
+
     # ~~
     # Public Functions
 
@@ -384,7 +393,7 @@ class SecureHeaders{
 
     public function done()
     {
-        $this->compile_cookies();
+        $this->import_cookies();
         $this->automatic_headers();
 
         $this->compile_csp();
@@ -394,6 +403,8 @@ class SecureHeaders{
         $this->remove_headers();
 
         $this->send_headers();
+
+        $this->report_missing_headers();
         $this->report_errors();
     }
 
@@ -573,7 +584,7 @@ class SecureHeaders{
                 $this->hsts['max-age'] 		= 86400;
                 // $this->hsts['subdomains'] 	= false;
                 $this->hsts['preload'] 		= false;
-                $this->errors[] = 'HSTS settings were overridden because Safe-Mode is enabled. ' . $error_extension;
+                $this->add_error('HSTS settings were overridden because Safe-Mode is enabled. ' . $error_extension);
             }
 
             $this->add_header(
@@ -586,7 +597,7 @@ class SecureHeaders{
         elseif ($this->is_unsafe_header('Strict-Transport-Security'))
         {
             if ($this->remove_header('Strict-Transport-Security'))
-                $this->errors[] = 'A manually set HSTS header was removed because Safe-Mode is enabled. ' . $error_extension;
+                $this->add_error('A manually set HSTS header was removed because Safe-Mode is enabled. ' . $error_extension);
         }
     }
 
@@ -607,7 +618,7 @@ class SecureHeaders{
                 $this->hpkp['max-age'] 		= 10;
                 $this->hpkp['subdomains'] 	= false;
 
-                $this->errors[] = 'HPKP settings were overridden because Safe-Mode is enabled.';
+                $this->add_error('HPKP settings were overridden because Safe-Mode is enabled.');
             }
 
             $hpkp_string = '';
@@ -632,14 +643,14 @@ class SecureHeaders{
         elseif ($this->is_unsafe_header('Public-Key-Pins'))
         {
             if ($this->remove_header('Public-Key-Pins'))
-                $this->errors[] = 'A manually set HPKP header was removed because Safe-Mode is enabled.';
+                $this->add_error('A manually set HPKP header was removed because Safe-Mode is enabled.');
         }
     }
 
     # ~~
     # private functions: Cookies
 
-    private function compile_cookies()
+    private function import_cookies()
     {
         # first grab any cookies out of already set PHP headers_list
 
@@ -667,15 +678,20 @@ class SecureHeaders{
     # ~~
     # private functions: general
 
+    private function add_error(string $message, int $error = E_USER_NOTICE)
+    {
+        $this->errors[] = array($message, $error);
+    }
+
     private function report_errors()
     {
         if ( ! $this->error_reporting) return;
 
         set_error_handler(array(get_class(), 'error_handler'));
 
-        foreach ($this->errors as $error)
+        foreach ($this->errors as list($message, $level))
         {
-            trigger_error($error, E_USER_NOTICE);
+            trigger_error($message, $level);
         }
 
         restore_error_handler();
@@ -742,10 +758,18 @@ class SecureHeaders{
 
     private static function error_handler($level, $message)
     {
-        if ($level === E_USER_NOTICE and (error_reporting() & $level))
+        if (error_reporting() & $level)
         {
-            echo '<strong>Notice:</strong> ' . $message . "<br><br>\n\n";
-            return true;
+            if ($level === E_USER_NOTICE)
+            {
+                echo '<strong>Notice:</strong> ' . $message . "<br><br>\n\n";
+                return true;
+            }
+            elseif ($level === E_USER_WARNING)
+            {
+                echo '<strong>Warning:</strong> ' . $message . "<br><br>\n\n";
+                return true;
+            }
         }
         return false;
     }
@@ -762,6 +786,17 @@ class SecureHeaders{
         }
 
         return null;
+    }
+
+    private function report_missing_headers()
+    {
+        foreach ($this->report_missing_headers as $header)
+        {
+            if (empty($this->get_header_aliases($header)))
+            {
+                $this->add_error('Missing security header: ' . "'" . $header . "'", E_USER_WARNING);
+            }
+        }
     }
 
     # ~~

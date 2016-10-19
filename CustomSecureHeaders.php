@@ -35,7 +35,7 @@ class CustomSecureHeaders extends SecureHeaders{
         );
 
         # use regular PHP function to add strict transport security
-        header('Strict-Transport-Security: max-age=31536000; includeSubDomains; preload');
+        // header('Strict-Transport-Security: max-age=31536000; includeSubDomains; preload');
 
         # enable safe-mode, which should auto-remove the above header
         # safe-mode will generate an error of level E_USER_NOTICE if it has to remove 
