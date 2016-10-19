@@ -1,18 +1,12 @@
 <?php
 
 class SecureHeaders{
-    private $headers = array();
-    private $removed_headers = array();
+    # ~~
+    # private variables: settings
 
-    private $cookies = array();
-
-    private $errors = array();
     private $error_reporting = true;
-
-    private $csp = array();
-    private $csp_ro = array();
+ 
     private $csp_duplicate = true;
-    private $csp_reporting = array();
     private $csp_ro_blacklist = array(
         'block-all-mixed-content',
         'upgrade-insecure-requests'
@@ -26,8 +20,6 @@ class SecureHeaders{
         'Public-Key-Pins'
     );
 
-    private $hsts = array();
-    private $hpkp = array();
     private $allowed_hpkp_algs = array(
         'sha256'
     );
@@ -771,5 +763,22 @@ class SecureHeaders{
 
         return null;
     }
+
+    # ~~
+    # private variables: (non settings)
+
+    private $headers = array();
+    private $removed_headers = array();
+
+    private $cookies = array();
+
+    private $errors = array();
+
+    private $csp = array();
+    private $csp_ro = array();
+    private $csp_reporting = array();
+
+    private $hsts = array();
+    private $hpkp = array();
 }
 ?>
