@@ -37,7 +37,13 @@ With such code, the following will occur:
   X-Content-Type-Options:nosniff
   X-Frame-Options:Deny
   X-XSS-Protection:1; mode=block
+  ``` 
+* The following header will also be removed (SecureHeaders will also attempt to remove the `Server` header, though it is unlikely this header will be under PHP jurisdiction)
+  
   ```
+  X-Powered-By
+  ```
+
 
 Additionally, if any cookies have been set (at any time before `->done()` is called) e.g.
 ```php
