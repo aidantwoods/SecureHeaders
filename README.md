@@ -19,7 +19,7 @@ This project is currently under initial development, so there is the potential f
 
 ## Basic Example 1
 Here is a good implementation example
-```
+```php
 $myCSP = array(
     'default-src' => [
         "'self'",
