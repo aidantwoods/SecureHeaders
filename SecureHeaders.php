@@ -64,9 +64,8 @@ class SecureHeaders{
             $this->safe_mode = true;
     }
 
-
     # if operating in safe mode, use this to manually allow a specific header
-    
+
     public function allow_in_safe_mode(string $name)
     {
         if (($key = array_search($name, $this->safe_mode_unsafe_headers)) !== false)
@@ -148,13 +147,21 @@ class SecureHeaders{
         # one header by the same name, unless sending a cookie
         # but this requires special handling
 
-        if (strtolower($name) === 'set-cookie')
+        $capitalised_name = $name;
+
+        $name = strtolower($name);
+
+        if ($name === 'set-cookie')
         {
-            $this->add_cookie($value);
+            $this->add_cookie($value, null, true);
         }
         else
         {
-            $this->headers[$name] = $value;
+            $this->headers[$name] = array(
+                'name' => $capitalised_name,
+                'value' => $value,
+                'attributes' => $this->deconstruct_header_value($value, $name)
+            );
 
             unset($this->removed_headers[$name]);
         }
@@ -321,6 +328,39 @@ class SecureHeaders{
         return true;
     }
 
+    public static function csp_hash(string $file, string $algo = null, $file_in_string = null)
+    {
+        if ( ! isset($algo)) $algo = 'sha256';
+
+        if ( ! isset($file_in_string)) $file_in_string = false;
+
+        if ($file_in_string)
+        {
+            $hash = hash($algo, $file, true);
+        }
+        else
+        {
+            $hash = hash_file($algo, $file, true);
+        }
+
+        return "'$algo-" . base64_encode($hash) ."'";
+    }
+
+    public function csp_nonce()
+    {
+        $nonce = base64_encode(openssl_random_pseudo_bytes(30, $crypto_strong));
+
+        if ( ! $crypto_strong)
+        {
+            $this->add_error(
+                'OpenSSL (openssl_random_pseudo_bytes) reported that it did <strong>not</strong>
+                use a cryptographically strong algorithm to generate the nonce for CSP.', 
+                E_USER_WARNING);
+        }
+
+        return $nonce;
+    }
+
     # ~~
     # public functions: HSTS
 
@@ -392,7 +432,7 @@ class SecureHeaders{
 
     public function done()
     {
-        $this->import_cookies();
+        $this->import_headers();
         $this->automatic_headers();
 
         $this->compile_csp();
@@ -420,6 +460,21 @@ class SecureHeaders{
 
     # ~~
     # private functions: raw headers
+
+    private function import_headers()
+    {
+        # first grab any headers out of already set PHP headers_list
+        $headers = $this->preg_match_array('/^([^:]+)[:][ ](.*)$/i', headers_list(), 1, 2);
+
+        # delete them (we'll set them again later)
+        header_remove();
+
+        # if any, add these to our internal header list
+        foreach ($headers as $header)
+        {
+            $this->add_header($header[0], $header[1]);
+        }
+    }
     
     private function remove_headers()
     {
@@ -431,9 +486,9 @@ class SecureHeaders{
     
     private function send_headers()
     {
-        foreach ($this->headers as $key => $value)
+        foreach ($this->headers as $key => $header)
         {
-            header($key . ($value === '' ? '' : ': ' . $value));
+            header($header['name'] . ($header['value'] === '' ? '' : ': ' . $header['value']));
         }
 
         foreach ($this->cookies as $name => $cookie)
@@ -457,6 +512,36 @@ class SecureHeaders{
                 $cookie['httponly']
             );
         }
+    }
+
+    private function deconstruct_header_value(string $header, string $name = null)
+    {
+        $attributes = array();
+        
+        if (isset($name) and strpos($name, 'content-security-policy') !== false)
+        {
+            $header_re = '/[; ]*([^; ]+)(?:(?:[ ])([^;]+)|)/';
+        }
+        else
+        {
+            $header_re = '/[; ]*([^;=]+)(?:(?:=)([^;]+)|)/';
+        }
+
+        if (preg_match_all($header_re, $header, $matches, PREG_SET_ORDER))
+        {
+            foreach ($matches as $match)
+            {
+                if ( ! isset($match[2])) $match[2] = true;
+
+                # don't overwrite an existing entry
+                if ( ! isset($attributes[strtolower($match[1])]))
+                { 
+                    $attributes[strtolower($match[1])] = $match[2];
+                }
+            }
+        }
+
+        return $attributes;
     }
 
     # ~~
@@ -648,20 +733,6 @@ class SecureHeaders{
 
     # ~~
     # private functions: Cookies
-
-    private function import_cookies()
-    {
-        # first grab any cookies out of already set PHP headers_list
-
-        $set_cookies = $this->preg_match_array('/^(set-cookie)[:][ ](.*)$/i', headers_list(), 1, 2);
-        header_remove('set-cookie');
-
-        # if any, add these to our internal cookie list
-        foreach ($set_cookies as $set_cookie)
-        {
-            $this->add_cookie($set_cookie[1], null, 1);
-        }
-    }
 
     private function modify_cookie(string $substr, string $flag)
     {
