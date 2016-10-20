@@ -10,6 +10,15 @@ class CustomSecureHeaders extends SecureHeaders{
 
         # add a csp policy, as specified in $base, defined below
         $this->csp($this->base);
+
+        $style = 'body {background: black;}';
+
+        $style_nonce = $this->csp_nonce();
+
+        $this->csp(array('style-src' => ["'nonce-$style_nonce'"]));
+
+        $this->csp(array('style-src' => [$this->csp_hash($style, null, 1)]));
+
         $this->add_csp_reporting('https://report-uri.example.com/csp', 1);
 
         setcookie('sess1', 'secret');
@@ -35,12 +44,12 @@ class CustomSecureHeaders extends SecureHeaders{
         );
 
         # use regular PHP function to add strict transport security
-        // header('Strict-Transport-Security: max-age=31536000; includeSubDomains; preload');
+        header('Strict-Transport-Security: max-age=31536000; includeSubDomains; preload');
 
         # enable safe-mode, which should auto-remove the above header
         # safe-mode will generate an error of level E_USER_NOTICE if it has to remove 
         # or modify any headers
-        $this->safe_mode();
+        // $this->safe_mode();
 
         # uncomment the next line to specifically allow HSTS in safe mode
         // $this->allow_in_safe_mode('Strict-Transport-Security');
