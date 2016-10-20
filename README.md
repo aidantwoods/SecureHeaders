@@ -1,5 +1,5 @@
 # SecureHeaders
-A PHP class aiming to make the use of browser security features more accessible, while allowing developers to safely experiment with these features to ensure they are configured correctly. Security headers also can be configured, or built using SecureHeaders. 
+A PHP class aiming to make the use of browser security features more accessible, while allowing developers to safely experiment with these features to ensure they are configured correctly.
 
 The project aims help increase the overall security of an application in-which it runs within. 
 
@@ -17,13 +17,48 @@ This project is currently under initial development, so there is the potential f
 * Safe mode prevents accidential self-DOS when using HSTS, or HPKP
 * Receive warnings about missing security headers (`level E_USER_WARNING`)
 
-## Usage
+## Basic Example
+An 'out-of-the-box' example is as follows:
+```php
+$headers = new SecureHeaders();
+$headers->done();
+```
+
+With such code, the following will occur:
+* Warnings will be issued (`E_USER_WARNING`)
+
+  ```
+  Warning: Missing security header: 'Strict-Transport-Security'
+  Warning: Missing security header: 'Content-Security-Policy'
+  ```
+* The following headers will be automatically added
+
+  ```
+  X-Content-Type-Options:nosniff
+  X-Frame-Options:Deny
+  X-XSS-Protection:1; mode=block
+  ```
+
+Additionally, if any cookies have been set (at any time before `->done()` is called) e.g.
+```php
+setcookie('auth', 'supersecretauthenticationstring');
+
+$headers = new SecureHeaders();
+$headers->done();
+```
+Even though in the current PHP configuration, cookie flags `Secure` and `HTTPOnly` do **not** default to on, the end result of the `Set-Cookie` header will be
+```
+Set-Cookie:auth=supersecretauthenticationstring; secure; HttpOnly
+```
+
+This is because the cookie name contains a keyword substring (`auth` in this case). When SecureHeaders sees this it will pro-actively inject the `Secure` and `HTTPOnly` flags into the cookie, in an effort to correct an error that could lead to session hijacking.
+
+
+## More on Usage
 *(section nowhere close to complete)*
 
 e.g. the following will combine `$baseCSP` with `$csp` to create an overall Content-Security-Policy.
 ```php
-import('SecureHeaders.php');
-
 $headers = new SecureHeaders();
 
 $baseCSP = array(
@@ -36,7 +71,10 @@ $csp = array(
   "style-src" => ["'nonce-$style_nonce'"],
   "script-src" => ["'nonce-$script_nonce'"]
 );
+
 $headers->csp($csp);
+
+$headers->done();
 ```
 
 The `SecureHeaders` class can also be extended, so that custom settings can be applied on all instances of the extension.
@@ -60,9 +98,6 @@ class CustomSecureHeaders extends SecureHeaders{
 ```
 
 ```php
-import('SecureHeaders.php');
-import('CustomSecureHeaders.php');
-
 $headers = new CustomSecureHeaders();
 
 $pageSpecificCSP = array(
@@ -70,7 +105,10 @@ $pageSpecificCSP = array(
   "style-src" => ["'nonce-$style_nonce'"],
   "script-src" => ["'nonce-$script_nonce'"]
 );
+
 $headers->csp($pageSpecificCSP);
+
+$headers->done();
 ```
 
 etc...
