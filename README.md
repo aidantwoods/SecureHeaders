@@ -32,8 +32,7 @@ $headers->hsts();
 $headers->csp($myCSP);
 ```
 
-These few lines of code will take an application from a grade F, to a grade A on https://securityheaders.io/
-
+These few lines of code will take an application from a grade F, to a grade A on Scott Helme's https://securityheaders.io/
 
 ## Basic Example 2
 An 'out-of-the-box' example is as follows:
