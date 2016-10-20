@@ -17,7 +17,25 @@ This project is currently under initial development, so there is the potential f
 * Safe mode prevents accidential self-DOS when using HSTS, or HPKP
 * Receive warnings about missing security headers (`level E_USER_WARNING`)
 
-## Basic Example
+## Basic Example 1
+Here is a good implementation example
+```
+$myCSP = array(
+    'default-src' => [
+        "'self'",
+        'https://my.cdn.org'
+    ]
+);
+
+$headers = new SecureHeaders();
+$headers->hsts();
+$headers->csp($myCSP);
+```
+
+These few lines of code will take an application from a grade F, to a grade A on https://securityheaders.io/
+
+
+## Basic Example 2
 An 'out-of-the-box' example is as follows:
 ```php
 $headers = new SecureHeaders();
@@ -44,7 +62,6 @@ With such code, the following will occur:
   X-Powered-By
   ```
 
-
 Additionally, if any cookies have been set (at any time before `->done()` is called) e.g.
 ```php
 setcookie('auth', 'supersecretauthenticationstring');
@@ -58,7 +75,6 @@ Set-Cookie:auth=supersecretauthenticationstring; secure; HttpOnly
 ```
 
 This is because the cookie name contains a keyword substring (`auth` in this case). When SecureHeaders sees this it will pro-actively inject the `Secure` and `HTTPOnly` flags into the cookie, in an effort to correct an error that could lead to session hijacking.
-
 
 ## More on Usage
 *(section nowhere close to complete)*
