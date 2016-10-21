@@ -328,13 +328,13 @@ class SecureHeaders{
         return true;
     }
 
-    public static function csp_hash(string $file, string $algo = null, $file_in_string = null)
+    public static function csp_hash(string $string, string $algo = null, $is_file = null)
     {
         if ( ! isset($algo)) $algo = 'sha256';
 
-        if ( ! isset($file_in_string)) $file_in_string = false;
+        if ( ! isset($is_file)) $is_file = false;
 
-        if ($file_in_string)
+        if ( ! $is_file)
         {
             $hash = hash($algo, $file, true);
         }
@@ -344,6 +344,11 @@ class SecureHeaders{
         }
 
         return "'$algo-" . base64_encode($hash) ."'";
+    }
+
+    public static function csp_hash_file(string $file, string $algo = null)
+    {
+        return $this->csp_hash($file, $algo, true);
     }
 
     public function csp_nonce()
@@ -444,6 +449,7 @@ class SecureHeaders{
         $this->send_headers();
 
         $this->report_missing_headers();
+        $this->validate_headers();
         $this->report_errors();
     }
 
@@ -542,6 +548,60 @@ class SecureHeaders{
         }
 
         return $attributes;
+    }
+
+    private function validate_headers()
+    {
+        foreach ($this->headers as $header => $data)
+        {
+            if ($header === 'content-security-policy' or $header === 'content-security-policy-report-only')
+            {
+                foreach ($data['attributes'] as $name => $value)
+                {
+                    if ($name === 'default-src' or $name === 'script-src')
+                    {
+                        $bad_flags = array("'unsafe-inline'", "'unsafe-eval'");
+
+                        foreach ($bad_flags as $bad_flag)
+                        {
+                            if (strpos($value, $bad_flag) !== false)
+                            {
+                                $this->add_error(
+                                    'Content Security Policy contains the <b>' . $bad_flag . '</b> keyword in '.
+                                    '<b>' . $name .'</b>, which prevents CSP protecting against the injection of '.
+                                    'arbitrary code into the page. ',
+                                    E_USER_WARNING
+                                );
+                            }
+                        }
+                    }
+
+                    if (preg_match_all('/(?:[ ]\Khttps?[:](?:\/\/)?[*]?|[ ]\K[*])(?=[ ;]|$)/', $value, $matches))
+                    {
+                        $this->add_error(
+                            'Content Security Policy '.(count($matches[0] > 1) ? 
+                            'contains the following wildcards ' : 'contains a wildcard ') . '<b>'.
+                            implode(', ', $matches[0]).'</b> as a '. 
+                            'source value in <b>'.$name.'</b>; this can allow anyone to insert '.
+                            'elements covered by the <b>'.$name.'</b> directive into the page.',
+                            E_USER_WARNING
+                        );
+                    }
+
+                    if (preg_match_all('/[ ]\Khttp[:][^ ]*/', $value, $matches))
+                    {
+                        $this->add_error(
+                            'Content Security Policy contains the insecure protocol HTTP in '.
+                            (count($matches[0] > 1) ? 'the following source values ' :  'a source value ').
+                            '<b>'.implode(', ', $matches[0]).'</b>; this can allow '.
+                            'anyone to insert elements covered by the <b>'.$name.'</b> directive '.
+                            'into the page.',
+                            E_USER_WARNING
+                        );
+                    }
+                }
+            }
+        }
     }
 
     # ~~
@@ -654,7 +714,10 @@ class SecureHeaders{
 
     private function compile_hsts()
     {
-        $error_extension = '<a href="https://scotthelme.co.uk/death-by-copy-paste/#hstsandpreloading">Read about</a> some common mistakes when setting HSTS via copy/paste, and ensure you <a href="https://www.owasp.org/index.php/HTTP_Strict_Transport_Security_Cheat_Sheet">understand the details</a> and possible side effects of this security feature before using it.';
+        $error_extension = '<a href="https://scotthelme.co.uk/death-by-copy-paste/#hstsandpreloading">
+        Read about</a> some common mistakes when setting HSTS via copy/paste, and ensure you 
+        <a href="https://www.owasp.org/index.php/HTTP_Strict_Transport_Security_Cheat_Sheet">
+        understand the details</a> and possible side effects of this security feature before using it.';
 
         if ( ! empty($this->hsts))
         {
