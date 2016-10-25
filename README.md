@@ -149,7 +149,7 @@ The following messages will be issued with regard to CSP: (`level E_USER_WARNING
   ```
 
 ## More on Usage
-*(section nowhere close to complete)*
+*This section of the README is a work in progress... and is probably very incomplete. Please refer to the source code, or the examples given above for feature highlights*
 
 e.g. the following will combine `$baseCSP` with `$csp` to create an overall Content-Security-Policy.
 ```php
@@ -216,9 +216,11 @@ $headers->done();
 
 etc...
 
+*(section nowhere close to complete)*
+
 This readme is incomplete, please refer to the source, or the (non-exhaustive) example file `CustomSecureHeaders.php` for full usage.
 
 
 #### TODO
 * HPKP reporting
-* Basic CSP analysis, and warnings when policy apprears unsafe
+~~* Basic CSP analysis, and warnings when policy apprears unsafe~~
