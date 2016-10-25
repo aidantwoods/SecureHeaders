@@ -178,26 +178,31 @@ e.g. `$baseCSP` on all pages.
 class CustomSecureHeaders extends SecureHeaders{
     public function __construct()
     {
-      $this->csp($this->base);
+        $this->csp($this->base);
     }
     private $base = array(
-      "default-src" => ["'self'"],
-      "style-src" => [
-        "'self'",
-        "https://fonts.googleapis.com/",
-        "https://cdnjs.cloudflare.com/ajax/libs/font-awesome/"
-      ]
+        "default-src" => ["'self'"],
+        "style-src" => [
+            "'self'",
+            "https://fonts.googleapis.com/",
+            "https://cdnjs.cloudflare.com/ajax/libs/font-awesome/"
+        ]
     );
+    
 }
 ```
 
 ```php
 $headers = new CustomSecureHeaders();
 
+# csp_allow_nonce will return the nonce value
+# and will add the nonce to the specified directive
+
+$style_nonce = $this->csp_allow_nonce('style');
+$script_nonce = $this->csp_allow_nonce('script');
+
 $pageSpecificCSP = array(
-  "frame-src" => ["https://www.example.com/"],
-  "style-src" => ["'nonce-$style_nonce'"],
-  "script-src" => ["'nonce-$script_nonce'"]
+    "frame-src" => ["https://www.example.com/"],
 );
 
 $headers->csp($pageSpecificCSP);
