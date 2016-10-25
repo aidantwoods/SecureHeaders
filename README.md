@@ -105,6 +105,7 @@ This is because the cookie name contains a keyword substring (`auth` in this cas
 ## Basic Example 3
 
 If the following CSP is created
+
 ```php
 $headers->csp_allow('default', '*');
 $headers->csp_allow('script', 'unsafe-inline');
@@ -112,6 +113,11 @@ $headers->csp_allow('script', 'http://insecure.cdn.org');
 $headers->csp_allow('style', 'https:');
 $headers->csp_allow('style', '*');
 $headers->add_csp_reporting('https://valid-enforced-url.org', 'whatisthis');
+```
+
+```
+Content-Security-Policy:default-src *; script-src 'unsafe-inline' http://insecure.cdn.org; style-src https: *; report-uri https://valid-enforced-url.org;
+Content-Security-Policy-Report-Only:default-src *; script-src 'unsafe-inline' http://insecure.cdn.org; style-src https: *; report-uri whatisthis;
 ```
 
 The following messages will be issued with regard to CSP: (`level E_USER_WARNING` and `level E_USER_NOTICE`)
