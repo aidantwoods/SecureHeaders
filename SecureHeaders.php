@@ -245,6 +245,11 @@ class SecureHeaders{
         $this->csp($csp, true);
     }
 
+    public function csp_ro(array $csp)
+    {
+        $this->csp_report_only($csp);
+    }
+
     public function add_csp_reporting(string $report_uri, $report_only_uri = null)
     {
         if (isset($report_only_uri) and ! is_string($report_only_uri))
@@ -328,6 +333,64 @@ class SecureHeaders{
         return true;
     }
 
+    public function remove_csp_directive(string $directive, $report_only = null)
+    {
+        $csp = &$this->get_csp_object($report_only);
+
+        if( ! isset($csp[$directive]))
+        {
+            return false;
+        }
+        
+        unset($csp[$directive]);
+
+        return true;
+    }
+
+    public function reset_csp($report_only = null)
+    {
+        $csp = &$this->get_csp_object($report_only);
+
+        $csp = array();
+    }
+
+    public function csp_allow(string $friendly_directive, string $friendly_source = null, $report_only = null)
+    {
+        $friendly_directive = strtolower($friendly_directive);
+
+        if (isset($this->csp_directive_shortcuts[$friendly_directive]))
+        {
+            $directive = $this->csp_directive_shortcuts[$friendly_directive];
+        }
+        else
+        {
+            $directive = $friendly_directive;
+        }
+
+        if (isset($this->csp_source_shortcuts[$friendly_source]))
+        {
+            $source = $this->csp_source_shortcuts[$friendly_source];
+        }
+        else
+        {
+            $source = $friendly_source;
+        }
+
+        $this->add_csp_source($directive, $source, $report_only);
+    }
+
+    public function csp_ro_allow(string $friendly_directive, string $friendly_source = null)
+    {
+        $this->csp_allow($friendly_directive, $friendly_source, true);
+    }
+
+    public function csp_allow_snippet(string $friendly_directive, string $string, string $algo = null, $is_file = null)
+    {
+        $hash_string = $this->csp_hash($string, $algo, $is_file);
+
+        $this->csp_allow($friendly_directive, $hash_string);
+    }
+
     public static function csp_hash(string $string, string $algo = null, $is_file = null)
     {
         if ( ! isset($algo)) $algo = 'sha256';
@@ -336,11 +399,11 @@ class SecureHeaders{
 
         if ( ! $is_file)
         {
-            $hash = hash($algo, $file, true);
+            $hash = hash($algo, $string, true);
         }
         else
         {
-            $hash = hash_file($algo, $file, true);
+            $hash = hash_file($algo, $string, true);
         }
 
         return "'$algo-" . base64_encode($hash) ."'";
@@ -349,6 +412,17 @@ class SecureHeaders{
     public static function csp_hash_file(string $file, string $algo = null)
     {
         return $this->csp_hash($file, $algo, true);
+    }
+
+    public function csp_allow_nonce(string $friendly_directive)
+    {
+        $nonce = $this->csp_nonce();
+
+        $nonce_string = "'nonce-$nonce'";
+
+        $this->csp_allow($friendly_directive, $nonce_string);
+
+        return $nonce;
     }
 
     public function csp_nonce()
@@ -520,8 +594,10 @@ class SecureHeaders{
         }
     }
 
-    private function deconstruct_header_value(string $header, string $name = null)
+    private function deconstruct_header_value(string $header = null, string $name = null)
     {
+        if ( ! isset($header)) return array();
+
         $attributes = array();
         
         if (isset($name) and strpos($name, 'content-security-policy') !== false)
@@ -554,8 +630,31 @@ class SecureHeaders{
     {
         foreach ($this->headers as $header => $data)
         {
+            $friendly_header = preg_replace_callback(
+                '/(?:^|-)([a-z])/',
+                function($match){
+                    return ' '.strtoupper($match[1]);
+                },
+                $header
+            );
             if ($header === 'content-security-policy' or $header === 'content-security-policy-report-only')
             {
+
+                if ( $header === 'content-security-policy-report-only'
+                and (
+                        ! isset($data['attributes']['report-uri']) 
+                    or  ! preg_match('/https:\/\/[a-z0-9\-]+[.][a-z]{2,}.*/i', $data['attributes']['report-uri'])
+                    )
+                )
+                {
+                    $this->add_error($friendly_header.' header was sent, but an invalid, or no reporting '.
+                        'address was given. '.
+                        'This header will not enforce violations, and with no reporting address specified,'.
+                        ' the browser can only report them locally in it\'s console. '.
+                        'Consider adding a reporting address to make full use of this header.'
+                    );
+                }
+
                 foreach ($data['attributes'] as $name => $value)
                 {
                     if ($name === 'default-src' or $name === 'script-src')
@@ -567,9 +666,9 @@ class SecureHeaders{
                             if (strpos($value, $bad_flag) !== false)
                             {
                                 $this->add_error(
-                                    'Content Security Policy contains the <b>' . $bad_flag . '</b> keyword in '.
+                                    $friendly_header.' contains the <b>' . $bad_flag . '</b> keyword in '.
                                     '<b>' . $name .'</b>, which prevents CSP protecting against the injection of '.
-                                    'arbitrary code into the page. ',
+                                    'arbitrary code into the page.',
                                     E_USER_WARNING
                                 );
                             }
@@ -579,7 +678,7 @@ class SecureHeaders{
                     if (preg_match_all('/(?:[ ]\Khttps?[:](?:\/\/)?[*]?|[ ]\K[*])(?=[ ;]|$)/', $value, $matches))
                     {
                         $this->add_error(
-                            'Content Security Policy '.(count($matches[0] > 1) ? 
+                            $friendly_header.' '.(count($matches[0]) > 1 ? 
                             'contains the following wildcards ' : 'contains a wildcard ') . '<b>'.
                             implode(', ', $matches[0]).'</b> as a '. 
                             'source value in <b>'.$name.'</b>; this can allow anyone to insert '.
@@ -591,8 +690,8 @@ class SecureHeaders{
                     if (preg_match_all('/[ ]\Khttp[:][^ ]*/', $value, $matches))
                     {
                         $this->add_error(
-                            'Content Security Policy contains the insecure protocol HTTP in '.
-                            (count($matches[0] > 1) ? 'the following source values ' :  'a source value ').
+                            $friendly_header.' contains the insecure protocol HTTP in '.
+                            (count($matches[0]) > 1 ? 'the following source values ' :  'a source value ').
                             '<b>'.implode(', ', $matches[0]).'</b>; this can allow '.
                             'anyone to insert elements covered by the <b>'.$name.'</b> directive '.
                             'into the page.',
@@ -891,16 +990,20 @@ class SecureHeaders{
 
     private static function error_handler($level, $message)
     {
-        if (error_reporting() & $level)
+        if (error_reporting() & $level and (strtolower(ini_get('display_errors')) === 'on' and ini_get('display_errors')))
         {
             if ($level === E_USER_NOTICE)
             {
-                echo '<strong>Notice:</strong> ' . $message . "<br><br>\n\n";
-                return true;
+                $error = '<strong>Notice:</strong> ' . $message . "<br><br>\n\n";
             }
             elseif ($level === E_USER_WARNING)
             {
-                echo '<strong>Warning:</strong> ' . $message . "<br><br>\n\n";
+                $error = '<strong>Warning:</strong> ' . $message . "<br><br>\n\n";
+            }
+
+            if (isset($error))
+            {
+                echo $error;
                 return true;
             }
         }
@@ -948,5 +1051,29 @@ class SecureHeaders{
 
     private $hsts = array();
     private $hpkp = array();
+
+    # private variables: (pre-defined static structures)
+
+    private $csp_directive_shortcuts = array(
+        'default'   =>  'default-src',
+        'script'    =>  'script-src',
+        'style'     =>  'style-src',
+        'image'     =>  'img-src',
+        'img'       =>  'img-src',
+        'font'      =>  'font-src',
+        'child'     =>  'child-src',
+        'base'      =>  'base-uri',
+        'connect'   =>  'connect-src',
+        'form'      =>  'form-action',
+        'object'    =>  'object-src'
+    );
+
+    private $csp_source_shortcuts = array(
+        'self' => "'self'",
+        'none' => "'none'",
+        'unsafe-inline' => "'unsafe-inline'",
+        'unsafe-eval' => "'unsafe-eval'",
+        'strict-dynamic' => "'strict-dynamic'",
+    );
 }
 ?>
