@@ -675,7 +675,7 @@ class SecureHeaders{
                         }
                     }
 
-                    if (preg_match_all('/(?:[ ]\Khttps?[:](?:\/\/)?[*]?|[ ]\K[*])(?=[ ;]|$)/', $value, $matches))
+                    if (preg_match_all('/(?:[ ]|^)\K(?:https?[:](?:\/\/)?[*]?|[*])(?=[ ;]|$)/', $value, $matches))
                     {
                         $this->add_error(
                             $friendly_header.' '.(count($matches[0]) > 1 ? 
@@ -687,7 +687,7 @@ class SecureHeaders{
                         );
                     }
 
-                    if (preg_match_all('/[ ]\Khttp[:][^ ]*/', $value, $matches))
+                    if (preg_match_all('/(?:[ ]|^)\Khttp[:][^ ]*/', $value, $matches))
                     {
                         $this->add_error(
                             $friendly_header.' contains the insecure protocol HTTP in '.
