@@ -145,7 +145,7 @@ The following messages will be issued with regard to CSP: (`level E_USER_WARNING
 * The report only header was sent, but no/an invalid reporting address was given – preventing the report only header from doing anything useful in the wild
 
   ```
-  Notice: Content Security Policy Report Only header was sent, but an invalid, or no reporting address was given. This header will not enforce violations, and with no reporting address specified, the browser can only report them locally in it's console. Consider adding a reporting address to make full use of this header.
+  Notice: Content Security Policy Report Only header was sent, but an invalid, or no reporting address was given. This header will not enforce violations, and with no reporting address specified, the browser can only report them locally in its console. Consider adding a reporting address to make full use of this header.
   ```
 
 ## More on Usage
