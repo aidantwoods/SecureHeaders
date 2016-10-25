@@ -650,7 +650,7 @@ class SecureHeaders{
                     $this->add_error($friendly_header.' header was sent, but an invalid, or no reporting '.
                         'address was given. '.
                         'This header will not enforce violations, and with no reporting address specified,'.
-                        ' the browser can only report them locally in it\'s console. '.
+                        ' the browser can only report them locally in its console. '.
                         'Consider adding a reporting address to make full use of this header.'
                     );
                 }
