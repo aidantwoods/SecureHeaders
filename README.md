@@ -223,4 +223,4 @@ This readme is incomplete, please refer to the source, or the (non-exhaustive) e
 
 #### TODO
 * HPKP reporting
-~~* Basic CSP analysis, and warnings when policy apprears unsafe~~
+* ~~Basic CSP analysis, and warnings when policy apprears unsafe~~
