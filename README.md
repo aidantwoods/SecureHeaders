@@ -160,10 +160,14 @@ $baseCSP = array(
 );
 $headers->csp($baseCSP);
 
+# csp_allow_nonce will return the nonce value
+# and will add the nonce to the specified directive
+
+$style_nonce = $this->csp_allow_nonce('style');
+$script_nonce = $this->csp_allow_nonce('script');
+
 $csp = array(
   "frame-src" => ["https://www.example.com/"],
-  "style-src" => ["'nonce-$style_nonce'"],
-  "script-src" => ["'nonce-$script_nonce'"]
 );
 
 $headers->csp($csp);
