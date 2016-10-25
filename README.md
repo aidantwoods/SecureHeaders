@@ -20,19 +20,45 @@ This project is currently under initial development, so there is the potential f
 ## Basic Example 1
 Here is a good implementation example
 ```php
+$headers = new SecureHeaders();
+$headers->hsts();
+$headers->csp_allow('default', 'self');
+$headers->csp_allow('script', 'https://my.cdn.org');
+```
+
+These few lines of code will take an application from a grade F, to a grade A on Scott Helme's https://securityheaders.io/
+
+The following ways of declaring the following CSP above are equivalent:
+```
+Content-Security-Policy:default-src 'self'; script-src 'self' https://my.cdn.org;
+```
+#### Method 1
+```php
+$headers->csp_allow('default', 'self');
+$headers->csp_allow('script', 'self');
+$headers->csp_allow('script', 'https://my.cdn.org');
+```
+#### Method 2
+```php
+$headers->csp_allow('default-src', 'self');
+$headers->csp_allow('script-src', 'self');
+$headers->csp_allow('script-src', 'https://my.cdn.org');
+```
+#### Method 3
+```php
 $myCSP = array(
     'default-src' => [
+        "'self'"
+    ],
+    'script-src' => [
         "'self'",
         'https://my.cdn.org'
     ]
 );
-
-$headers = new SecureHeaders();
-$headers->hsts();
 $headers->csp($myCSP);
 ```
 
-These few lines of code will take an application from a grade F, to a grade A on Scott Helme's https://securityheaders.io/
+All of the above can be mixed in any order and will result in merged policies
 
 ## Basic Example 2
 An 'out-of-the-box' example is as follows:
@@ -74,6 +100,47 @@ Set-Cookie:auth=supersecretauthenticationstring; secure; HttpOnly
 ```
 
 This is because the cookie name contains a keyword substring (`auth` in this case). When SecureHeaders sees this it will pro-actively inject the `Secure` and `HTTPOnly` flags into the cookie, in an effort to correct an error that could lead to session hijacking.
+
+
+## Basic Example 3
+
+If the following CSP is created
+```php
+$headers->csp_allow('default', '*');
+$headers->csp_allow('script', 'unsafe-inline');
+$headers->csp_allow('script', 'http://insecure.cdn.org');
+$headers->csp_allow('style', 'https:');
+$headers->csp_allow('style', '*');
+$headers->add_csp_reporting('https://valid-enforced-url.org', 'whatisthis');
+```
+
+The following messages will be issued with regard to CSP: (`level E_USER_WARNING` and `level E_USER_NOTICE`)
+
+* The default-src directive contains a wildcard (so is a CSP bypass)
+
+  ```
+  Warning: Content Security Policy contains a wildcard * as a source value in default-src; this can allow anyone to insert elements covered by the default-src directive into the page.
+  ```
+* The script-src directive contains an a flag that allows inline script (so is a CSP bypass)
+
+  ```
+  Warning: Content Security Policy contains the 'unsafe-inline' keyword in script-src, which prevents CSP protecting against the injection of arbitrary code into the page.
+  ```
+* The script-src directive contains an insecure resource as a source value (HTTP responses can be trivially spoofed – spoofing allows a bypass)
+
+  ```
+  Warning: Content Security Policy contains the insecure protocol HTTP in a source value http://insecure.cdn.org; this can allow anyone to insert elements covered by the script-src directive into the page.
+  ```
+* The style-src directive contains two wildcards (so is a CSP bypass) – both wildcards are listed
+
+  ```
+  Warning: Content Security Policy contains the following wildcards https:, * as a source value in style-src; this can allow anyone to insert elements covered by the style-src directive into the page.
+  ```
+* The report only header was sent, but no/an invalid reporting address was given – preventing the report only header from doing anything useful in the wild
+
+  ```
+  Notice: Content Security Policy Report Only header was sent, but an invalid, or no reporting address was given. This header will not enforce violations, and with no reporting address specified, the browser can only report them locally in it's console. Consider adding a reporting address to make full use of this header.
+  ```
 
 ## More on Usage
 *(section nowhere close to complete)*
