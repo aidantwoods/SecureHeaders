@@ -3,7 +3,8 @@ A PHP class aiming to make the use of browser security features more accessible,
 
 The project aims help increase the overall security of an application in-which it runs within. 
 
-Sometimes this is most appropriately applied through feedback. SecureHeaders will issue warnings (`level E_USER_WARNING`) and notices (`level E_USER_NOTICE`) at runtime when it notices something is wrong. 
+Sometimes this is most appropriately applied through feedback. SecureHeaders will issue warnings (`level E_USER_WARNING`) and notices (`level E_USER_NOTICE`) at runtime when it notices something is wrong.
+As per standard practice, it is advised that errors are turned off in any live system. SecureHeaders will respect the standard PHP `error_reporting` settings, and will also respect the `display_errors` configuration. 
 
 In some cases, correcting insecure behaviour is best done pro-actively. SecureHeaders will modify or add headers (where safe to do so). (This can of course be granularly controlled, or outright disabled). This includes adding security flags to cookies with certain keywords in their names in an effort to protect session data. And also by adding missing security headers to automatically enable client browser security features.
 
