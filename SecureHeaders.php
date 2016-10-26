@@ -157,8 +157,15 @@ class SecureHeaders{
     # public functions: raw headers
 
     public function add_header(
-        string $name, string $value = null, boolean $attempt_name_correction = null
+        string $name, string $value = null, boolean $attempt_name_correction = null, $proposal = null
     ){
+        if (isset($proposal) and $proposal and isset($this->removed_headers[strtolower($name)]))
+        {
+            # a proposal header will only be added if the intented header
+            # has not been staged for removal
+            return;
+        }
+
         if ( ! isset($attempt_name_correction)) $attempt_name_correction = true;
 
         if ( ! isset($auto_caps)) $auto_caps = true;
@@ -199,12 +206,12 @@ class SecureHeaders{
             foreach ($headers as $header)
             {
                 unset($this->headers[$header]);
-
-                $this->removed_headers[$header] = null;
             }
 
             return true;
         }
+
+        $this->removed_headers[strtolower($name)] = true;
 
         return false;
     }
@@ -985,9 +992,9 @@ class SecureHeaders{
         if ($this->automatic_headers['add'])
         {
             # security headers for all (HTTP and HTTPS) connections
-            $this->add_header('X-XSS-Protection', '1; mode=block');
-            $this->add_header('X-Content-Type-Options', 'nosniff');
-            $this->add_header('X-Frame-Options', 'Deny');
+            $this->add_header('X-XSS-Protection', '1; mode=block', null, true);
+            $this->add_header('X-Content-Type-Options', 'nosniff', null, true);
+            $this->add_header('X-Frame-Options', 'Deny', null, true);
         }
 
         if($this->automatic_headers['remove'])
