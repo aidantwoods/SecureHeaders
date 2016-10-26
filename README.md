@@ -149,7 +149,7 @@ The following messages will be issued with regard to CSP: (`level E_USER_WARNING
   ```
 
 ## More on Usage
-*(section nowhere close to complete)*
+*This section of the README is a work in progress... and is probably very incomplete. Please refer to the source code, or the examples given above for feature highlights*
 
 e.g. the following will combine `$baseCSP` with `$csp` to create an overall Content-Security-Policy.
 ```php
@@ -160,10 +160,14 @@ $baseCSP = array(
 );
 $headers->csp($baseCSP);
 
+# csp_allow_nonce will return the nonce value
+# and will add the nonce to the specified directive
+
+$style_nonce = $this->csp_allow_nonce('style');
+$script_nonce = $this->csp_allow_nonce('script');
+
 $csp = array(
   "frame-src" => ["https://www.example.com/"],
-  "style-src" => ["'nonce-$style_nonce'"],
-  "script-src" => ["'nonce-$script_nonce'"]
 );
 
 $headers->csp($csp);
@@ -178,26 +182,31 @@ e.g. `$baseCSP` on all pages.
 class CustomSecureHeaders extends SecureHeaders{
     public function __construct()
     {
-      $this->csp($this->base);
+        $this->csp($this->base);
     }
     private $base = array(
-      "default-src" => ["'self'"],
-      "style-src" => [
-        "'self'",
-        "https://fonts.googleapis.com/",
-        "https://cdnjs.cloudflare.com/ajax/libs/font-awesome/"
-      ]
+        "default-src" => ["'self'"],
+        "style-src" => [
+            "'self'",
+            "https://fonts.googleapis.com/",
+            "https://cdnjs.cloudflare.com/ajax/libs/font-awesome/"
+        ]
     );
+    
 }
 ```
 
 ```php
 $headers = new CustomSecureHeaders();
 
+# csp_allow_nonce will return the nonce value
+# and will add the nonce to the specified directive
+
+$style_nonce = $this->csp_allow_nonce('style');
+$script_nonce = $this->csp_allow_nonce('script');
+
 $pageSpecificCSP = array(
-  "frame-src" => ["https://www.example.com/"],
-  "style-src" => ["'nonce-$style_nonce'"],
-  "script-src" => ["'nonce-$script_nonce'"]
+    "frame-src" => ["https://www.example.com/"],
 );
 
 $headers->csp($pageSpecificCSP);
@@ -207,9 +216,11 @@ $headers->done();
 
 etc...
 
+*(section nowhere close to complete)*
+
 This readme is incomplete, please refer to the source, or the (non-exhaustive) example file `CustomSecureHeaders.php` for full usage.
 
 
 #### TODO
 * HPKP reporting
-* Basic CSP analysis, and warnings when policy apprears unsafe
+* ~~Basic CSP analysis, and warnings when policy apprears unsafe~~
