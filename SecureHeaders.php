@@ -31,10 +31,19 @@ class SecureHeaders{
         'safe-session-cookie' => true
     );
 
-    private $protected_cookie_substrings = array(
-        'sess',
-        'auth',
-        'login'
+    private $protected_cookie_identifiers = array(
+        'substrings' => array(
+            'sess',
+            'auth',
+            'login',
+            'csrf',
+            'token'
+        ),
+        'names' => array(
+            'sid',
+            's',
+            'persistent'
+        )
     );
 
     private $report_missing_headers = array(
@@ -112,19 +121,35 @@ class SecureHeaders{
         }
     }
 
+    public function add_protected_cookie_name(string $name)
+    {
+        if ( ! in_array(strtolower($name), $this->protected_cookie_identifiers['names']))
+        {
+            $this->protected_cookie_identifiers['names'][] = strtolower($name);
+        }
+    }
+
+    public function remove_protected_cookie_name(string $name)
+    {
+        if (($key = array_search(strtolower($name), $this->protected_cookie_identifiers['names'])) !== false)
+        {
+            unset($this->protected_cookie_identifiers['names'][$key]);
+        }
+    }
+
     public function add_protected_cookie_substring(string $substr)
     {
-        if ( ! in_array($substr, $this->protected_cookie_substrings))
+        if ( ! in_array(strtolower($substr), $this->protected_cookie_identifiers['substrings']))
         {
-            $this->protected_cookie_substrings[] = strtolower($substr);
+            $this->protected_cookie_identifiers['substrings'][] = strtolower($substr);
         }
     }
 
     public function remove_protected_cookie_substring(string $substr)
     {
-        if (($key = array_search($substr, $this->protected_cookie_substrings)) !== false)
+        if (($key = array_search(strtolower($substr), $this->protected_cookie_identifiers['substrings'])) !== false)
         {
-            unset($this->protected_cookie_substrings[$key]);
+            unset($this->protected_cookie_identifiers['substrings'][$key]);
         }
     }
 
@@ -896,12 +921,15 @@ class SecureHeaders{
     # ~~
     # private functions: Cookies
 
-    private function modify_cookie(string $substr, string $flag)
+    private function modify_cookie(string $substr, string $flag, $full_match = null)
     {
+        if ( ! isset($full_match)) $full_match = false;
+
         foreach ($this->cookies as $cookie_name => $cookie)
         {
-            if (strpos(strtolower($cookie_name), $substr) !== false)
-            {
+            if (    ($full_match and $substr === strtolower($cookie_name)) 
+                or  ( ! $full_match and strpos(strtolower($cookie_name), $substr) !== false)
+            ){
                 $this->cookies[$cookie_name][strtolower($flag)] = true;
             }
         }
@@ -972,18 +1000,28 @@ class SecureHeaders{
         if($this->automatic_headers['secure-session-cookie'])
         {
             # add a secure flag to cookies that look like they hold session data
-            foreach ($this->protected_cookie_substrings as $substr)
+            foreach ($this->protected_cookie_identifiers['substrings'] as $substr)
             {
                 $this->modify_cookie($substr, 'secure');
+            }
+
+            foreach ($this->protected_cookie_identifiers['names'] as $name)
+            {
+                $this->modify_cookie($name, 'secure', true);
             }
         }
 
         if($this->automatic_headers['safe-session-cookie'])
         {
             # add a httpOnly flag to cookies that look like they hold session data
-            foreach ($this->protected_cookie_substrings as $substr)
+            foreach ($this->protected_cookie_identifiers['substrings'] as $substr)
             {
                 $this->modify_cookie($substr, 'httpOnly');
+            }
+
+            foreach ($this->protected_cookie_identifiers['names'] as $name)
+            {
+                $this->modify_cookie($name, 'httpOnly', true);
             }
         }
     }
