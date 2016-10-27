@@ -225,3 +225,4 @@ This readme is incomplete, please refer to the source, or the (non-exhaustive) e
 #### TODO
 * HPKP reporting
 * ~~Basic CSP analysis, and warnings when policy apprears unsafe~~
+* Import hsts and hpkp policies, reconfigure safemode to use maximums only (do not remove manually set headers, but modify them if unsafe)
