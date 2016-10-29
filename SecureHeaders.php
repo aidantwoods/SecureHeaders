@@ -792,7 +792,7 @@ class SecureHeaders{
     {
         foreach ($csp as $friendly_directive => $sources)
         {
-            if (is_array($sources))
+            if (is_array($sources) and ! empty($sources))
             {
                 foreach ($sources as $friendly_source)
                 {
@@ -808,8 +808,10 @@ class SecureHeaders{
             }
             else
             {
+                if (is_array($sources) and empty($sources)) $sources = null;
+                
                 # special case that $sources isn't an array (possibly a string source, 
-                # or null – indicating the directive is a flag)
+                # or null (or an empty array) – indicating the directive is a flag)
                 $this->csp_allow($friendly_directive, $sources, $report_only);
             }
         }
