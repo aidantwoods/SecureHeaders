@@ -266,12 +266,12 @@ class SecureHeaders{
         $args = func_get_args();
         $num = count($args);
 
-        # look for a bool or common intgers used in place of bools
+        # look for a bool or intgers (commonly used in place of bools)
         # if one is found the first of which is loosly interpreted as
         # the setting for report only, remaining are ignored
         foreach ($args as $arg)
         {
-            if (is_bool($arg) or $arg === 1 or $arg === 0)
+            if (is_bool($arg) or is_int($arg))
             {
                 $report_only = ($arg == true);
                 break;
@@ -316,9 +316,23 @@ class SecureHeaders{
         }
     }
 
-    public function cspro($friendly_directive, string $friendly_source = null)
+    public function cspro()
     {
-        $this->csp_report_only($friendly_directive, $friendly_source, true);
+        $args = func_get_args();
+
+        foreach ($args as $i => $arg)
+        {
+            if (is_bool($arg) or is_int($arg))
+            {
+                unset($args[$i]);
+            }
+        }
+
+        $args = array_values($args);
+
+        array_unshift($args, true);
+
+        call_user_func_array(array($this, 'csp'), $args);
     }
 
      # Content-Security-Policy: Reporting
