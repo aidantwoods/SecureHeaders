@@ -14,6 +14,7 @@ This project is currently under initial development, so there is the potential f
 ## Features
 * Add/remove and manage headers easily
 * Build a Content Security Policy, or combine multiple together
+* Content Security Policy analysis – obvious bypasses are reported as errors
 * Correct cookie flags on already set cookies to add httpOnly and secure flags, (if the cookies appear to be session related)
 * Safe mode prevents accidential self-DOS when using HSTS, or HPKP
 * Receive warnings about missing security headers (`level E_USER_WARNING`)
