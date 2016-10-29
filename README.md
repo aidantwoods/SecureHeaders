@@ -18,48 +18,19 @@ This project is currently under initial development, so there is the potential f
 * Safe mode prevents accidential self-DOS when using HSTS, or HPKP
 * Receive warnings about missing security headers (`level E_USER_WARNING`)
 
-## Basic Example 1
+## Basic Example
 Here is a good implementation example
 ```php
 $headers = new SecureHeaders();
 $headers->hsts();
-$headers->csp_allow('default', 'self');
-$headers->csp_allow('script', 'https://my.cdn.org');
+$headers->csp('default', 'self');
+$headers->csp('script', 'https://my.cdn.org');
 ```
 
 These few lines of code will take an application from a grade F, to a grade A on Scott Helme's https://securityheaders.io/
 
-The following ways of declaring the following CSP above are equivalent:
-```
-Content-Security-Policy:default-src 'self'; script-src 'self' https://my.cdn.org;
-```
-#### Method 1
-```php
-$headers->csp_allow('default', 'self');
-$headers->csp_allow('script', 'self');
-$headers->csp_allow('script', 'https://my.cdn.org');
-```
-#### Method 2
-```php
-$headers->csp_allow('default-src', 'self');
-$headers->csp_allow('script-src', 'self');
-$headers->csp_allow('script-src', 'https://my.cdn.org');
-```
-#### Method 3
-```php
-$myCSP = array(
-    'default-src' => [
-        "'self'"
-    ],
-    'script-src' => [
-        "'self'",
-        'https://my.cdn.org'
-    ]
-);
-$headers->csp($myCSP);
-```
+Note that in the above, SecureHeaders has accepted a CSP directive shorthand, namely `default` and `script`, each corresponding to the `default-src` and `script-src` directives respectively. SecureHeaders will look for any shorthands it recognised, but will keep values it doesn't in tact – so that both the full directive name, or the shorthand can be used. For a more in-depth explanation on the `csp` function used here, see [Using CSP](#using-csp) 
 
-All of the above can be mixed in any order and will result in merged policies
 
 ## Basic Example 2
 An 'out-of-the-box' example is as follows:
@@ -108,11 +79,11 @@ This is because the cookie name contains a keyword substring (`auth` in this cas
 If the following CSP is created
 
 ```php
-$headers->csp_allow('default', '*');
-$headers->csp_allow('script', 'unsafe-inline');
-$headers->csp_allow('script', 'http://insecure.cdn.org');
-$headers->csp_allow('style', 'https:');
-$headers->csp_allow('style', '*');
+$headers->csp('default', '*');
+$headers->csp('script', 'unsafe-inline');
+$headers->csp('script', 'http://insecure.cdn.org');
+$headers->csp('style', 'https:');
+$headers->csp('style', '*');
 $headers->add_csp_reporting('https://valid-enforced-url.org', 'whatisthis');
 ```
 
@@ -148,6 +119,119 @@ The following messages will be issued with regard to CSP: (`level E_USER_WARNING
   ```
   Notice: Content Security Policy Report Only header was sent, but an invalid, or no reporting address was given. This header will not enforce violations, and with no reporting address specified, the browser can only report them locally in its console. Consider adding a reporting address to make full use of this header.
   ```
+
+## Using CSP
+Let's take a look at a few ways of declaring the following CSP (newlines and indentation added here for readability)
+```
+Content-Security-Policy:
+    default-src 'self'; 
+    script-src 'self' https://my.cdn.org https://scripts.cdn.net https://other.cdn.com; 
+    img-src https://images.cdn.xyz; 
+    style-src https://amazingstylesheets.cdn.pizza; 
+    base-uri 'self'; 
+    form-action 'none'; 
+    upgrade-insecure-requests; 
+    block-all-mixed-content;
+```
+#### CSP as an array
+```php
+$myCSP = array(
+    'default-src' => [
+        "'self'"
+    ],
+    'script-src' => [
+        'self',
+        'https://my.cdn.org',
+        'https://scripts.cdn.net',
+        'https://other.cdn.com'
+    ],
+    'img-src' => ['https://images.cdn.xyz'],
+    'style-src' => 'https://amazingstylesheets.cdn.pizza',
+    'base' => 'self',
+    'form' => 'none',
+    'upgrade-insecure-requests' => [],
+    'block-all-mixed-content'
+);
+
+$headers->csp($myCSP);
+```
+
+In the above, we've specified the policy using an array in the way it makes the most sense (bar some slight variation to demonstrate supported syntax).
+We then passed our policy array to the `csp` function.
+
+Within the array, take a look at `default-src`. This is the full directive name (the key of the array), and its source list is specified as an array containing source values. In this case, the directive only has one source value, `'self'`, which is spelled out in full (note the single quotes within the string).
+
+In this case, we've actually written a lot more than nessesary – see the directive `base` for comparison. The actual CSP directive here is `base-uri`, but `base` is a supported shorthand by SecureHeaders. Secondly, we've ommited the array syntax from the decending source list entirely – we only wanted to declare one valid source, so SecureHeaders supports foregoing the array structure if its not useful. Additionally, we've made use of a shorthand within the source value too – omitting the single quotes from the string's value (i.e. `self` is a shorthand for `'self'`).
+
+There are two CSP 'flags' included also in this policy, namely `upgrade-insecure-requests` and `block-all-mixed-content`. These do not hold any source values (and would not be valid in CSP if they did). You can specify these by either giving an empty array, an array containing only `null`, or forgoing any mention of decendents entirely (as shown in `block-all-mixed-content`, which is written as-is).
+
+The `csp` function also supports mixing and combining these CSP arrays, so the following would combine the csp defined in `$myCSP`, and `$myOtherCSP`. You can combine as many csp arrays as you like by adding additional arguments.
+
+```php
+$headers->csp($myCSP, $myOtherCSP);
+```
+
+#### CSP as ordered pairs
+Using the same `csp` function as above, you can add sources to directives as follows
+```php
+$headers->csp('default', 'self');
+$headers->csp('script', 'self');
+$headers->csp('script', 'https://my.cdn.org');
+```
+or if you prefer to do this all in one line
+```php
+$headers->csp('default', 'self', 'script', 'self', 'script', 'https://my.cdn.org');
+```
+
+Note that directives and sources are specified as ordered pairs here.
+
+If you wanted to add a CSP flag in this way, simply use one of the following.
+```php
+$headers->csp('upgrade-insecure-requests');
+$headers->csp('block-all-mixed-content', null);
+```
+Note that the second way is nessasary if embedded in a list of ordered pairs – otherwise SecureHeaders can't tell what is a directive name or a source value.
+e.g. this would set `block-all-mixed-content` as a CSP flag, and `https://my.cdn.org` as a script-src source value.
+```php
+$headers->csp('block-all-mixed-content', null, 'script', 'https://my.cdn.org');
+```
+
+**However**, the `csp` function also supports mixing these ordered pairs with the array structure, and a string without a source at the end of the argument list will also be treated as a flag. You could, *in perhaps an abuse of notation*, use the following to set two CSP flags and the policy contained in the `$csp` array strucure.
+
+```php
+$headers->csp('block-all-mixed-content', $csp, 'upgrade-insecure-requests');
+```
+
+#### CSP as, uhh..
+The CSP function aims to be as tolerant as possible, a CSP should be able to be communicated in whatever way is easiest to you.
+
+That said, please use responsibly – the following is quite hard to read
+
+```php
+$myCSP = array(
+    'default-src' => [
+        "'self'"
+    ],
+    'script-src' => [
+        "'self'",
+        'https://my.cdn.org'
+    ],
+    'script' => [
+        'https://scripts.cdn.net'
+    ],
+);
+
+$myotherCSP = array(
+    'base' => 'self'
+);
+
+$whoopsIforgotThisCSP = array(
+    'form' => 'none'
+);
+
+$this->csp($myCSP, 'script', 'https://other.cdn.com', ['block-all-mixed-content'], 'img', 'https://images.cdn.xyz', $myotherCSP);
+$this->csp('style', 'https://amazingstylesheets.cdn.pizza', $whoopsIforgotThisCSP, 'upgrade-insecure-requests');
+```
 
 ## More on Usage
 *This section of the README is a work in progress... and is probably very incomplete. Please refer to the source code, or the examples given above for feature highlights*
