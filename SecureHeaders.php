@@ -261,26 +261,67 @@ class SecureHeaders{
     # ~~
     # public functions: Content-Security-Policy (CSP)
 
-    public function csp(array $csp, $report_only = false)
+    public function csp()
     {
-        foreach ($csp as $directive => $sources)
+        $args = func_get_args();
+        $num = count($args);
+
+        # look for a bool or common intgers used in place of bools
+        # if one is found the first of which is loosly interpreted as
+        # the setting for report only, remaining are ignored
+        foreach ($args as $arg)
         {
-            foreach ($sources as $source)
+            if (is_bool($arg) or $arg === 1 or $arg === 0)
             {
-                $this->add_csp_source($directive, $source, $report_only);
+                $report_only = ($arg == true);
+                break;
+            }
+        }
+        # if no such items can be found, default to enforced csp
+        if ( ! isset($report_only)) $report_only = false;
+
+        # look at all the arguments
+        for ($i = 0; $i < $num; $i++)
+        {
+            $arg = $args[$i];
+
+            # if the arg is an array, then treat is as an entire policy and move on
+            if (is_array($arg))
+            {
+                $this->csp_array($arg, $report_only);
+            }
+            # if the arg is a string
+            elseif (is_string($arg))
+            {
+                # then the arg is the directive name
+                $friendly_directive = $arg;
+
+                # if we've specified a source value (string: source, or null: directive is flag)
+                if (($i + 1 < $num) and (is_string($args[$i+1]) or is_null($args[$i+1])))
+                {
+                    # then use the value we specified, and skip over the next item in the loop
+                    # (since we just used it as a source value)
+                    $friendly_source = $args[$i+1];
+                    $i++;
+                }
+                # if no source is specified (either no more args, or one of unsupported type)
+                else
+                {
+                    # assume that the directive is a flag
+                    $friendly_source = null;
+                }
+
+                $this->csp_allow($friendly_directive, $friendly_source, $report_only);
             }
         }
     }
 
-    public function csp_report_only(array $csp)
+    public function cspro($friendly_directive, string $friendly_source = null)
     {
-        $this->csp($csp, true);
+        $this->csp_report_only($friendly_directive, $friendly_source, true);
     }
 
-    public function csp_ro(array $csp)
-    {
-        $this->csp_report_only($csp);
-    }
+     # Content-Security-Policy: Reporting
 
     public function add_csp_reporting(string $report_uri, $report_only_uri = null)
     {
@@ -300,6 +341,8 @@ class SecureHeaders{
     {
         $this->csp_reporting = array();
     }
+
+     # Content-Security-Policy: Settings
 
     public function csp_duplicate($mode)
     {
@@ -325,31 +368,7 @@ class SecureHeaders{
         $this->csp_legacy = false;
     }
 
-    public function add_csp_source(string $directive, string $source = null, $report_only = null)
-    {
-        $csp = &$this->get_csp_object($report_only);
-
-        if( ! isset($csp[$directive]))
-        { 
-            $this->add_csp_directive($directive, null, $report_only);
-        }
-
-        if($csp[$directive] === null) 
-        {
-            return false;
-        }
-
-        if (isset($source))
-        {
-            $csp[$directive][$source] = null;
-        }
-        else
-        {
-            $csp[$directive] = null;
-        }
-
-        return true;
-    }
+    # Content-Security-Policy: Policy string removals
 
     public function remove_csp_source(string $directive, string $source, $report_only = null)
     {
@@ -386,90 +405,52 @@ class SecureHeaders{
         $csp = array();
     }
 
-    public function csp_allow(string $friendly_directive, string $friendly_source = null, $report_only = null)
-    {
-        $friendly_directive = strtolower($friendly_directive);
+    # Content-Security-Policy: Hashing
 
-        if (isset($this->csp_directive_shortcuts[$friendly_directive]))
-        {
-            $directive = $this->csp_directive_shortcuts[$friendly_directive];
-        }
-        else
-        {
-            $directive = $friendly_directive;
-        }
-
-        if (isset($this->csp_source_shortcuts[$friendly_source]))
-        {
-            $source = $this->csp_source_shortcuts[$friendly_source];
-        }
-        else
-        {
-            $source = $friendly_source;
-        }
-
-        $this->add_csp_source($directive, $source, $report_only);
-    }
-
-    public function csp_ro_allow(string $friendly_directive, string $friendly_source = null)
-    {
-        $this->csp_allow($friendly_directive, $friendly_source, true);
-    }
-
-    public function csp_allow_snippet(string $friendly_directive, string $string, string $algo = null, $is_file = null)
-    {
-        $hash_string = $this->csp_hash($string, $algo, $is_file);
-
-        $this->csp_allow($friendly_directive, $hash_string);
-    }
-
-    public static function csp_hash(string $string, string $algo = null, $is_file = null)
+    public function csp_hash(string $friendly_directive, string $string, string $algo = null, $is_file = null, $report_only = null)
     {
         if ( ! isset($algo)) $algo = 'sha256';
 
-        if ( ! isset($is_file)) $is_file = false;
+        $hash = $this->csp_do_hash($string, $algo, $is_file);
 
-        if ( ! $is_file)
-        {
-            $hash = hash($algo, $string, true);
-        }
-        else
-        {
-            $hash = hash_file($algo, $string, true);
-        }
+        $hash_string = "'$algo-" . $hash ."'";
 
-        return "'$algo-" . base64_encode($hash) ."'";
+        $this->csp_allow($friendly_directive, $hash_string, $report_only);
+
+        return $hash;
     }
 
-    public static function csp_hash_file(string $file, string $algo = null)
+    public function cspro_hash(string $friendly_directive, string $string, string $algo = null, $is_file = null)
     {
-        return $this->csp_hash($file, $algo, true);
+        return $this->csp_hash($friendly_directive, $string, $algo, $is_file, true);
     }
 
-    public function csp_allow_nonce(string $friendly_directive)
+    public function csp_hash_file(string $friendly_directive, string $string, string $algo = null, $report_only = null)
     {
-        $nonce = $this->csp_nonce();
+        return $this->csp_hash($friendly_directive, $string, $algo, true, $report_only);
+    }
+
+    public function cspro_hash_file(string $friendly_directive, string $string, string $algo = null)
+    {
+        return $this->csp_hash($friendly_directive, $string, $algo, true, true);
+    }
+ 
+    # Content-Security-Policy: Nonce
+
+    public function csp_nonce(string $friendly_directive, $report_only = null)
+    {
+        $nonce = $this->csp_generate_nonce();
 
         $nonce_string = "'nonce-$nonce'";
 
-        $this->csp_allow($friendly_directive, $nonce_string);
+        $this->csp_allow($friendly_directive, $nonce_string,$report_only);
 
         return $nonce;
     }
 
-    public function csp_nonce()
+    public function cspro_nonce(string $friendly_directive)
     {
-        $nonce = base64_encode(openssl_random_pseudo_bytes(30, $crypto_strong));
-
-        if ( ! $crypto_strong)
-        {
-            $this->add_error(
-                'OpenSSL (openssl_random_pseudo_bytes) reported that it did <strong>not</strong>
-                use a cryptographically strong algorithm to generate the nonce for CSP.', 
-                E_USER_WARNING);
-        }
-
-        return $nonce;
+        return $this->csp_nonce($friendly_directive, true);
     }
 
     # ~~
@@ -738,6 +719,88 @@ class SecureHeaders{
     # ~~
     # private functions: Content-Security-Policy (CSP)
 
+    # Content-Security-Policy: Policy string additions
+
+    private function csp_allow(string $friendly_directive, string $friendly_source = null, $report_only = null)
+    {
+        $friendly_directive = strtolower($friendly_directive);
+
+        if (isset($this->csp_directive_shortcuts[$friendly_directive]))
+        {
+            $directive = $this->csp_directive_shortcuts[$friendly_directive];
+        }
+        else
+        {
+            $directive = $friendly_directive;
+        }
+
+        if (isset($this->csp_source_shortcuts[$friendly_source]))
+        {
+            $source = $this->csp_source_shortcuts[$friendly_source];
+        }
+        else
+        {
+            $source = $friendly_source;
+        }
+
+        $this->add_csp_source($directive, $source, $report_only);
+    }
+
+    private function add_csp_source(string $directive, string $source = null, $report_only = null)
+    {
+        $csp = &$this->get_csp_object($report_only);
+
+        if( ! isset($csp[$directive]))
+        { 
+            $this->add_csp_directive($directive, null, $report_only);
+        }
+
+        if($csp[$directive] === null) 
+        {
+            return false;
+        }
+
+        if (isset($source))
+        {
+            $csp[$directive][$source] = null;
+        }
+        else
+        {
+            $csp[$directive] = null;
+        }
+
+        return true;
+    }
+
+    # Content-Security-Policy: Policy as array
+
+    private function csp_array(array $csp, $report_only = false)
+    {
+        foreach ($csp as $friendly_directive => $sources)
+        {
+            if (is_array($sources))
+            {
+                foreach ($sources as $friendly_source)
+                {
+                    $this->csp_allow($friendly_directive, $friendly_source, $report_only);
+                }
+            }
+            elseif (is_int($friendly_directive) and is_string($sources))
+            {
+                # special case that $sources is actually a directive name, with an int index
+                $friendly_directive = $sources;
+                # we'll treat this case as a CSP flag
+                $this->csp_allow($friendly_directive, null, $report_only);
+            }
+            else
+            {
+                # special case that $sources isn't an array (possibly a string source, 
+                # or null – indicating the directive is a flag)
+                $this->csp_allow($friendly_directive, $sources, $report_only);
+            }
+        }
+    }
+
     private function compile_csp()
     {
         $csp_string = '';
@@ -840,6 +903,47 @@ class SecureHeaders{
         return true;
     }
 
+    private function csp_do_hash(string $string, string $algo = null, $is_file = null)
+    {
+        if ( ! isset($algo)) $algo = 'sha256';
+
+        if ( ! isset($is_file)) $is_file = false;
+
+        if ( ! $is_file)
+        {
+            $hash = hash($algo, $string, true);
+        }
+        else
+        {
+            if (file_exists($string))
+            {
+                $hash = hash_file($algo, $string, true);
+            }
+            else
+            {
+                $this->add_error(__FUNCTION__ . ': The specified file <strong>\'' . $string . '\'</strong>, does not exist');
+                return '';
+            }
+        }
+
+        return base64_encode($hash);
+    }
+
+    private function csp_generate_nonce()
+    {
+        $nonce = base64_encode(openssl_random_pseudo_bytes(30, $crypto_strong));
+
+        if ( ! $crypto_strong)
+        {
+            $this->add_error(
+                'OpenSSL (openssl_random_pseudo_bytes) reported that it did <strong>not</strong>
+                use a cryptographically strong algorithm to generate the nonce for CSP.', 
+                E_USER_WARNING);
+        }
+
+        return $nonce;
+    }
+
     # ~~
     # private functions: HSTS
 
@@ -850,6 +954,8 @@ class SecureHeaders{
         <a href="https://www.owasp.org/index.php/HTTP_Strict_Transport_Security_Cheat_Sheet">
         understand the details</a> and possible side effects of this security feature before using it.';
 
+        $safe_mode_max_age = 86400; # 1 day
+
         if ( ! empty($this->hsts))
         {
             if ( ! isset($this->hsts['max-age']))
@@ -859,7 +965,7 @@ class SecureHeaders{
 
             if ($this->is_unsafe_header('Strict-Transport-Security'))
             {
-                $this->hsts['max-age'] 		= 86400;
+                if ($this->hsts['max-age'] > $safe_mode_max_age) $this->hsts['max-age'] = $safe_mode_max_age;
                 // $this->hsts['subdomains'] 	= false;
                 $this->hsts['preload'] 		= false;
                 $this->add_error('HSTS settings were overridden because Safe-Mode is enabled. ' . $error_extension);
@@ -1110,15 +1216,17 @@ class SecureHeaders{
         'base'      =>  'base-uri',
         'connect'   =>  'connect-src',
         'form'      =>  'form-action',
-        'object'    =>  'object-src'
+        'object'    =>  'object-src',
+        'report'    =>  'report-uri',
+        'reporting' =>  'report-uri'
     );
 
     private $csp_source_shortcuts = array(
-        'self' => "'self'",
-        'none' => "'none'",
-        'unsafe-inline' => "'unsafe-inline'",
-        'unsafe-eval' => "'unsafe-eval'",
-        'strict-dynamic' => "'strict-dynamic'",
+        'self'              => "'self'",
+        'none'              => "'none'",
+        'unsafe-inline'     => "'unsafe-inline'",
+        'unsafe-eval'       => "'unsafe-eval'",
+        'strict-dynamic'    => "'strict-dynamic'",
     );
 }
 ?>
