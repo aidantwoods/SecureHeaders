@@ -161,11 +161,11 @@ We then passed our policy array to the `csp` function.
 
 Within the array, take a look at `default-src`. This is the full directive name (the key of the array), and its source list is specified as an array containing source values. In this case, the directive only has one source value, `'self'`, which is spelled out in full (note the single quotes within the string).
 
-In this case, we've actually written a lot more than nessesary – see the directive `base` for comparison. The actual CSP directive here is `base-uri`, but `base` is a supported shorthand by SecureHeaders. Secondly, we've ommited the array syntax from the decending source list entirely – we only wanted to declare one valid source, so SecureHeaders supports foregoing the array structure if its not useful. Additionally, we've made use of a shorthand within the source value too – omitting the single quotes from the string's value (i.e. `self` is a shorthand for `'self'`).
+In this case, we've actually written a lot more than necessary – see the directive `base` for comparison. The actual CSP directive here is `base-uri`, but `base` is a supported shorthand by SecureHeaders. Secondly, we've ommited the array syntax from the decending source list entirely – we only wanted to declare one valid source, so SecureHeaders supports foregoing the array structure if its not useful. Additionally, we've made use of a shorthand within the source value too – omitting the single quotes from the string's value (i.e. `self` is a shorthand for `'self'`).
 
 There are two CSP 'flags' included also in this policy, namely `upgrade-insecure-requests` and `block-all-mixed-content`. These do not hold any source values (and would not be valid in CSP if they did). You can specify these by either giving an empty array, an array containing only `null`, or forgoing any mention of decendents entirely (as shown in `block-all-mixed-content`, which is written as-is).
 
-The `csp` function also supports mixing and combining these CSP arrays, so the following would combine the csp defined in `$myCSP`, and `$myOtherCSP`. You can combine as many csp arrays as you like by adding additional arguments.
+The `csp` function also supports combining these CSP arrays, so the following would combine the csp defined in `$myCSP`, and `$myOtherCSP`. You can combine as many csp arrays as you like by adding additional arguments.
 
 ```php
 $headers->csp($myCSP, $myOtherCSP);
@@ -190,7 +190,7 @@ If you wanted to add a CSP flag in this way, simply use one of the following.
 $headers->csp('upgrade-insecure-requests');
 $headers->csp('block-all-mixed-content', null);
 ```
-Note that the second way is nessasary if embedded in a list of ordered pairs – otherwise SecureHeaders can't tell what is a directive name or a source value.
+Note that the second way is necessary if embedded in a list of ordered pairs – otherwise SecureHeaders can't tell what is a directive name or a source value.
 e.g. this would set `block-all-mixed-content` as a CSP flag, and `https://my.cdn.org` as a script-src source value.
 ```php
 $headers->csp('block-all-mixed-content', null, 'script', 'https://my.cdn.org');
