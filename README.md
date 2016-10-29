@@ -29,7 +29,7 @@ $headers->csp('script', 'https://my.cdn.org');
 
 These few lines of code will take an application from a grade F, to a grade A on Scott Helme's https://securityheaders.io/
 
-Note that in the above, SecureHeaders has accepted a CSP directive shorthand, namely `default` and `script`, each corresponding to the `default-src` and `script-src` directives respectively. SecureHeaders will look for any shorthands it recognised, but will keep values it doesn't in tact – so that both the full directive name, or the shorthand can be used. For a more in-depth explanation on the `csp` function used here, see [Using CSP](#using-csp) 
+Note that in the above, SecureHeaders has accepted a CSP directive shorthand, namely `default` and `script`, each corresponding to the `default-src` and `script-src` directives respectively. SecureHeaders will look for any shorthands it recognises, but will keep values it doesn't in tact – so that both the full directive name, or the shorthand can be used. For a more in-depth explanation on the `csp` function used here, see [Using CSP](#using-csp) 
 
 
 ## Basic Example 2
@@ -229,8 +229,8 @@ $whoopsIforgotThisCSP = array(
     'form' => 'none'
 );
 
-$this->csp($myCSP, 'script', 'https://other.cdn.com', ['block-all-mixed-content'], 'img', 'https://images.cdn.xyz', $myotherCSP);
-$this->csp('style', 'https://amazingstylesheets.cdn.pizza', $whoopsIforgotThisCSP, 'upgrade-insecure-requests');
+$headers->csp($myCSP, 'script', 'https://other.cdn.com', ['block-all-mixed-content'], 'img', 'https://images.cdn.xyz', $myotherCSP);
+$headers->csp('style', 'https://amazingstylesheets.cdn.pizza', $whoopsIforgotThisCSP, 'upgrade-insecure-requests');
 ```
 
 ## More on Usage
@@ -241,15 +241,15 @@ e.g. the following will combine `$baseCSP` with `$csp` to create an overall Cont
 $headers = new SecureHeaders();
 
 $baseCSP = array(
-  "default-src" => ["'self'"]
+  "default-src" => 'self'
 );
 $headers->csp($baseCSP);
 
 # csp_allow_nonce will return the nonce value
 # and will add the nonce to the specified directive
 
-$style_nonce = $this->csp_allow_nonce('style');
-$script_nonce = $this->csp_allow_nonce('script');
+$style_nonce = $headers->csp_nonce('style');
+$script_nonce = $headers->csp_nonce('script');
 
 $csp = array(
   "frame-src" => ["https://www.example.com/"],
@@ -270,7 +270,7 @@ class CustomSecureHeaders extends SecureHeaders{
         $this->csp($this->base);
     }
     private $base = array(
-        "default-src" => ["'self'"],
+        "default-src" => 'self',
         "style-src" => [
             "'self'",
             "https://fonts.googleapis.com/",
@@ -287,11 +287,11 @@ $headers = new CustomSecureHeaders();
 # csp_allow_nonce will return the nonce value
 # and will add the nonce to the specified directive
 
-$style_nonce = $this->csp_allow_nonce('style');
-$script_nonce = $this->csp_allow_nonce('script');
+$style_nonce = $headers->csp_nonce('style');
+$script_nonce = $headers->csp_nonce('script');
 
 $pageSpecificCSP = array(
-    "frame-src" => ["https://www.example.com/"],
+    "frame-src" => "https://www.example.com/",
 );
 
 $headers->csp($pageSpecificCSP);
