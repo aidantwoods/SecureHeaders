@@ -234,6 +234,22 @@ $headers->csp($myCSP, 'script', 'https://other.cdn.com', ['block-all-mixed-conte
 $headers->csp('style', 'https://amazingstylesheets.cdn.pizza', $whoopsIforgotThisCSP, 'upgrade-insecure-requests');
 ```
 
+#### Behaviour when a CSP header has already been set
+```php
+header("Content-Security-Policy: default-src 'self'; script-src http://insecure.cdn.org 'self'");
+$headers->add_header('Content-Security-Policy', "block-all-mixed-content; img-src 'self' https://cdn.net");
+$headers->csp('script', 'https://another.domain.example.com');
+```
+
+The above code will perform a merge on the two set CSP headers, and will also merge in the additional `script-src` value set in the final line. Producing the following merged CSP header
+```
+Content-Security-Policy:block-all-mixed-content; img-src 'self' https://cdn.net; script-src https://another.domain.example.com http://insecure.cdn.org 'self'; default-src 'self';
+```
+
+This merge capability is fully supported by `->add_header` (so that if two calls to add header are made – the CSPs will be extracted and merged). 
+
+However, because `header` is part of PHP, this will continue to behave as normal (i.e. overwrite the last header if called again). Because of this, only the last called CSP within `header` can be merged with with any additions to the CSP.
+
 ## More on Usage
 *This section of the README is a work in progress... and is probably very incomplete. Please refer to the source code, or the examples given above for feature highlights*
 
