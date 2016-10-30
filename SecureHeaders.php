@@ -175,9 +175,7 @@ class SecureHeaders{
             $name = $match[1];
         }
 
-        # if its actually a cookie, PHP can't send more than
-        # one header by the same name, unless sending a cookie
-        # but this requires special handling
+        # if its actually a cookie, this requires special handling
 
         $capitalised_name = $name;
 
@@ -187,6 +185,10 @@ class SecureHeaders{
         {
             $this->add_cookie($value, null, true);
         }
+        elseif ($this->allow_imports and preg_match('/^content-security-policy(-report-only)?$/', $name, $matches))
+        {
+            $this->import_csp($value, $matches);
+        }
         else
         {
             $this->headers[$name] = array(
@@ -194,9 +196,9 @@ class SecureHeaders{
                 'value' => $value,
                 'attributes' => $this->deconstruct_header_value($value, $name)
             );
-
-            unset($this->removed_headers[$name]);
         }
+
+        unset($this->removed_headers[$name]);
     }
 
     public function remove_header(string $name)
@@ -581,6 +583,28 @@ class SecureHeaders{
         {
             $this->add_header($header[0], $header[1]);
         }
+
+        $this->allow_imports = false;
+    }
+
+    private function import_csp(string $header_value, array $header_name_capture_groups)
+    {
+        $directives = $this->deconstruct_header_value($header_value, 'content-security-policy');
+
+        $csp = array();
+
+        foreach($directives as $directive => $source_string)
+        {
+            $sources = explode(' ', $source_string);
+
+            if ( ! empty($sources) and ! is_bool($source_string)) $csp[$directive] = $sources;
+            else $csp[] = $directive;
+        }
+        
+        # note that inserting the bool returned by isset($header_name_capture_groups[1]) 
+        # determines whether the policy becomes report-only
+
+        $this->csp($csp, isset($header_name_capture_groups[1]));
     }
     
     private function remove_headers()
@@ -809,7 +833,7 @@ class SecureHeaders{
             else
             {
                 if (is_array($sources) and empty($sources)) $sources = null;
-                
+
                 # special case that $sources isn't an array (possibly a string source, 
                 # or null (or an empty array) – indicating the directive is a flag)
                 $this->csp_allow($friendly_directive, $sources, $report_only);
@@ -1218,6 +1242,8 @@ class SecureHeaders{
 
     private $hsts = array();
     private $hpkp = array();
+
+    private $allow_imports = true;
 
     # private variables: (pre-defined static structures)
 
