@@ -250,6 +250,13 @@ This merge capability is fully supported by `->add_header` (so that if two calls
 
 However, because `header` is part of PHP, this will continue to behave as normal (i.e. overwrite the last header if called again). Because of this, only the last called CSP within `header` can be merged with with any additions to the CSP.
 
+#### Content-Security-Policy-Report-Only
+All of the above is applicable to report only policies in exactly the same way. To tell SecureHeaders that you're creating a report only policy, simply use `->cspro` in place of `->csp`.
+
+As an alternate method, you can also include the boolean `true`, or a non zero integer (loosely compares to `true`) in the regular `->csp` function's argument list. The boolean `false` or the integer zero will signify enforced CSP (already the default). The left-most of these booleans or intgers will be taken as the mode. So to force enforced CSP (in-case you are unsure of the eventual variable types in the CSP argument list), use `->csp(false, arg1[, arg2[, ...]])` etc... or use zero in place of `false`. Similarly, to force report-only (in-case you are unsure of the eventual variable types in the CSP argument list) you can use either `->cspro(arg1[, arg2[, ...]])` or `->csp(true, arg1[, arg2[, ...]])`.
+
+Note that while `->csp` supports having its mode changed to report-only, `->cspro` does not (since is an alias for `->csp` with report-only forced on). `->csp` and `->cspro` are identical in their interpretation of the various structures a Content-Security-Policy can be communicated in.
+
 ## More on Usage
 *This section of the README is a work in progress... and is probably very incomplete. Please refer to the source code, or the examples given above for feature highlights*
 
