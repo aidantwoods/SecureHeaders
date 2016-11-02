@@ -15,10 +15,7 @@ class SecureHeaders{
     private $csp_legacy = false;
 
     private $safe_mode = false;
-    private $safe_mode_unsafe_headers = array(
-        'Strict-Transport-Security',
-        'Public-Key-Pins'
-    );
+    private $safe_mode_exceptions = array();
 
     private $allowed_hpkp_algs = array(
         'sha256'
@@ -75,12 +72,9 @@ class SecureHeaders{
 
     # if operating in safe mode, use this to manually allow a specific header
 
-    public function allow_in_safe_mode(string $name)
+    public function safe_mode_exception(string $name)
     {
-        if (($key = array_search($name, $this->safe_mode_unsafe_headers)) !== false)
-        {
-            unset($this->safe_mode_unsafe_headers[$key]);
-        }
+        $this->safe_mode_exceptions[strtolower($name)] = true;
     }
 
     public function add_automatic_headers($mode = null)
@@ -187,14 +181,23 @@ class SecureHeaders{
         }
         elseif ($this->allow_imports and preg_match('/^content-security-policy(-report-only)?$/', $name, $matches))
         {
-            $this->import_csp($value, $matches);
+            $this->import_csp($value, isset($matches[1]));
+        }
+        elseif ($this->allow_imports and $name === 'strict-transport-security')
+        {
+            $this->import_hsts($value);
+        }
+        elseif ($this->allow_imports and preg_match('/^public-key-pins(-report-only)?$/', $name, $matches))
+        {
+            $this->import_hpkp($value, isset($matches[1]));
         }
         else
         {
             $this->headers[$name] = array(
                 'name' => $capitalised_name,
                 'value' => $value,
-                'attributes' => $this->deconstruct_header_value($value, $name)
+                'attributes' => $this->deconstruct_header_value($value, $name),
+                'attributePositions' => $this->deconstruct_header_value($value, $name, true)
             );
         }
 
@@ -503,8 +506,8 @@ class SecureHeaders{
         if(isset($max_age) or ! isset($this->hpkp['max-age'])) 
             $this->hpkp['max-age'] 	= $max_age;
 
-        if(isset($subdomains) or ! isset($this->hpkp['subdomains'])) 
-            $this->hpkp['subdomains'] = (isset($subdomains) ? ($subdomains == true) : null);
+        if(isset($subdomains) or ! isset($this->hpkp['includesubdomains'])) 
+            $this->hpkp['includesubdomains'] = (isset($subdomains) ? ($subdomains == true) : null);
 
         foreach ($pins as $key => $pin)
         {
@@ -530,9 +533,9 @@ class SecureHeaders{
     public function hpkp_subdomains($mode = null)
     {
         if ($mode == false)
-            $this->hpkp['subdomains'] = false;
+            $this->hpkp['includesubdomains'] = false;
         else
-            $this->hpkp['subdomains'] = true;
+            $this->hpkp['includesubdomains'] = true;
     }
 
     # ~~
@@ -548,6 +551,8 @@ class SecureHeaders{
         $this->compile_hpkp();
 
         $this->remove_headers();
+
+        $this->apply_safe_mode();
 
         $this->send_headers();
 
@@ -587,7 +592,7 @@ class SecureHeaders{
         $this->allow_imports = false;
     }
 
-    private function import_csp(string $header_value, array $header_name_capture_groups)
+    private function import_csp(string $header_value, bool $report_only)
     {
         $directives = $this->deconstruct_header_value($header_value, 'content-security-policy');
 
@@ -600,11 +605,44 @@ class SecureHeaders{
             if ( ! empty($sources) and ! is_bool($source_string)) $csp[$directive] = $sources;
             else $csp[] = $directive;
         }
-        
-        # note that inserting the bool returned by isset($header_name_capture_groups[1]) 
-        # determines whether the policy becomes report-only
 
-        $this->csp($csp, isset($header_name_capture_groups[1]));
+        $this->csp($csp, $report_only);
+    }
+
+    private function import_hsts(string $header_value)
+    {
+        $hsts = $this->deconstruct_header_value($header_value);
+
+        $settings = $this->safe_mode_unsafe_headers['strict-transport-security'];
+
+        foreach ($settings as $setting => $default)
+        {
+            if ( ! isset($hsts[$setting]))
+            {
+                $hsts[$setting] = $default;
+            }
+        }
+
+        $this->hsts($hsts['max-age'], $hsts['includesubdomains'], $hsts['preload']);
+    }
+
+    private function import_hpkp(string $header_value, bool $report_only = null)
+    {
+        $hpkp = $this->deconstruct_header_value($header_value, 'public-key-pins');
+
+        if (empty($hpkp['pin'])) return;
+
+        $settings = $this->safe_mode_unsafe_headers['public-key-pins'];
+
+        foreach ($settings as $setting => $default)
+        {
+            if ( ! isset($hpkp[$setting]))
+            {
+                $hpkp[$setting] = $default;
+            }
+        }
+
+        $this->hpkp($hpkp['pin'], $hpkp['max-age'], $hpkp['includesubdomains']);
     }
     
     private function remove_headers()
@@ -645,31 +683,45 @@ class SecureHeaders{
         }
     }
 
-    private function deconstruct_header_value(string $header = null, string $name = null)
+    private function deconstruct_header_value(string $header = null, string $name = null, bool $get_position = null)
     {
         if ( ! isset($header)) return array();
 
+        if ( ! isset($get_position)) $n = 0;
+        else $n = 1;
+
         $attributes = array();
+
+        $store_multiple_values = false;
         
         if (isset($name) and strpos($name, 'content-security-policy') !== false)
         {
-            $header_re = '/[; ]*([^; ]+)(?:(?:[ ])([^;]+)|)/';
+            $header_re = '/($^)|[; ]*([^; ]+)(?:(?:[ ])([^;]+)|)/';
+        }
+        elseif (isset($name) and strpos($name, 'public-key-pins') !== false)
+        {
+            $header_re = '/["; ]*(?:(pin)-)?([^;=]+)(?:(?:="?)([^;"]+)|)/';
+            $store_multiple_values = true;
         }
         else
         {
-            $header_re = '/[; ]*([^;=]+)(?:(?:=)([^;]+)|)/';
+            $header_re = '/($^)|[; ]*([^;=]+)(?:(?:=)([^;]+)|)/';
         }
 
-        if (preg_match_all($header_re, $header, $matches, PREG_SET_ORDER))
+        if (preg_match_all($header_re, $header, $matches, PREG_SET_ORDER | PREG_OFFSET_CAPTURE))
         {
             foreach ($matches as $match)
             {
-                if ( ! isset($match[2])) $match[2] = true;
+                if ( ! isset($match[3][0])) $match[3][$n] = ($n ? $match[2][$n] : true);
 
+                if ($store_multiple_values and ! empty($match[1][0]))
+                {
+                    $attributes[strtolower($match[1][0])][] = array($match[2][$n], $match[3][$n]);
+                }
                 # don't overwrite an existing entry
-                if ( ! isset($attributes[strtolower($match[1])]))
-                { 
-                    $attributes[strtolower($match[1])] = $match[2];
+                elseif ( ! isset($attributes[strtolower($match[2][0])]))
+                {
+                    $attributes[strtolower($match[2][0])] = $match[3][$n];
                 }
             }
         }
@@ -989,26 +1041,11 @@ class SecureHeaders{
 
     private function compile_hsts()
     {
-        $error_extension = '<a href="https://scotthelme.co.uk/death-by-copy-paste/#hstsandpreloading">
-        Read about</a> some common mistakes when setting HSTS via copy/paste, and ensure you 
-        <a href="https://www.owasp.org/index.php/HTTP_Strict_Transport_Security_Cheat_Sheet">
-        understand the details</a> and possible side effects of this security feature before using it.';
-
-        $safe_mode_max_age = 86400; # 1 day
-
         if ( ! empty($this->hsts))
         {
             if ( ! isset($this->hsts['max-age']))
             {
                 $this->hsts['max-age'] = 31536000;
-            }
-
-            if ($this->is_unsafe_header('Strict-Transport-Security'))
-            {
-                if ($this->hsts['max-age'] > $safe_mode_max_age) $this->hsts['max-age'] = $safe_mode_max_age;
-                // $this->hsts['subdomains'] 	= false;
-                $this->hsts['preload'] 		= false;
-                $this->add_error('HSTS settings were overridden because Safe-Mode is enabled. ' . $error_extension);
             }
 
             $this->add_header(
@@ -1017,11 +1054,6 @@ class SecureHeaders{
                     . ($this->hsts['subdomains'] ? '; includeSubDomains' :'') 
                     . ($this->hsts['preload'] ? '; preload' :'')
             );
-        }
-        elseif ($this->is_unsafe_header('Strict-Transport-Security'))
-        {
-            if ($this->remove_header('Strict-Transport-Security'))
-                $this->add_error('A manually set HSTS header was removed because Safe-Mode is enabled. ' . $error_extension);
         }
     }
 
@@ -1032,19 +1064,6 @@ class SecureHeaders{
     {
         if ( ! empty($this->hpkp))
         {
-            if ( ! isset($this->hpkp['max-age']))
-            {
-                $this->hpkp['max-age'] = 10;
-            }
-
-            if ($this->is_unsafe_header('Public-Key-Pins'))
-            {
-                $this->hpkp['max-age'] 		= 10;
-                $this->hpkp['subdomains'] 	= false;
-
-                $this->add_error('HPKP settings were overridden because Safe-Mode is enabled.');
-            }
-
             $hpkp_string = '';
 
             foreach ($this->hpkp['pins'] as list($pin, $alg))
@@ -1054,20 +1073,15 @@ class SecureHeaders{
 
             if ( ! empty($hpkp_string))
             {
-                if ( ! isset($this->hpkp['max-age'])) $this->hpkp['max-age'] = 10;
+                if ( ! isset($this->hpkp['max-age'])) $this->hpkp['max-age'] = $this->safe_mode_unsafe_headers['public-key-pins'];
 
                 $this->add_header(
                     'Public-Key-Pins', 
                     $hpkp_string
                         . 'max-age='.$this->hpkp['max-age'] 
-                        . ($this->hpkp['subdomains'] ? '; includeSubDomains' :'')
+                        . ($this->hpkp['includesubdomains'] ? '; includeSubDomains' :'')
                 );
             }
-        }
-        elseif ($this->is_unsafe_header('Public-Key-Pins'))
-        {
-            if ($this->remove_header('Public-Key-Pins'))
-                $this->add_error('A manually set HPKP header was removed because Safe-Mode is enabled.');
         }
     }
 
@@ -1084,6 +1098,81 @@ class SecureHeaders{
                 or  ( ! $full_match and strpos(strtolower($cookie_name), $substr) !== false)
             ){
                 $this->cookies[$cookie_name][strtolower($flag)] = true;
+            }
+        }
+    }
+
+    # ~~
+    # private functions: Safe Mode
+
+    private function apply_safe_mode()
+    {
+        if ( ! $this->safe_mode) return;
+
+        foreach ($this->headers as $header => $data)
+        {
+            if (isset($this->safe_mode_unsafe_headers[$header]) and empty($this->safe_mode_exceptions[$header]))
+            {
+                $changed = false;
+
+                foreach ($data['attributes'] as $attribute => $value)
+                {
+                    # if we have a safe mode preference for this attribute
+                    if (isset($this->safe_mode_unsafe_headers[$header][$attribute]))
+                    {
+                        $default = $this->safe_mode_unsafe_headers[$header][$attribute];
+
+                        # if the user-set value is a number, check to see if it's greater
+                        # that safe mode's preference. If boolean or string check to see
+                        # if the value differes 
+                        if (
+                            (is_bool($default) or is_string($default)) and $default !== $value
+                        or  is_int($default) and intval($value) > $default
+                        ){
+                            # get the user-set value offset in the header value string
+                            $valueOffset = $this->headers[$header]['attributePositions'][$attribute];
+                            
+                            # if the user-set value is a a flag, we want to replace the flag (attribute text)
+                            # otherwise, we're replacing the value of the attribute
+                            if (is_string($value)) $valueLength = strlen($value);
+                            else $valueLength = strlen($attribute);
+                            
+                            # length of our default, and length diff with user-set value
+                            $defaultLength = strlen($default);
+                            $lengthDiff = $defaultLength - $valueLength;
+
+                            # perform the replacement
+                            $this->headers[$header]['value'] = substr(
+                                $this->headers[$header]['value'],
+                                0,
+                                $valueOffset
+                            ) . $default . substr(
+                                $this->headers[$header]['value'],
+                                $valueOffset + $valueLength
+                            );
+
+                            # make note that we changed something
+                            $changed = true;
+
+                            # correct the positions of other attributes (replace may have varied length of string)
+                            foreach ($this->headers[$header]['attributePositions'] as $i => $position)
+                            {
+                                if ( ! is_int($position)) continue;
+
+                                if ($position > $valueOffset)
+                                {
+                                    $this->headers[$header]['attributePositions'][$i] += $lengthDiff;
+                                }
+                            }
+                        }
+                    }
+                }
+
+                # if we changed something, throw a notice to let user know
+                if ($changed and isset($this->safe_mode_unsafe_headers[$header][0]))
+                {
+                    $this->add_error($this->safe_mode_unsafe_headers[$header][0], E_USER_NOTICE);
+                }
             }
         }
     }
@@ -1130,7 +1219,7 @@ class SecureHeaders{
 
     private function is_unsafe_header($name)
     {
-        return ($this->safe_mode and in_array($name, $this->safe_mode_unsafe_headers));
+        return ($this->safe_mode and isset($this->safe_mode_unsafe_headers[strtolower($name)]));
     }
 
     private function automatic_headers()
@@ -1269,6 +1358,23 @@ class SecureHeaders{
         'unsafe-inline'     => "'unsafe-inline'",
         'unsafe-eval'       => "'unsafe-eval'",
         'strict-dynamic'    => "'strict-dynamic'",
+    );
+
+    private $safe_mode_unsafe_headers = array(
+        'strict-transport-security' => array(
+            'max-age' => 86400,
+            'includesubdomains' => false,
+            'preload' => false,
+            'HSTS settings were overridden because Safe-Mode is enabled. <a href="https://scotthelme.co.uk/death-by-copy-paste/#hstsandpreloading">
+            Read about</a> some common mistakes when setting HSTS via copy/paste, and ensure you 
+            <a href="https://www.owasp.org/index.php/HTTP_Strict_Transport_Security_Cheat_Sheet">
+            understand the details</a> and possible side effects of this security feature before using it.'
+        ),
+        'public-key-pins' => array(
+            'max-age' => 10,
+            'includesubdomains' => false,
+            'Some HPKP settings were overridden because Safe-Mode is enabled.'
+        )
     );
 }
 ?>
