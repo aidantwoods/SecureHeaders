@@ -331,6 +331,8 @@ This readme is incomplete, please refer to the source, or the (non-exhaustive) e
 
 
 #### TODO
-* HPKP reporting
+* ~~HPKP reporting~~
 * ~~Basic CSP analysis, and warnings when policy apprears unsafe~~
-* Import hsts and hpkp policies, reconfigure safemode to use maximums only (do not remove manually set headers, but modify them if unsafe)
+* ~~Import hsts and hpkp policies, reconfigure safemode to use maximums only (do not remove manually set headers, but modify them if unsafe)~~
+* Remove type hinting and use custom type enforcement function that generates errors similar to those produced by type hinting in PHP 7. (backwards-compatability for PHP 5)
+* In place of type hinting, fully document code with expected parameter types
