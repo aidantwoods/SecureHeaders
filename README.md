@@ -91,7 +91,7 @@ $headers->cspro('report', 'whatisthis');
 
 ```
 Content-Security-Policy:default-src *; script-src 'unsafe-inline' http://insecure.cdn.org; style-src https: *; report-uri https://valid-enforced-url.org;
-Content-Security-Policy-Report-Only:default-src *; script-src 'unsafe-inline' http://insecure.cdn.org; style-src https: *; report-uri whatisthis;
+Content-Security-Policy-Report-Only:report-uri whatisthis;
 ```
 
 The following messages will be issued with regard to CSP: (`level E_USER_WARNING` and `level E_USER_NOTICE`)
