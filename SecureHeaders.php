@@ -935,27 +935,6 @@ class SecureHeaders{
             }
         }
 
-        # add CSP reporting
-
-        if( ! empty($this->csp_reporting))
-        { 
-            if ( ! empty($csp_string))
-            {
-                $csp_string .= 'report-uri ' . $this->csp_reporting['report-uri'] . '; ';
-            }
-
-            if (
-                    $this->csp_reporting['report-only-uri'] === true 
-                or (empty($csp_string) and ! isset($this->csp_reporting['report-only-uri']))
-            ){
-                $csp_ro_string .= 'report-uri ' . $this->csp_reporting['report-uri'] . '; ';
-            }
-            elseif (is_string($this->csp_reporting['report-only-uri']))
-            {
-                $csp_ro_string .= 'report-uri ' . $this->csp_reporting['report-only-uri'] . '; ';
-            }
-        }
-
         if ( ! empty($csp_string))
         {
             $csp_string = substr($csp_string, 0, -1);
@@ -1395,7 +1374,6 @@ class SecureHeaders{
 
     private $csp = array();
     private $csp_ro = array();
-    private $csp_reporting = array();
 
     private $hsts = array();
     private $hpkp = array();
