@@ -85,7 +85,8 @@ $headers->csp('script', 'unsafe-inline');
 $headers->csp('script', 'http://insecure.cdn.org');
 $headers->csp('style', 'https:');
 $headers->csp('style', '*');
-$headers->add_csp_reporting('https://valid-enforced-url.org', 'whatisthis');
+$headers->csp('report', 'https://valid-enforced-url.org');
+$headers->cspro('report', 'whatisthis');
 ```
 
 ```
