@@ -1,12 +1,8 @@
 # SecureHeaders
-A PHP class aiming to make the use of browser security features more accessible, while allowing developers to safely experiment with these features to ensure they are configured correctly.
+A PHP class aiming to make the use of browser security features more accessible.
 
-The project aims help increase the overall security of an application in-which it runs within, by taking advantage of security features that can be enabled via HTTP headers. 
-
-Sometimes this is most appropriately applied through feedback. SecureHeaders will issue warnings (`level E_USER_WARNING`) and notices (`level E_USER_NOTICE`) at runtime when it notices something is wrong.
-As per standard practice, it is advised that errors are turned off in any live system. SecureHeaders will respect the standard PHP `error_reporting` settings, and will also respect the `display_errors` configuration. 
-
-In some cases, correcting insecure behaviour is best done pro-actively. SecureHeaders will modify or add headers (where safe to do so). (This can of course be granularly controlled, or outright disabled). This includes adding security flags to cookies with certain keywords in their names in an effort to protect session data. And also by adding missing security headers to automatically enable client browser security features.
+## What is a 'secure header'?
+Secure headers, are a [set of headers](https://www.owasp.org/index.php/OWASP_Secure_Headers_Project#tab=Headers) that configure browser security features. All of these headers can be used in any web application, and most can be deployed without any, or very minor code changes. However some of the most effective ones *do* require code changes – especially to implement well.
 
 ## Development Notice
 This project is currently under initial development, so there is the potential for non-backwards compatible changes etc.. That said, bug reports are still welcome from anyone who wants to test it out.
@@ -14,51 +10,63 @@ This project is currently under initial development, so there is the potential f
 ## Features
 * Add/remove and manage headers easily
 * Build a Content Security Policy, or combine multiple together
-* Content Security Policy analysis – obvious bypasses are reported as errors
-* Correct cookie flags on already set cookies to add httpOnly and secure flags, (if the cookies appear to be session related)
-* Safe mode prevents accidential self-DOS when using HSTS, or HPKP
-* Receive warnings about missing security headers (`level E_USER_WARNING`)
+* Content Security Policy analysis
+* Protect incorrectly set cookies
+* Safe mode prevents accidental self-DOS when using HSTS, or HPKP
+* Receive warnings about missing, or misconfigured security headers
 
-## Basic Example
+## Methodology and Philosophy
+Error messages are often a great way for a program to tell the programmer that something is wrong. Whether it's calling a variable that's not yet been assigned, or causing a fatal error by exhausting the memory allocation limit.
+
+Both of these situations can usually be rectified very quickly by the programmer. The effort required to do so is greatly reduced because the program communicated exactly what the problem was, as soon as the programmer introduced the bug. SecureHeaders aims to apply this concept to browser security features.
+
+Utilising the error reporting level set within PHP configuration, SecureHeaders will generate `E_USER_WARNING` and `E_USER_NOTICE` level error messages to inform the programmer about either misconfigurations or lack of configuration.
+
+In addition to error reporting, SecureHeaders will make some **safe** proactive changes to certain headers, or even add new ones if they're missing. 
+
+## Sounds good, but let's see some of the code...
 Here is a good implementation example
 ```php
 $headers = new SecureHeaders();
 $headers->hsts();
 $headers->csp('default', 'self');
 $headers->csp('script', 'https://my.cdn.org');
+$headers->done();
 ```
 
 These few lines of code will take an application from a grade F, to a grade A on Scott Helme's https://securityheaders.io/
 
-Note that in the above, SecureHeaders has accepted a CSP directive shorthand, namely `default` and `script`, each corresponding to the `default-src` and `script-src` directives respectively. SecureHeaders will look for any shorthands it recognises, but will keep values it doesn't in tact – so that both the full directive name, or the shorthand can be used. For a more in-depth explanation on the `csp` function used here, see [Using CSP](#using-csp) 
+## Woah, that was easy! Tell me what it did...
+Let's break down the example above.
 
-
-## Basic Example 2
-An 'out-of-the-box' example is as follows:
+'Out of the box', SecureHeaders will already do quite a lot (by running the following code)
 ```php
 $headers = new SecureHeaders();
 $headers->done();
 ```
 
+#### Automatic Headers and Errors
+
 With such code, the following will occur:
 * Warnings will be issued (`E_USER_WARNING`)
+  > **Warning:** Missing security header: 'Strict-Transport-Security'
 
-  ```
-  Warning: Missing security header: 'Strict-Transport-Security'
-  Warning: Missing security header: 'Content-Security-Policy'
-  ```
+  > **Warning:** Missing security header: 'Content-Security-Policy'
+
 * The following headers will be automatically added
 
   ```
   X-Content-Type-Options:nosniff
   X-Frame-Options:Deny
   X-XSS-Protection:1; mode=block
-  ``` 
+  ```
 * The following header will also be removed (SecureHeaders will also attempt to remove the `Server` header, though it is unlikely this header will be under PHP jurisdiction)
   
   ```
   X-Powered-By
   ```
+
+#### Cookies
 
 Additionally, if any cookies have been set (at any time before `->done()` is called) e.g.
 ```php
@@ -67,17 +75,70 @@ setcookie('auth', 'supersecretauthenticationstring');
 $headers = new SecureHeaders();
 $headers->done();
 ```
+
 Even though in the current PHP configuration, cookie flags `Secure` and `HTTPOnly` do **not** default to on, the end result of the `Set-Cookie` header will be
 ```
 Set-Cookie:auth=supersecretauthenticationstring; secure; HttpOnly
 ```
 
-This is because the cookie name contains a keyword substring (`auth` in this case). When SecureHeaders sees this it will pro-actively inject the `Secure` and `HTTPOnly` flags into the cookie, in an effort to correct an error that could lead to session hijacking.
+These flags were inserted by SecureHeaders because the cookie name contained the substring `auth`. Of course if that was a bad assumption, you can correct SecureHeaders' behaviour, or conversely you can tell SecureHeaders about some of your cookies that have less obvious names – but may need protecting in case of accidental missing flags.
+
+Let's take a look at those other three lines, the first of which was 
+```php
+$headers->hsts();
+```
+This enabled HSTS (Strict-Transport-Security) on the application for a duration of 1 year.
+
+*That sounds like something that might break things – I wouldn't want to accidentally enable that.* 
+
+#### Safe Mode
+
+Okay, SecureHeaders has got you covered – use `$headers->safe_mode();` to prevent headers being sent that will cause lasting effects.
+
+So for example, if the following code was run (safe mode can be called at any point before `->done()` to be effective)
+```php
+$headers->hsts();
+$headers->safe_mode();
+```
+HSTS would still be enabled (as asked), but would be limited to lasting 24 hours.
+SecureHeaders would also generate the following notice
+
+> **Notice:** HSTS settings were overridden because Safe-Mode is enabled. [Read about](https://scotthelme.co.uk/death-by-copy-paste/#hstsandpreloading) some common mistakes when setting HSTS via copy/paste, and ensure you [understand the details](https://www.owasp.org/index.php/HTTP_Strict_Transport_Security_Cheat_Sheet) and possible side effects of this security feature before using it.
+
+*What if I set it via a method not related to SecureHeaders? Can SecureHeaders still enforce safe mode?*
+
+Yup! SecureHeaders will look at the names and values of headers independently of its own built in functions that can be used to generate them.
+
+For example, if I use PHPs built in header function to set HSTS for 1 year, for all subdomains, and indicate consent to preload that rule into major browsers, and then (before or after setting that header) enable safe-mode...
+
+```php
+header('Strict-Transport-Security: max-age=31536000; includeSubDomains; preload');
+$headers->safe_mode();
+```
+
+The same above notice will be generated, max-age will be modified to 1 day, and the preload and includesubdomains flags will be removed. 
+
+#### Content Security Policy
+
+The final two lines to cover from the initial example are as follows
+```php
+$headers->csp('default', 'self');
+$headers->csp('script', 'https://my.cdn.org');
+```
+These tell SecureHeaders that it should build a CSP (Content Security Policy) that allows default assets to be loaded from the current domain (self), and that scripts should be allowed from https://my.cdn.org.
+
+Note that if we had said http://my.cdn.org instead, then the following would have been generated
+
+> **Warning:** Content Security Policy contains the insecure protocol HTTP in a source value **http://my.cdn.org**; this can allow anyone to insert elements covered by the **script-src** directive into the page.
+
+Similarly, if wildcards such as `'unsafe-inline'`, `https:`, or `*` are included – SecureHeaders will generate warnings to highlight these CSP bypasses.
+
+Note that the `->csp` function is very diverse in what it will accept, to see some more on that take a look at [Using CSP](#using-csp)
 
 
-## Basic Example 3
+## Another Example
 
-If the following CSP is created
+If the following CSP is created (note this probably isn't the best way to define a CSP of this size, see the array syntax that is available in the section on [Using CSP](#using-csp))
 
 ```php
 $headers->csp('default', '*');
@@ -122,8 +183,9 @@ The following messages will be issued with regard to CSP: (`level E_USER_WARNING
   Notice: Content Security Policy Report Only header was sent, but an invalid, or no reporting address was given. This header will not enforce violations, and with no reporting address specified, the browser can only report them locally in its console. Consider adding a reporting address to make full use of this header.
   ```
 
+
 ## Using CSP
-Let's take a look at a few ways of declaring the following CSP (newlines and indentation added here for readability)
+Let's take a look at a few ways of declaring the following CSP (or parts of it). Newlines and indentation added here for readability
 ```
 Content-Security-Policy:
     default-src 'self'; 
@@ -163,9 +225,9 @@ We then passed our policy array to the `csp` function.
 
 Within the array, take a look at `default-src`. This is the full directive name (the key of the array), and its source list is specified as an array containing source values. In this case, the directive only has one source value, `'self'`, which is spelled out in full (note the single quotes within the string).
 
-In this case, we've actually written a lot more than necessary – see the directive `base` for comparison. The actual CSP directive here is `base-uri`, but `base` is a supported shorthand by SecureHeaders. Secondly, we've ommited the array syntax from the decending source list entirely – we only wanted to declare one valid source, so SecureHeaders supports foregoing the array structure if its not useful. Additionally, we've made use of a shorthand within the source value too – omitting the single quotes from the string's value (i.e. `self` is a shorthand for `'self'`).
+In this case, we've actually written a lot more than necessary – see the directive `base` for comparison. The actual CSP directive here is `base-uri`, but `base` is a supported shorthand by SecureHeaders. Secondly, we've omitted the array syntax from the descending source list entirely – we only wanted to declare one valid source, so SecureHeaders supports foregoing the array structure if its not useful. Additionally, we've made use of a shorthand within the source value too – omitting the single quotes from the string's value (i.e. `self` is a shorthand for `'self'`).
 
-There are two CSP 'flags' included also in this policy, namely `upgrade-insecure-requests` and `block-all-mixed-content`. These do not hold any source values (and would not be valid in CSP if they did). You can specify these by either giving an empty array, an array containing only `null`, or forgoing any mention of decendents entirely (as shown in `block-all-mixed-content`, which is written as-is).
+There are two CSP 'flags' included also in this policy, namely `upgrade-insecure-requests` and `block-all-mixed-content`. These do not hold any source values (and would not be valid in CSP if they did). You can specify these by either giving an empty array, an array containing only `null`, or forgoing any mention of decedents entirely (as shown in `block-all-mixed-content`, which is written as-is).
 
 The `csp` function also supports combining these CSP arrays, so the following would combine the csp defined in `$myCSP`, and `$myOtherCSP`. You can combine as many csp arrays as you like by adding additional arguments.
 
@@ -198,7 +260,7 @@ e.g. this would set `block-all-mixed-content` as a CSP flag, and `https://my.cdn
 $headers->csp('block-all-mixed-content', null, 'script', 'https://my.cdn.org');
 ```
 
-**However**, the `csp` function also supports mixing these ordered pairs with the array structure, and a string without a source at the end of the argument list will also be treated as a flag. You could, *in perhaps an abuse of notation*, use the following to set two CSP flags and the policy contained in the `$csp` array strucure.
+**However**, the `csp` function also supports mixing these ordered pairs with the array structure, and a string without a source at the end of the argument list will also be treated as a flag. You could, *in perhaps an abuse of notation*, use the following to set two CSP flags and the policy contained in the `$csp` array structure.
 
 ```php
 $headers->csp('block-all-mixed-content', $csp, 'upgrade-insecure-requests');
@@ -329,11 +391,3 @@ etc...
 *(section nowhere close to complete)*
 
 This readme is incomplete, please refer to the source, or the (non-exhaustive) example file `CustomSecureHeaders.php` for full usage.
-
-
-#### TODO
-* ~~HPKP reporting~~
-* ~~Basic CSP analysis, and warnings when policy apprears unsafe~~
-* ~~Import hsts and hpkp policies, reconfigure safemode to use maximums only (do not remove manually set headers, but modify them if unsafe)~~
-* ~~Remove type hinting and use custom type enforcement function that generates errors similar to those produced by type hinting in PHP 7. (backwards-compatability for PHP 5)~~
-* In place of type hinting, fully document code with expected parameter types
