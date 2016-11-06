@@ -1,7 +1,15 @@
 <?php
 class CustomSecureHeaders extends SecureHeaders{
+    public $style_nonce;
+    public $script_nonce;
+
     public function __construct()
     {
+        # implicitly call $this->done() on first byte of output
+        $this->done_on_output();
+
+        // $this->stop_done_on_output();
+
         # content headers
         $this->add_header('Content-type', 'text/html; charset=utf-8');
 
@@ -11,25 +19,32 @@ class CustomSecureHeaders extends SecureHeaders{
         # add a csp policy, as specified in $base, defined below
         $this->csp($this->base);
 
+        # generate nonces for script-src and style-src directives, and
+        # store the nonces in public variables for use in script
+        $this->style_nonce = $this->csp_nonce('style');
+        $this->script_nonce = $this->csp_nonce('script');
+
+        # whitelist a css snippet in the style-src directive
         $style = 'body {background: black;}';
+        $this->csp_hash('style', $style);
 
-        $style_nonce = $this->csp_nonce();
+        # add csp reporting
+        $this->csp('report', 'https://report-uri.example.com/csp');
 
-        $this->csp(array('style-src' => ["'nonce-$style_nonce'"]));
+        $this->csp('script', 'http://my.cdn.org');
 
-        $this->csp(array('style-src' => [$this->csp_hash($style, null, 1)]));
-
-        $this->add_csp_reporting('https://report-uri.example.com/csp', 1);
-
-        setcookie('sess1', 'secret');
+        # add some cookies
         setcookie('auth1', 'not a secret');
         setcookie('sId', 'secret');
-
-        $this->add_protected_cookie_substring('SID');
         $this->remove_protected_cookie_substring('auth');
 
+        setcookie('sess1', 'secret');
+        setcookie('notasessioncookie', 'not a secret');
+        $this->remove_protected_cookie_substring('sess');
+        $this->add_protected_cookie_name('sess1');
+
         setcookie('preference', 'not a secret');
-        setcookie('another-preference', 'not a secret', 10, '/', null, 1);
+        setcookie('another-preference', 'not a secret', 10, '/', null, true, false);
 
         # add a hpkp policy
         $this->hpkp(
@@ -39,20 +54,21 @@ class CustomSecureHeaders extends SecureHeaders{
                 ['sha256', 'pin3'],
                 ['pin4']
             ),
-            15,
+            1500,
             1
         );
+
+        // $this->remove_header(array());
 
         # use regular PHP function to add strict transport security
         header('Strict-Transport-Security: max-age=31536000; includeSubDomains; preload');
 
-        # enable safe-mode, which should auto-remove the above header
-        # safe-mode will generate an error of level E_USER_NOTICE if it has to remove 
-        # or modify any headers
-        // $this->safe_mode();
+        # enable safe-mode, which should auto-modify the above header
+        # safe-mode will generate an error of level E_USER_NOTICE if it has to modify any headers
+        $this->safe_mode();
 
-        # uncomment the next line to specifically allow HSTS in safe mode
-        // $this->allow_in_safe_mode('Strict-Transport-Security');
+        # uncomment the next line to allow HSTS in safe mode
+        // $this->safe_mode_exception('Strict-Transport-Security');
 
     }
 
