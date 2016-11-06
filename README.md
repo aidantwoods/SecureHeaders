@@ -135,6 +135,29 @@ Similarly, if wildcards such as `'unsafe-inline'`, `https:`, or `*` are included
 
 Note that the `->csp` function is very diverse in what it will accept, to see some more on that take a look at [Using CSP](#using-csp)
 
+## Sending the headers
+In order to apply anything added through SecureHeaders, you'll need to call `->done()`. By design, SecureHeaders doesn't have a construct function – so everything up until `->done()` is called is just configuration. However, if you don't want to have to remember to call this function, you can call `->done_on_output()` instead, at any time. This will utilise PHP's `ob_start()` function to start output buffering. This lets SecureHeaders attatch itself to the first instance of any piece of code that generates output – and prior to actually sending that output to the user, make sure all headers are sent, by calling `->done()` for you.
+
+Because SecureHeaders doesn't have a construct function, you can easily implement your own, via a simple class extension, e.g.
+```php
+class CustomSecureHeaders extends SecureHeaders{
+    public function __construct()
+    {
+        $this->done_on_output();
+        $this->hsts();
+        $this->csp('default', 'self');
+        $this->csp('script', 'https://my.cdn.org');
+    }
+}
+```
+
+The above would implement the example discussed above, and would automatically apply to any page that ran just one line of code
+```php
+$headers = new CustomSecureHeaders();
+```
+
+Of course, pages could add additional configuration too, and headers would only be applied when the page started generating output.
+
 
 ## Another Example
 
