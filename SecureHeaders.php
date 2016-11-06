@@ -53,6 +53,16 @@ class SecureHeaders{
     # ~~
     # Public Functions
 
+    public function done_on_output()
+    {
+        ob_start(array($this, 'return_buffer'));
+    }
+
+    public function stop_done_on_output()
+    {
+        if (ob_get_level()) ob_end_clean();
+    }
+
     # ~~
     # public functions: settings
 
@@ -214,6 +224,13 @@ class SecureHeaders{
         unset($this->removed_headers[$name]);
     }
 
+    public function header($name, $value = null, $attempt_name_correction = null)
+    {
+        $this->assert_types(array('string' => [$name, $value], 'bool' => [$attempt_name_correction]));
+
+        $this->add_header($name, $value, $attempt_name_correction);
+    }
+
     public function remove_header($name)
     {
         $this->assert_types(array('string' => [$name]));
@@ -238,7 +255,7 @@ class SecureHeaders{
     # ~~
     # public functions: cookies
 
-    public function add_cookie(string $name, string $value = null, $extract_cookie = null)
+    public function add_cookie($name, $value = null, $extract_cookie = null)
     {
         $this->assert_types(array('string' => [$name, $value]));
 
@@ -260,7 +277,7 @@ class SecureHeaders{
 
                 foreach ($matches as $match)
                 {
-                    if ( ! isset($match[2])) $match[2] = null;
+                    if ( ! isset($match[2])) $match[2] = true;
 
                     $cookie[strtolower($match[1])] = $match[2];
                 }
@@ -500,9 +517,21 @@ class SecureHeaders{
     # ~~
     # public functions: HPKP
 
-    public function hpkp(array $pins, $max_age = null, $subdomains = null, $report_uri = null)
+    public function hpkp($pins = null, $max_age = null, $subdomains = null, $report_uri = null)
     {
         $this->assert_types(array('string' => [$report_uri]), array(4));
+
+        if (isset($pins) and ! isset($max_age) and is_int($pins))
+        {
+            $max_age = $pins;
+            $pins = null;
+        }
+
+        if (isset($pins) and ! isset($subdomains) and is_bool($pins))
+        {
+            $subdomains = $pins;
+            $pins = null;
+        }
 
         if(isset($max_age) or ! isset($this->hpkp['max-age'])) 
             $this->hpkp['max-age'] 	= $max_age;
@@ -512,6 +541,9 @@ class SecureHeaders{
         
         if(isset($report_uri) or ! isset($this->hpkp['report-uri'])) 
             $this->hpkp['report-uri'] = $report_uri;
+        
+        if ( ! is_array($pins) and ! is_string($pins)) return;
+        if ( ! is_array($pins)) $pins = array($pins);
 
         foreach ($pins as $key => $pin)
         {
@@ -527,7 +559,7 @@ class SecureHeaders{
                     continue;
                 }
             }
-            elseif ( ! is_array($pin) or (count($pin) === 1 and ($pin = $pin[0]) !== false))
+            elseif ( is_string($pin) or (is_array($pin) and count($pin) === 1 and ($pin = $pin[0]) !== false))
             {
                 $this->hpkp['pins'][] = array($pin, 'sha256');
             }
@@ -571,6 +603,26 @@ class SecureHeaders{
             $this->error_reporting = false;
         else
             $this->error_reporting = true;
+    }
+
+    public function return_buffer($buffer = null)
+    {
+        if ($this->buffer_returned) return $buffer;
+
+        $this->done();
+
+        if (ob_get_level() and ! empty($this->error_string))
+        {
+            # prepend any errors to the buffer string (any errors that were echoed 
+            # will have been lost during an ob_start callback)
+            $buffer = $this->error_string . $buffer;
+        }
+
+        # if we were called as part of ob_start, make note of this 
+        # (avoid doing redundent work if called again)
+        if(isset($buffer)) $this->buffer_returned = true;
+
+        return $buffer;
     }
 
     # ~~
@@ -1068,7 +1120,7 @@ class SecureHeaders{
 
             if ( ! empty($hpkp_string))
             {
-                if ( ! isset($this->hpkp['max-age'])) $this->hpkp['max-age'] = $this->safe_mode_unsafe_headers['public-key-pins'];
+                if ( ! isset($this->hpkp['max-age'])) $this->hpkp['max-age'] = $this->safe_mode_unsafe_headers['public-key-pins']['max-age'];
 
                 $this->add_header(
                     'Public-Key-Pins', 
@@ -1297,6 +1349,7 @@ class SecureHeaders{
             if (isset($error))
             {
                 echo $error;
+                $this->error_string .= $error;
                 return true;
             }
         }
@@ -1327,8 +1380,11 @@ class SecureHeaders{
             {
                 if (($var_type = gettype($var)) !== $type and $var_type !== 'NULL')
                 {
-                    throw new SecureHeadersTypeError('Argument '.$arg_nums[$i].' passed to '.__CLASS__."::${caller['function']}() 
+                    $typeError = new SecureHeadersTypeError('Argument '.$arg_nums[$i].' passed to '.__CLASS__."::${caller['function']}() 
                     must be of the type $type, $var_type given in ${caller['file']} on line ${caller['line']}");
+                    $typeError->passHeaders($this);
+
+                    throw $typeError;
                 }
                 $i++;
             }
@@ -1371,6 +1427,7 @@ class SecureHeaders{
     private $cookies = array();
 
     private $errors = array();
+    private $error_string;
 
     private $csp = array();
     private $csp_ro = array();
@@ -1380,6 +1437,8 @@ class SecureHeaders{
 
     private $allow_imports = true;
     private $propose_headers = false;
+
+    private $buffer_returned = false;
 
     # private variables: (pre-defined static structures)
 
@@ -1426,9 +1485,19 @@ class SecureHeaders{
 }
 
 class SecureHeadersTypeError extends Exception{
+    private $headers;
+
+    public function passHeaders(SecureHeaders $headers)
+    {
+        $this->headers = $headers;
+    }
     public function __toString()
     {
-        return  'exception ' .get_class($this). " '{$this->message}'\n"
+        header($_SERVER['SERVER_PROTOCOL'].' 500 Internal Server Error');
+
+        $this->headers->return_buffer();
+
+        return  'exception ' .__CLASS__. " '{$this->message}'\n"
                 . "{$this->getTraceAsString()}";
     }
 }
