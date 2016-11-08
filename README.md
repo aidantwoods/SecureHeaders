@@ -12,7 +12,7 @@ This project is currently under initial development, so there is the potential f
 * Build a Content Security Policy, or combine multiple together
 * Content Security Policy analysis
 * Protect incorrectly set cookies
-* Safe mode prevents accidental self-DOS when using HSTS, or HPKP
+* Safe mode prevents accidental long-term self-DOS when using HSTS, or HPKP
 * Receive warnings about missing, or misconfigured security headers
 
 ## Methodology and Philosophy
