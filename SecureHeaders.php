@@ -2,37 +2,38 @@
 
 class SecureHeaders{
     # ~~
-    # private variables: settings
+    # protected variables: settings
 
-    private $error_reporting = true;
+    protected $error_reporting = true;
  
-    private $csp_ro_blacklist = array(
+    protected $csp_ro_blacklist = array(
         'block-all-mixed-content',
         'upgrade-insecure-requests'
     );
 
-    private $csp_legacy = false;
+    protected $csp_legacy = false;
 
-    private $safe_mode = false;
-    private $safe_mode_exceptions = array();
+    protected $safe_mode = false;
+    protected $safe_mode_exceptions = array();
 
-    private $allowed_hpkp_algs = array(
+    protected $allowed_hpkp_algs = array(
         'sha256'
     );
 
-    private $automatic_headers = array(
+    protected $automatic_headers = array(
         'add' => true,
         'remove' => true,
         'secure-session-cookie' => true,
         'safe-session-cookie' => true
     );
 
-    private $protected_cookie_identifiers = array(
+    protected $protected_cookie_identifiers = array(
         'substrings' => array(
             'sess',
             'auth',
             'login',
             'csrf',
+            'xsrf',
             'token'
         ),
         'names' => array(
@@ -42,7 +43,7 @@ class SecureHeaders{
         )
     );
 
-    private $report_missing_headers = array(
+    protected $report_missing_headers = array(
         'Strict-Transport-Security',
         'Content-Security-Policy',
         'X-XSS-Protection',
@@ -493,6 +494,8 @@ class SecureHeaders{
 
     public function hsts($max_age = null, $subdomains = false, $preload = false)
     {
+        if ( ! is_int($max_age) and ! is_string($max_age)) $max_age = null;
+
         $this->hsts['max-age']      = $max_age;
         $this->hsts['subdomains']   = ($subdomains == true);
         $this->hsts['preload']      = ($preload == true);
@@ -500,18 +503,12 @@ class SecureHeaders{
 
     public function hsts_subdomains($mode = null)
     {
-        if ($mode == false)
-            $this->hsts['subdomains'] = false;
-        else
-            $this->hsts['subdomains'] = true;
+        $this->hsts['subdomains'] = ($mode == true);
     }
 
     public function hsts_preload($mode = null)
     {
-        if ($mode == false)
-            $this->hsts['preload'] = false;
-        else
-            $this->hsts['preload'] = true;
+        $this->hsts['preload'] = ($mode == true);
     }
 
     # ~~
@@ -520,6 +517,8 @@ class SecureHeaders{
     public function hpkp($pins = null, $max_age = null, $subdomains = null, $report_uri = null)
     {
         $this->assert_types(array('string' => [$report_uri]), array(4));
+
+        # type inference
 
         if (isset($pins) and ! isset($max_age) and is_int($pins))
         {
@@ -533,6 +532,8 @@ class SecureHeaders{
             $pins = null;
         }
 
+        # set single values
+
         if(isset($max_age) or ! isset($this->hpkp['max-age'])) 
             $this->hpkp['max-age'] 	= $max_age;
 
@@ -544,6 +545,8 @@ class SecureHeaders{
         
         if ( ! is_array($pins) and ! is_string($pins)) return;
         if ( ! is_array($pins)) $pins = array($pins);
+
+        # set pins
 
         foreach ($pins as $key => $pin)
         {
@@ -695,7 +698,7 @@ class SecureHeaders{
         if (empty($hpkp['pin'])) return;
 
         $settings = $this->safe_mode_unsafe_headers['public-key-pins'];
-        $settings[] = array('report-uri' => null);
+        if ( ! isset($settings['report-uri'])) $settings['report-uri'] = null;
 
         foreach ($settings as $setting => $default)
         {
@@ -921,7 +924,9 @@ class SecureHeaders{
 
         if (isset($source))
         {
-            $csp[$directive][$source] = null;
+            $source = str_replace(';', '', $source);
+            
+            $csp[$directive][$source] = true;
         }
         else
         {
@@ -1120,12 +1125,12 @@ class SecureHeaders{
 
             if ( ! empty($hpkp_string))
             {
-                if ( ! isset($this->hpkp['max-age'])) $this->hpkp['max-age'] = $this->safe_mode_unsafe_headers['public-key-pins']['max-age'];
+                if ( ! isset($this->hpkp['max-age'])) $this->hpkp['max-age'] = 10;
 
                 $this->add_header(
                     'Public-Key-Pins', 
-                    $hpkp_string
-                        . 'max-age='.$this->hpkp['max-age'] 
+                        'max-age='.$this->hpkp['max-age'] . '; '
+                        . $hpkp_string
                         . ($this->hpkp['includesubdomains'] ? '; includeSubDomains' :'')
                         . ($this->hpkp['report-uri'] ? '; report-uri="' .$this->hpkp['report-uri']. '"' :'')
                 );

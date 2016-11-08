@@ -11,7 +11,7 @@ class CustomSecureHeaders extends SecureHeaders{
         // $this->stop_done_on_output();
 
         # content headers
-        $this->add_header('Content-type', 'text/html; charset=utf-8');
+        $this->header('Content-type', 'text/html; charset=utf-8');
 
         # redirect to www subdomain if not on localhost
         $this->www_if_not_localhost();
@@ -57,8 +57,6 @@ class CustomSecureHeaders extends SecureHeaders{
             1500,
             1
         );
-
-        // $this->remove_header(array());
 
         # use regular PHP function to add strict transport security
         header('Strict-Transport-Security: max-age=31536000; includeSubDomains; preload');
