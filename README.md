@@ -236,7 +236,7 @@ $myCSP = array(
     'style-src' => 'https://amazingstylesheets.cdn.pizza',
     'base' => 'self',
     'form' => 'none',
-    'upgrade-insecure-requests' => [],
+    'upgrade-insecure-requests' => null,
     'block-all-mixed-content'
 );
 
@@ -250,7 +250,8 @@ Within the array, take a look at `default-src`. This is the full directive name 
 
 In this case, we've actually written a lot more than necessary – see the directive `base` for comparison. The actual CSP directive here is `base-uri`, but `base` is a supported shorthand by SecureHeaders. Secondly, we've omitted the array syntax from the descending source list entirely – we only wanted to declare one valid source, so SecureHeaders supports foregoing the array structure if its not useful. Additionally, we've made use of a shorthand within the source value too – omitting the single quotes from the string's value (i.e. `self` is a shorthand for `'self'`).
 
-There are two CSP 'flags' included also in this policy, namely `upgrade-insecure-requests` and `block-all-mixed-content`. These do not hold any source values (and would not be valid in CSP if they did). You can specify these by either giving an empty array, an array containing only `null`, or forgoing any mention of decedents entirely (as shown in `block-all-mixed-content`, which is written as-is).
+There are two CSP 'flags' included also in this policy, namely `upgrade-insecure-requests` and `block-all-mixed-content`. These do not hold any source values (and would not be valid in CSP if they did). You can specify these by either giving a source value of `null` (either as above, or an array containing only null as a source), or forgoing any mention of decedents entirely (as shown in `block-all-mixed-content`, which is written as-is).
+Once a flag has been set, no sources may be added. Similarly once a directive has been set, it may not become a flag. (This to prevent accidental loss of the entire source list).
 
 The `csp` function also supports combining these CSP arrays, so the following would combine the csp defined in `$myCSP`, and `$myOtherCSP`. You can combine as many csp arrays as you like by adding additional arguments.
 

@@ -623,7 +623,7 @@ class SecureHeaders{
 
         # if we were called as part of ob_start, make note of this 
         # (avoid doing redundent work if called again)
-        if(isset($buffer)) $this->buffer_returned = true;
+        $this->buffer_returned = true;
 
         return $buffer;
     }
@@ -914,7 +914,7 @@ class SecureHeaders{
 
         if( ! isset($csp[$directive]))
         { 
-            $this->add_csp_directive($directive, null, $report_only);
+            $this->add_csp_directive($directive, ! isset($source), $report_only);
         }
 
         if($csp[$directive] === null) 
@@ -925,12 +925,8 @@ class SecureHeaders{
         if (isset($source))
         {
             $source = str_replace(';', '', $source);
-            
+
             $csp[$directive][$source] = true;
-        }
-        else
-        {
-            $csp[$directive] = null;
         }
 
         return true;
@@ -956,12 +952,10 @@ class SecureHeaders{
                 # we'll treat this case as a CSP flag
                 $this->csp_allow($friendly_directive, null, $report_only);
             }
-            else
+            elseif ( ! is_array($sources))
             {
-                if (is_array($sources) and empty($sources)) $sources = null;
-
                 # special case that $sources isn't an array (possibly a string source, 
-                # or null (or an empty array) – indicating the directive is a flag)
+                # or null
                 $this->csp_allow($friendly_directive, $sources, $report_only);
             }
         }
@@ -1027,20 +1021,21 @@ class SecureHeaders{
         return $csp;
     }
 
-    private function add_csp_directive($name, $is_flag = null, $report_only = null)
+    private function add_csp_directive($directive, $is_flag = null, $report_only = null)
     {
-        $this->assert_types(array('string' => [$name]));
+        $this->assert_types(array('string' => [$directive]));
 
         if ( ! isset($is_flag)) $is_flag = false;
 
         $csp = &$this->get_csp_object($report_only);
 
-        if(isset($csp[$name]))
+        if(isset($csp[$directive]))
         { 
             return false;
         }
         
-        $csp[$name] = array();
+        if ( ! $is_flag) $csp[$directive] = array();
+        else $csp[$directive] = null;
 
         return true;
     }
@@ -1181,8 +1176,8 @@ class SecureHeaders{
                         # that safe mode's preference. If boolean or string check to see
                         # if the value differs 
                         if (
-                            (is_bool($default) or is_string($default)) and $default !== $value
-                        or  is_int($default) and intval($value) > $default
+                                (is_bool($default) or is_string($default)) and $default !== $value
+                            or  is_int($default) and intval($value) > $default
                         ){
                             # get the user-set value offset in the header value string
                             $valueOffset = $this->headers[$header]['attributePositions'][$attribute];
@@ -1250,6 +1245,8 @@ class SecureHeaders{
         if ( ! $this->error_reporting) return;
 
         set_error_handler(array(get_class(), 'error_handler'));
+
+        if ( ! empty($this->errors)) $this->buffer_returned = true;
 
         foreach ($this->errors as list($message, $level))
         {
