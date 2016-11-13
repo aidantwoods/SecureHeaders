@@ -51,6 +51,8 @@ class SecureHeaders{
         'X-Frame-Options'
     );
 
+    protected $strict_mode = false;
+
     # ~~
     # Public Functions
 
@@ -86,6 +88,14 @@ class SecureHeaders{
         $this->assert_types(array('string' => [$name]));
 
         $this->safe_mode_exceptions[strtolower($name)] = true;
+    }
+
+    public function strict_mode($mode = null)
+    {
+        if ($mode === false or strtolower($mode) === 'off')
+            $this->strict_mode = false;
+        else
+            $this->strict_mode = true;
     }
 
     public function add_automatic_headers($mode = null)
@@ -1287,7 +1297,15 @@ class SecureHeaders{
     {
         $this->propose_headers = true;
 
-        if ($this->automatic_headers['add'])
+        if ($this->strict_mode)
+        {
+            $this->propose_headers = false;
+
+            $this->hsts(31536000, true, true);
+            $this->csp('script', 'strict-dynamic');
+        }
+
+        if ($this->strict_mode or $this->automatic_headers['add'])
         {
             # security headers for all (HTTP and HTTPS) connections
             $this->add_header('X-XSS-Protection', '1; mode=block', null, true);
@@ -1295,14 +1313,14 @@ class SecureHeaders{
             $this->add_header('X-Frame-Options', 'Deny', null, true);
         }
 
-        if($this->automatic_headers['remove'])
+        if($this->strict_mode or $this->automatic_headers['remove'])
         {
             # remove headers leaking server information
             $this->remove_header('Server');
             $this->remove_header('X-Powered-By');
         }
 
-        if($this->automatic_headers['secure-session-cookie'])
+        if($this->strict_mode or $this->automatic_headers['secure-session-cookie'])
         {
             # add a secure flag to cookies that look like they hold session data
             foreach ($this->protected_cookie_identifiers['substrings'] as $substr)
@@ -1316,7 +1334,7 @@ class SecureHeaders{
             }
         }
 
-        if($this->automatic_headers['safe-session-cookie'])
+        if($this->strict_mode or $this->automatic_headers['safe-session-cookie'])
         {
             # add a httpOnly flag to cookies that look like they hold session data
             foreach ($this->protected_cookie_identifiers['substrings'] as $substr)
