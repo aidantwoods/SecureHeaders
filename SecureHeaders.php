@@ -183,13 +183,6 @@ class SecureHeaders{
     {
         $this->assert_types(array('string' => [$name, $value], 'bool' => [$attempt_name_correction]));
 
-        if ($this->propose_headers and isset($this->removed_headers[strtolower($name)]))
-        {
-            # a proposal header will only be added if the intented header
-            # has not been staged for removal
-            return;
-        }
-
         if ( ! isset($attempt_name_correction)) $attempt_name_correction = true;
 
         if ( ! isset($auto_caps)) $auto_caps = true;
@@ -202,6 +195,13 @@ class SecureHeaders{
         $capitalised_name = $name;
 
         $name = strtolower($name);
+
+        if ($this->propose_headers and (isset($this->removed_headers[$name]) or isset($this->headers[$name])))
+        {
+            # a proposal header will only be added if the intented header
+            # has not been staged for removal or already added
+            return;
+        }
 
         # if its actually a cookie, this requires special handling
         if ($name === 'set-cookie')
@@ -1299,28 +1299,26 @@ class SecureHeaders{
 
         if ($this->strict_mode)
         {
-            $this->propose_headers = false;
-
-            $this->hsts(31536000, true, true);
+            $this->add_header('Strict-Transport-Security', 'max-age=31536000; includeSubDomains; preload');
             $this->csp('script', 'strict-dynamic');
         }
 
-        if ($this->strict_mode or $this->automatic_headers['add'])
+        if ($this->automatic_headers['add'])
         {
             # security headers for all (HTTP and HTTPS) connections
-            $this->add_header('X-XSS-Protection', '1; mode=block', null, true);
-            $this->add_header('X-Content-Type-Options', 'nosniff', null, true);
-            $this->add_header('X-Frame-Options', 'Deny', null, true);
+            $this->add_header('X-XSS-Protection', '1; mode=block');
+            $this->add_header('X-Content-Type-Options', 'nosniff');
+            $this->add_header('X-Frame-Options', 'Deny');
         }
 
-        if($this->strict_mode or $this->automatic_headers['remove'])
+        if($this->automatic_headers['remove'])
         {
             # remove headers leaking server information
             $this->remove_header('Server');
             $this->remove_header('X-Powered-By');
         }
 
-        if($this->strict_mode or $this->automatic_headers['secure-session-cookie'])
+        if($this->automatic_headers['secure-session-cookie'])
         {
             # add a secure flag to cookies that look like they hold session data
             foreach ($this->protected_cookie_identifiers['substrings'] as $substr)
@@ -1334,7 +1332,7 @@ class SecureHeaders{
             }
         }
 
-        if($this->strict_mode or $this->automatic_headers['safe-session-cookie'])
+        if($this->automatic_headers['safe-session-cookie'])
         {
             # add a httpOnly flag to cookies that look like they hold session data
             foreach ($this->protected_cookie_identifiers['substrings'] as $substr)
