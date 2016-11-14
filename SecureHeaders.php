@@ -1305,25 +1305,13 @@ class SecureHeaders{
     private function can_inject_strict_dynamic()
     {
         # check if a relevant directive exists
-        if (
-                isset($this->csp['script-src']) and $directive = 'script-src'
-            or  isset($this->csp['default-src']) and $directive = 'default-src'
-        ){
-            # build a regular expression containing nonce and hash expressions
+        if (isset($this->csp[$directive = 'script-src']) or isset($this->csp[$directive = 'default-src']))
+        {
+            $nonce_or_hash_re = implode('|', array_merge(['nonce'], $this->allowed_csp_hash_algs));
 
-            $keywords = implode('-|', $this->allowed_csp_hash_algs);
-
-            if ($keywords)
-            {
-                $keywords = "|$keywords-";
-            }
-
-            $keywords = 'nonce-'.$keywords;
-
-            # if the directive contains a nonce or hash, return the directive we should
-            # inject strict-dynamic into
-
-            if ( ! empty(preg_grep("/^'(?:$keywords)/", array_keys($this->csp[$directive]))))
+            # if the directive contains a nonce or hash, return the directive that
+            # strict-dynamic should be injected into
+            if ( ! empty(preg_grep("/^'(?:$nonce_or_hash_re)-/i", array_keys($this->csp[$directive]))))
             {
                 return $directive;
             }
