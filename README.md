@@ -208,6 +208,9 @@ The following messages will be issued with regard to CSP: (`level E_USER_WARNING
 
 
 ## Using CSP
+
+If you're new to Content-Security-Policy then running your proposed policy through [Google's CSP Evaluator](https://csp-evaluator.withgoogle.com/) may be a good idea.
+
 Let's take a look at a few ways of declaring the following CSP (or parts of it). Newlines and indentation added here for readability
 ```
 Content-Security-Policy:
