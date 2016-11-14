@@ -20,6 +20,12 @@ class SecureHeaders{
         'sha256'
     );
 
+    protected $allowed_csp_hash_algs = array(
+        'sha256',
+        'sha384',
+        'sha512'
+    );
+
     protected $automatic_headers = array(
         'add' => true,
         'remove' => true,
@@ -445,7 +451,10 @@ class SecureHeaders{
     {
         $this->assert_types(array('string' => [$friendly_directive, $string, $algo]));
 
-        if ( ! isset($algo)) $algo = 'sha256';
+        if ( ! isset($algo) or ! in_array(strtolower($algo), $this->allowed_csp_hash_algs)) 
+        {
+            $algo = 'sha256';
+        }
 
         $hash = $this->csp_do_hash($string, $algo, $is_file);
 
@@ -1293,6 +1302,42 @@ class SecureHeaders{
         return ($this->safe_mode and isset($this->safe_mode_unsafe_headers[strtolower($name)]));
     }
 
+    private function can_inject_strict_dynamic()
+    {
+        # check if a relevant directive exists
+        if (
+                isset($this->csp['default-src']) and ! isset($this->csp['script-src']) and $directive = 'default-src'
+            or  isset($this->csp['script-src']) and $directive = 'script-src'
+        ){
+            # build a regular expression containing nonce and hash expressions
+
+            $keywords = implode('-|', $this->allowed_csp_hash_algs);
+
+            if ($keywords)
+            {
+                $keywords = "|$keywords-";
+            }
+
+            $keywords = 'nonce-'.$keywords;
+
+            # if the directive contains a nonce or hash, return the directive we should
+            # inject strict-dynamic into
+
+            if ( ! empty(preg_grep("/^'(?:$keywords)/", array_keys($this->csp[$directive]))))
+            {
+                return $directive;
+            }
+            else
+            {
+                return false;
+            }
+        }
+        else
+        {
+            return false;
+        }
+    }
+
     private function automatic_headers()
     {
         $this->propose_headers = true;
@@ -1300,7 +1345,16 @@ class SecureHeaders{
         if ($this->strict_mode)
         {
             $this->add_header('Strict-Transport-Security', 'max-age=31536000; includeSubDomains; preload');
-            $this->csp('script', 'strict-dynamic');
+
+            if ($directive = $this->can_inject_strict_dynamic())
+            {
+                $this->csp($directive, 'strict-dynamic');
+            }
+            else
+            {
+                $this->add_error("<b>Strict Mode</b> is enabled, but couldn't add <b>'strict-dynamic'</b> into the 
+                Content-Security-Policy because no hash or nonce was used.", E_USER_WARNING);
+            }
         }
 
         if ($this->automatic_headers['add'])
