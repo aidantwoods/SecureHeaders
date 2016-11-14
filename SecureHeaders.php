@@ -5,7 +5,7 @@ class SecureHeaders{
     # protected variables: settings
 
     protected $error_reporting = true;
- 
+
     protected $csp_ro_blacklist = array(
         'block-all-mixed-content',
         'upgrade-insecure-requests'
@@ -108,9 +108,9 @@ class SecureHeaders{
     {
         foreach ($this->automatic_headers as $name => $state)
         {
-            if (    ! isset($mode) 
+            if (    ! isset($mode)
                 or
-                ( 
+                (
                     is_string($mode) and $name === strtolower($mode)
                 )
                 or
@@ -127,9 +127,9 @@ class SecureHeaders{
     {
         foreach ($this->automatic_headers as $name => $state)
         {
-            if (    ! isset($mode) 
+            if (    ! isset($mode)
                 or
-                ( 
+                (
                     is_string($mode) and $name === strtolower($mode)
                 )
                 or
@@ -416,7 +416,7 @@ class SecureHeaders{
         {
             return false;
         }
-        
+
         unset($csp[$directive][$source]);
 
         return true;
@@ -425,14 +425,14 @@ class SecureHeaders{
     public function remove_csp_directive($directive, $report_only = null)
     {
         $this->assert_types(array('string' => [$directive]));
-        
+
         $csp = &$this->get_csp_object($report_only);
 
         if( ! isset($csp[$directive]))
         {
             return false;
         }
-        
+
         unset($csp[$directive]);
 
         return true;
@@ -451,7 +451,7 @@ class SecureHeaders{
     {
         $this->assert_types(array('string' => [$friendly_directive, $string, $algo]));
 
-        if ( ! isset($algo) or ! in_array(strtolower($algo), $this->allowed_csp_hash_algs)) 
+        if ( ! isset($algo) or ! in_array(strtolower($algo), $this->allowed_csp_hash_algs))
         {
             $algo = 'sha256';
         }
@@ -485,7 +485,7 @@ class SecureHeaders{
 
         return $this->csp_hash($friendly_directive, $string, $algo, true, true);
     }
- 
+
     # Content-Security-Policy: Nonce
 
     public function csp_nonce($friendly_directive, $report_only = null)
@@ -553,15 +553,15 @@ class SecureHeaders{
 
         # set single values
 
-        if(isset($max_age) or ! isset($this->hpkp['max-age'])) 
+        if(isset($max_age) or ! isset($this->hpkp['max-age']))
             $this->hpkp['max-age'] 	= $max_age;
 
-        if(isset($subdomains) or ! isset($this->hpkp['includesubdomains'])) 
+        if(isset($subdomains) or ! isset($this->hpkp['includesubdomains']))
             $this->hpkp['includesubdomains'] = (isset($subdomains) ? ($subdomains == true) : null);
-        
-        if(isset($report_uri) or ! isset($this->hpkp['report-uri'])) 
+
+        if(isset($report_uri) or ! isset($this->hpkp['report-uri']))
             $this->hpkp['report-uri'] = $report_uri;
-        
+
         if ( ! is_array($pins) and ! is_string($pins)) return;
         if ( ! is_array($pins)) $pins = array($pins);
 
@@ -635,12 +635,12 @@ class SecureHeaders{
 
         if (ob_get_level() and ! empty($this->error_string))
         {
-            # prepend any errors to the buffer string (any errors that were echoed 
+            # prepend any errors to the buffer string (any errors that were echoed
             # will have been lost during an ob_start callback)
             $buffer = $this->error_string . $buffer;
         }
 
-        # if we were called as part of ob_start, make note of this 
+        # if we were called as part of ob_start, make note of this
         # (avoid doing redundent work if called again)
         $this->buffer_returned = true;
 
@@ -729,15 +729,15 @@ class SecureHeaders{
 
         $this->hpkp($hpkp['pin'], $hpkp['max-age'], $hpkp['includesubdomains'], $hpkp['report-uri']);
     }
-    
+
     private function remove_headers()
     {
         foreach ($this->removed_headers as $name => $value)
-        { 
+        {
             header_remove($name);
         }
     }
-    
+
     private function send_headers()
     {
         foreach ($this->headers as $key => $header)
@@ -780,7 +780,7 @@ class SecureHeaders{
         $attributes = array();
 
         $store_multiple_values = false;
-        
+
         if (isset($name) and strpos($name, 'content-security-policy') !== false)
         {
             $header_re = '/($^)|[; ]*([^; ]+)(?:(?:[ ])([^;]+)|)/';
@@ -832,7 +832,7 @@ class SecureHeaders{
 
                 if ( $header === 'content-security-policy-report-only'
                 and (
-                        ! isset($data['attributes']['report-uri']) 
+                        ! isset($data['attributes']['report-uri'])
                     or  ! preg_match('/https:\/\/[a-z0-9\-]+[.][a-z]{2,}.*/i', $data['attributes']['report-uri'])
                     )
                 )
@@ -868,9 +868,9 @@ class SecureHeaders{
                     if (preg_match_all('/(?:[ ]|^)\K(?:https?[:](?:\/\/)?[*]?|[*])(?=[ ;]|$)/', $value, $matches))
                     {
                         $this->add_error(
-                            $friendly_header.' '.(count($matches[0]) > 1 ? 
+                            $friendly_header.' '.(count($matches[0]) > 1 ?
                             'contains the following wildcards ' : 'contains a wildcard ') . '<b>'.
-                            implode(', ', $matches[0]).'</b> as a '. 
+                            implode(', ', $matches[0]).'</b> as a '.
                             'source value in <b>'.$name.'</b>; this can allow anyone to insert '.
                             'elements covered by the <b>'.$name.'</b> directive into the page.',
                             E_USER_WARNING
@@ -932,11 +932,11 @@ class SecureHeaders{
         $csp = &$this->get_csp_object($report_only);
 
         if( ! isset($csp[$directive]))
-        { 
+        {
             $this->add_csp_directive($directive, ! isset($source), $report_only);
         }
 
-        if($csp[$directive] === null) 
+        if($csp[$directive] === null)
         {
             return false;
         }
@@ -973,7 +973,7 @@ class SecureHeaders{
             }
             elseif ( ! is_array($sources))
             {
-                # special case that $sources isn't an array (possibly a string source, 
+                # special case that $sources isn't an array (possibly a string source,
                 # or null
                 $this->csp_allow($friendly_directive, $sources, $report_only);
             }
@@ -1014,7 +1014,7 @@ class SecureHeaders{
             if($this->csp_legacy)
                 $this->add_header('X-Content-Security-Policy', $csp_string);
         }
-        
+
         if ( ! empty($csp_ro_string))
         {
             $csp_ro_string = substr($csp_ro_string, 0, -1);
@@ -1024,7 +1024,7 @@ class SecureHeaders{
             if($this->csp_legacy)
                 $this->add_header('X-Content-Security-Policy-Report-Only', $csp_ro_string);
         }
-    }	
+    }
 
     private function &get_csp_object($report_only)
     {
@@ -1049,10 +1049,10 @@ class SecureHeaders{
         $csp = &$this->get_csp_object($report_only);
 
         if(isset($csp[$directive]))
-        { 
+        {
             return false;
         }
-        
+
         if ( ! $is_flag) $csp[$directive] = array();
         else $csp[$directive] = null;
 
@@ -1095,7 +1095,7 @@ class SecureHeaders{
         {
             $this->add_error(
                 'OpenSSL (openssl_random_pseudo_bytes) reported that it did <strong>not</strong>
-                use a cryptographically strong algorithm to generate the nonce for CSP.', 
+                use a cryptographically strong algorithm to generate the nonce for CSP.',
                 E_USER_WARNING);
         }
 
@@ -1115,9 +1115,9 @@ class SecureHeaders{
             }
 
             $this->add_header(
-                'Strict-Transport-Security', 
-                'max-age='.$this->hsts['max-age'] 
-                    . ($this->hsts['subdomains'] ? '; includeSubDomains' :'') 
+                'Strict-Transport-Security',
+                'max-age='.$this->hsts['max-age']
+                    . ($this->hsts['subdomains'] ? '; includeSubDomains' :'')
                     . ($this->hsts['preload'] ? '; preload' :'')
             );
         }
@@ -1142,7 +1142,7 @@ class SecureHeaders{
                 if ( ! isset($this->hpkp['max-age'])) $this->hpkp['max-age'] = 10;
 
                 $this->add_header(
-                    'Public-Key-Pins', 
+                    'Public-Key-Pins',
                         'max-age='.$this->hpkp['max-age'] . '; '
                         . $hpkp_string
                         . ($this->hpkp['includesubdomains'] ? '; includeSubDomains' :'')
@@ -1163,7 +1163,7 @@ class SecureHeaders{
 
         foreach ($this->cookies as $cookie_name => $cookie)
         {
-            if (    ($full_match and $substr === strtolower($cookie_name)) 
+            if (    ($full_match and $substr === strtolower($cookie_name))
                 or  ( ! $full_match and strpos(strtolower($cookie_name), $substr) !== false)
             ){
                 $this->cookies[$cookie_name][strtolower($flag)] = true;
@@ -1193,19 +1193,19 @@ class SecureHeaders{
 
                         # if the user-set value is a number, check to see if it's greater
                         # that safe mode's preference. If boolean or string check to see
-                        # if the value differs 
+                        # if the value differs
                         if (
                                 (is_bool($default) or is_string($default)) and $default !== $value
                             or  is_int($default) and intval($value) > $default
                         ){
                             # get the user-set value offset in the header value string
                             $valueOffset = $this->headers[$header]['attributePositions'][$attribute];
-                            
+
                             # if the user-set value is a a flag, we want to replace the flag (attribute text)
                             # otherwise, we're replacing the value of the attribute
                             if (is_string($value)) $valueLength = strlen($value);
                             else $valueLength = strlen($attribute);
-                            
+
                             # length of our default, and length diff with user-set value
                             $defaultLength = strlen($default);
 
@@ -1220,7 +1220,7 @@ class SecureHeaders{
                                 $this->headers[$header]['value'] = substr_replace($this->headers[$header]['value'], '', $valueOffset + $defaultLength, $tailLength);
                                 $defaultLength -= $tailLength;
                             }
-                            
+
                             # make note that we changed something
                             $changed = true;
 
@@ -1306,8 +1306,8 @@ class SecureHeaders{
     {
         # check if a relevant directive exists
         if (
-                isset($this->csp['default-src']) and ! isset($this->csp['script-src']) and $directive = 'default-src'
-            or  isset($this->csp['script-src']) and $directive = 'script-src'
+                isset($this->csp['script-src']) and $directive = 'script-src'
+            or  isset($this->csp['default-src']) and $directive = 'default-src'
         ){
             # build a regular expression containing nonce and hash expressions
 
@@ -1327,15 +1327,9 @@ class SecureHeaders{
             {
                 return $directive;
             }
-            else
-            {
-                return false;
-            }
         }
-        else
-        {
-            return false;
-        }
+
+        return false;
     }
 
     private function automatic_headers()
@@ -1352,7 +1346,7 @@ class SecureHeaders{
             }
             else
             {
-                $this->add_error("<b>Strict Mode</b> is enabled, but couldn't add <b>'strict-dynamic'</b> into the 
+                $this->add_error("<b>Strict Mode</b> is enabled, but couldn't add <b>'strict-dynamic'</b> into the
                 Content-Security-Policy because no hash or nonce was used.", E_USER_WARNING);
             }
         }
@@ -1452,7 +1446,7 @@ class SecureHeaders{
             {
                 if (($var_type = gettype($var)) !== $type and $var_type !== 'NULL')
                 {
-                    $typeError = new SecureHeadersTypeError('Argument '.$arg_nums[$i].' passed to '.__CLASS__."::${caller['function']}() 
+                    $typeError = new SecureHeadersTypeError('Argument '.$arg_nums[$i].' passed to '.__CLASS__."::${caller['function']}()
                     must be of the type $type, $var_type given in ${caller['file']} on line ${caller['line']}");
                     $typeError->passHeaders($this);
 
@@ -1544,7 +1538,7 @@ class SecureHeaders{
             'includesubdomains' => false,
             'preload' => false,
             'HSTS settings were overridden because Safe-Mode is enabled. <a href="https://scotthelme.co.uk/death-by-copy-paste/#hstsandpreloading">
-            Read about</a> some common mistakes when setting HSTS via copy/paste, and ensure you 
+            Read about</a> some common mistakes when setting HSTS via copy/paste, and ensure you
             <a href="https://www.owasp.org/index.php/HTTP_Strict_Transport_Security_Cheat_Sheet">
             understand the details</a> and possible side effects of this security feature before using it.'
         ),
