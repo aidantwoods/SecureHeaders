@@ -40,7 +40,8 @@ class SecureHeaders{
             'login',
             'csrf',
             'xsrf',
-            'token'
+            'token',
+            'antiforgery'
         ),
         'names' => array(
             'sid',
@@ -1184,12 +1185,12 @@ class SecureHeaders{
             {
                 $changed = false;
 
-                foreach ($data['attributes'] as $attribute => $value)
+                foreach ($this->safe_mode_unsafe_headers[$header] as $attribute => $default)
                 {
-                    # if we have a safe mode preference for this attribute
-                    if (isset($this->safe_mode_unsafe_headers[$header][$attribute]))
+                    # if the attribute is also set
+                    if (isset($data['attributes'][$attribute]))
                     {
-                        $default = $this->safe_mode_unsafe_headers[$header][$attribute];
+                        $value = $data['attributes'][$attribute];
 
                         # if the user-set value is a number, check to see if it's greater
                         # that safe mode's preference. If boolean or string check to see
@@ -1198,44 +1199,17 @@ class SecureHeaders{
                                 (is_bool($default) or is_string($default)) and $default !== $value
                             or  is_int($default) and intval($value) > $default
                         ){
-                            # get the user-set value offset in the header value string
-                            $valueOffset = $this->headers[$header]['attributePositions'][$attribute];
-
-                            # if the user-set value is a a flag, we want to replace the flag (attribute text)
-                            # otherwise, we're replacing the value of the attribute
-                            if (is_string($value)) $valueLength = strlen($value);
-                            else $valueLength = strlen($attribute);
-
-                            # length of our default, and length diff with user-set value
-                            $defaultLength = strlen($default);
-
-                            # perform the replacement
-                            $this->headers[$header]['value'] = substr_replace($this->headers[$header]['value'], $default, $valueOffset, $valueLength);
-
-                            # in the case that a flag was removed, we may need to strip out a delimiter too
-                            if ( ! is_string($value) and preg_match('/^;[ ]?/', substr($this->headers[$header]['value'], $valueOffset + $defaultLength, 2), $match))
+                            # if the default is a flag and true, we want the
+                            # attribute name to be the default value
+                            if (is_bool($default) and $default === true)
                             {
-                                $tailLength = strlen($match[0]);
-
-                                $this->headers[$header]['value'] = substr_replace($this->headers[$header]['value'], '', $valueOffset + $defaultLength, $tailLength);
-                                $defaultLength -= $tailLength;
+                                $default = $attribute;
                             }
+
+                            $this->modify_header_value($header, $attribute, $default, true);
 
                             # make note that we changed something
                             $changed = true;
-
-                            $lengthDiff = $defaultLength - $valueLength;
-
-                            # correct the positions of other attributes (replace may have varied length of string)
-                            foreach ($this->headers[$header]['attributePositions'] as $i => $position)
-                            {
-                                if ( ! is_int($position)) continue;
-
-                                if ($position > $valueOffset)
-                                {
-                                    $this->headers[$header]['attributePositions'][$i] += $lengthDiff;
-                                }
-                            }
                         }
                     }
                 }
@@ -1245,6 +1219,58 @@ class SecureHeaders{
                 {
                     $this->add_error($this->safe_mode_unsafe_headers[$header][0], E_USER_NOTICE);
                 }
+            }
+        }
+    }
+
+    private function modify_header_value($header, $attribute, $new_value)
+    {
+        $this->assert_types(array('string' => [$header, $attribute]));
+
+        # if the attribute doesn't exist, dangerous to guess insersion method
+        if ( ! isset($this->headers[$header]['attributes'][$attribute]))
+        {
+            return;
+        }
+
+        $current_value = $this->headers[$header]['attributes'][$attribute];
+        $current_offset = $this->headers[$header]['attributePositions'][$attribute];
+
+        # if the new value is a a flag, we want to replace the flag (attribute text)
+        # otherwise, we're replacing the value of the attribute
+        if (is_string($current_value))
+        {
+            $current_length = strlen($current_value);
+        }
+        else
+        {
+            $current_length = strlen($attribute);
+        }
+
+        $new_length = strlen($new_value);
+
+        # perform the replacement
+        $this->headers[$header]['value'] = substr_replace($this->headers[$header]['value'], $new_value, $current_offset, $current_length);
+
+        # in the case that a flag was removed, we may need to strip out a delimiter too
+        if ( ! is_string($current_value) and preg_match('/^;[ ]?/', substr($this->headers[$header]['value'], $current_offset + $new_length, 2), $match))
+        {
+            $tail_length = strlen($match[0]);
+
+            $this->headers[$header]['value'] = substr_replace($this->headers[$header]['value'], '', $current_offset + $new_length, $tail_length);
+            $new_length -= $tail_length;
+        }
+
+        $length_diff = $new_length - $current_length;
+
+        # correct the positions of other attributes (replace may have varied length of string)
+        foreach ($this->headers[$header]['attributePositions'] as $i => $position)
+        {
+            if ( ! is_int($position)) continue;
+
+            if ($position > $current_offset)
+            {
+                $this->headers[$header]['attributePositions'][$i] += $length_diff;
             }
         }
     }
@@ -1328,14 +1354,21 @@ class SecureHeaders{
         {
             $this->add_header('Strict-Transport-Security', 'max-age=31536000; includeSubDomains; preload');
 
+            if ($this->safe_mode and ! isset($this->safe_mode_exceptions['strict-transport-security']))
+            {
+                $this->add_error("Strict-Mode is enabled, but so is Safe-Mode. HSTS with long-duration,
+                subdomains, and preload was added, but Safe-Mode settings will take precedence if these
+                settings conflict.", E_USER_NOTICE);
+            }
+
             if ($directive = $this->can_inject_strict_dynamic())
             {
                 $this->csp($directive, 'strict-dynamic');
             }
             else
             {
-                $this->add_error("<b>Strict Mode</b> is enabled, but couldn't add <b>'strict-dynamic'</b> into the
-                Content-Security-Policy because no hash or nonce was used.", E_USER_WARNING);
+                $this->add_error("<b>Strict-Mode</b> is enabled, but <b>'strict-dynamic'</b> could not be
+                added to the Content-Security-Policy because no hash or nonce was used.", E_USER_WARNING);
             }
         }
 
