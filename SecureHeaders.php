@@ -866,7 +866,7 @@ class SecureHeaders{
                         }
                     }
 
-                    if (preg_match_all('/(?:[ ]|^)\K(?:https?[:](?:\/\/)?[*]?|[*])(?=[ ;]|$)/', $value, $matches))
+                    if (preg_match_all($this->csp_source_wildcard_re, $value, $matches))
                     {
                         $this->add_error(
                             $friendly_header.' '.(count($matches[0]) > 1 ?
@@ -1569,6 +1569,33 @@ class SecureHeaders{
             'Some HPKP settings were overridden because Safe-Mode is enabled.'
         )
     );
+
+    private $csp_source_wildcard_re =
+        '/(?:[ ]|^)\K
+        (?:
+        # catch open protocol wildcards
+            [^:.\/ ]+?
+            [:]
+            (?:[\/]{2})?
+            [*]?
+        |
+        # catch domain based wildcards
+            (?: # optional protocol
+                [^:. ]+?
+                [:]
+                [\/]{2}
+            )?
+            # optionally match domain text before *
+            [^\/:* ]*?
+            [*]
+            (?: # optionally match TLDs after *
+                (?:[^. ]*?[.])?
+                (?:[^. ]{1,3}[.])?
+                [^. ]*
+            )?
+        )
+        # assert that match covers the entire value
+        (?=[ ;]|$)/ix';
 }
 
 class SecureHeadersTypeError extends Exception{
