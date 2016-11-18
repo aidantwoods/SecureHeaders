@@ -868,14 +868,26 @@ class SecureHeaders{
 
                     if (preg_match_all($this->csp_source_wildcard_re, $value, $matches))
                     {
-                        $this->add_error(
-                            $friendly_header.' '.(count($matches[0]) > 1 ?
-                            'contains the following wildcards ' : 'contains a wildcard ') . '<b>'.
-                            implode(', ', $matches[0]).'</b> as a '.
-                            'source value in <b>'.$name.'</b>; this can allow anyone to insert '.
-                            'elements covered by the <b>'.$name.'</b> directive into the page.',
-                            E_USER_WARNING
-                        );
+                        if ( ! in_array($name, array('default-src', 'script-src', 'style-src', 'object-src')))
+                        {
+                            # if we're not looking at one of the above, we'll be a little less strict with data:
+                            if (($key = array_search('data:', $matches[0])) !== false)
+                            {
+                                unset($matches[0][$key]);
+                            }
+                        }
+
+                        if ( ! empty($matches[0]))
+                        {
+                            $this->add_error(
+                                $friendly_header.' '.(count($matches[0]) > 1 ?
+                                'contains the following wildcards ' : 'contains a wildcard ') . '<b>'.
+                                implode(', ', $matches[0]).'</b> as a '.
+                                'source value in <b>'.$name.'</b>; this can allow anyone to insert '.
+                                'elements covered by the <b>'.$name.'</b> directive into the page.',
+                                E_USER_WARNING
+                            );
+                        }
                     }
 
                     if (preg_match_all('/(?:[ ]|^)\Khttp[:][^ ]*/', $value, $matches))
