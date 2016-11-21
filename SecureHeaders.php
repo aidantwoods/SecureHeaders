@@ -1345,6 +1345,11 @@ class SecureHeaders{
         # check if a relevant directive exists
         if (isset($this->csp[$directive = 'script-src']) or isset($this->csp[$directive = 'default-src']))
         {
+            if (isset($this->csp[$directive]["'strict-dynamic'"]) or isset($this->csp[$directive]["'none'"]))
+            {
+                return -1;
+            }
+
             $nonce_or_hash_re = implode('|', array_merge(['nonce'], $this->allowed_csp_hash_algs));
 
             # if the directive contains a nonce or hash, return the directive that
@@ -1373,10 +1378,11 @@ class SecureHeaders{
                 settings conflict.", E_USER_NOTICE);
             }
 
-            if ($directive = $this->can_inject_strict_dynamic())
+            if ($directive = $this->can_inject_strict_dynamic() and ! is_int($directive))
             {
                 $this->csp($directive, 'strict-dynamic');
             }
+            elseif($directive === -1){}
             else
             {
                 $this->add_error("<b>Strict-Mode</b> is enabled, but <b>'strict-dynamic'</b> could not be
