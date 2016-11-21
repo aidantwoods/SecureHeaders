@@ -926,9 +926,11 @@ class SecureHeaders{
             $directive = $friendly_directive;
         }
 
-        if (isset($this->csp_source_shortcuts[$friendly_source]))
+        $lower_friendly_source = strtolower($friendly_source);
+
+        if (isset($this->csp_source_shortcuts[$lower_friendly_source]))
         {
-            $source = $this->csp_source_shortcuts[$friendly_source];
+            $source = $this->csp_source_shortcuts[$lower_friendly_source];
         }
         else
         {
@@ -958,7 +960,7 @@ class SecureHeaders{
         {
             $source = str_replace(';', '', $source);
 
-            $csp[$directive][$source] = true;
+            $csp[$directive][strtolower($source)] = $source;
         }
 
         return true;
@@ -1009,7 +1011,7 @@ class SecureHeaders{
             {
                 $is_flag = ! isset($sources);
 
-                $add_to_csp = "$directive".($is_flag ? '' : ' '.implode(' ', array_keys($sources))).'; ';
+                $add_to_csp = "$directive".($is_flag ? '' : ' '.implode(' ', $sources)).'; ';
 
                 if($type !== 'csp_ro' or ! in_array($directive, $this->csp_ro_blacklist))
                 {
