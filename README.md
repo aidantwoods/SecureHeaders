@@ -1,3 +1,5 @@
+[![Build Status](https://travis-ci.org/aidantwoods/SecureHeaders.svg?branch=master)](https://travis-ci.org/aidantwoods/SecureHeaders)
+
 # SecureHeaders
 A PHP class aiming to make the use of browser security features more accessible.
 
