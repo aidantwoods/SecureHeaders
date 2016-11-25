@@ -60,6 +60,8 @@ class SecureHeaders{
 
     protected $strict_mode = false;
 
+    protected $headers_as_string = false;
+
     # ~~
     # Public Functions
 
@@ -76,16 +78,20 @@ class SecureHeaders{
     # ~~
     # public functions: settings
 
-    /**
-     * safe-mode enforces settings that shouldn't cause too much accidental down-time
-     * safe-mode intentionally overwrites user specified settings
-     */
+    # safe-mode enforces settings that shouldn't cause too much accidental
+    # down-time safe-mode intentionally overwrites user specified settings
+
     public function safe_mode($mode = null)
     {
         if ($mode === false or strtolower($mode) === 'off')
             $this->safe_mode = false;
         else
             $this->safe_mode = true;
+    }
+
+    public function headers_as_string($mode)
+    {
+        $this->headers_as_string = ($mode == true);
     }
 
     # if operating in safe mode, use this to manually allow a specific header
@@ -110,14 +116,8 @@ class SecureHeaders{
         foreach ($this->automatic_headers as $name => $state)
         {
             if (    ! isset($mode)
-                or
-                (
-                    is_string($mode) and $name === strtolower($mode)
-                )
-                or
-                (
-                    is_array($mode) and ! empty(preg_grep('/^'.preg_quote($name).'$/i', $mode))
-                )
+                 or is_string($mode) and $name === strtolower($mode)
+                 or is_array($mode) and ! empty(preg_grep('/^'.preg_quote($name).'$/i', $mode))
             ){
                 $this->automatic_headers[$name] = true;
             }
@@ -128,15 +128,9 @@ class SecureHeaders{
     {
         foreach ($this->automatic_headers as $name => $state)
         {
-            if (    ! isset($mode)
-                or
-                (
-                    is_string($mode) and $name === strtolower($mode)
-                )
-                or
-                (
-                    is_array($mode) and ! empty(preg_grep('/^'.preg_quote($name).'$/i', $mode))
-                )
+            if (   ! isset($mode)
+                or is_string($mode) and $name === strtolower($mode)
+                or is_array($mode) and ! empty(preg_grep('/^'.preg_quote($name).'$/i', $mode))
             ){
                 $this->automatic_headers[$name] = false;
             }
@@ -620,6 +614,19 @@ class SecureHeaders{
         $this->report_errors();
     }
 
+    public function get_headers_as_string()
+    {
+        if ( ! $this->headers_as_string) return;
+
+        $reporting_state = $this->error_reporting;
+        $this->error_reporting = false;
+
+        $this->done();
+        $this->error_reporting = $reporting_state;
+
+        return $this->headers_string;
+    }
+
     public function error_reporting($mode)
     {
         if ($mode == false)
@@ -656,6 +663,12 @@ class SecureHeaders{
 
     private function import_headers()
     {
+        if ($this->headers_as_string)
+        {
+            $this->allow_imports = false;
+            return;
+        }
+
         # first grab any headers out of already set PHP headers_list
         $headers = $this->preg_match_array('/^([^:]+)[:][ ](.*)$/i', headers_list(), 1, 2);
 
@@ -733,6 +746,8 @@ class SecureHeaders{
 
     private function remove_headers()
     {
+        if ($this->headers_as_string) return;
+
         foreach ($this->removed_headers as $name => $value)
         {
             header_remove($name);
@@ -741,32 +756,71 @@ class SecureHeaders{
 
     private function send_headers()
     {
+        $compiled_headers = array();
+
         foreach ($this->headers as $key => $header)
         {
-            header($header['name'] . ($header['value'] === '' ? '' : ': ' . $header['value']));
+            $header_string = $header['name'] . ($header['value'] === '' ? '' : ': ' . $header['value']);
+
+            if ($this->headers_as_string)
+            {
+                $compiled_headers[] = $header_string;
+            }
+            else
+            {
+                header($header_string);
+            }
         }
 
         foreach ($this->cookies as $name => $cookie)
         {
-            if ( ! isset($cookie['expire']) and isset($cookie['max-age'])) $cookie['expire'] = $cookie['max-age'];
+            if ( ! isset($cookie['max-age']) and isset($cookie['expires']))
+            {
+                $cookie['max-age'] = strtotime($cookie['expires']);
+            }
+            elseif (isset($cookie['max-age']))
+            {
+                if ( ! isset($cookie['expires']))
+                {
+                    # RFC 1123 date, per: https://tools.ietf.org/html/rfc6265#section-4.1.1
+                    $cookie['expires'] = gmdate('D, d M Y H:i:s T', $cookie['max-age'] + time());
+                }
+            }
 
-            $cookie_att = array('expire', 'path', 'domain', 'secure', 'httponly');
+            $this->cookies[$name]['expires'] = gmdate('D, d M Y H:i:s T', $cookie['max-age'] + time());
+
+            $cookie_att = array('max-age', 'path', 'domain', 'secure', 'httponly');
 
             foreach ($cookie_att as $att)
             {
                 if ( ! isset($cookie[$att])) $cookie[$att] = null;
             }
 
-            setcookie(
-                $name,
-                $cookie[0],
-                $cookie['expire'],
-                $cookie['path'],
-                $cookie['domain'],
-                $cookie['secure'],
-                $cookie['httponly']
-            );
+            # format: https://tools.ietf.org/html/rfc6265#section-4.1.1
+
+            $header_string = 'Set-Cookie: ' .
+                $name . '=' . $cookie[0].'; '.
+                (isset($cookie['expires']) ? 'Expires='.$cookie['expires'].'; ' : '').
+                (isset($cookie['max-age']) ? 'Max-Age='.$cookie['max-age'].'; ' : '').
+                (isset($cookie['domain']) ? 'Domain='.$cookie['domain'].'; ' : '').
+                (isset($cookie['path']) ? 'Path='.$cookie['path'].'; ' : '').
+                ( ! empty($cookie['secure']) ? 'Secure; ' : '').
+                ( ! empty($cookie['httponly']) ? 'HttpOnly; ' : '');
+
+            # remove final '; '
+            $header_string = substr($header_string, 0, -2);
+
+            if ($this->headers_as_string)
+            {
+                $compiled_headers[] = $header_string;
+            }
+            else
+            {
+                header($header_string);
+            }
         }
+
+        if ($this->headers_as_string) $this->headers_string = implode("\n", $compiled_headers);
     }
 
     private function deconstruct_header_value($header = null, $name = null, $get_position = null)
@@ -1094,7 +1148,7 @@ class SecureHeaders{
             }
             else
             {
-                $this->add_error(__FUNCTION__ . ': The specified file <strong>\'' . $string . '\'</strong>, does not exist');
+                $this->add_error(__FUNCTION__.": The specified file <strong>'$string'</strong>, does not exist");
                 return '';
             }
         }
@@ -1160,8 +1214,8 @@ class SecureHeaders{
                     'Public-Key-Pins',
                         'max-age='.$this->hpkp['max-age'] . '; '
                         . $hpkp_string
-                        . ($this->hpkp['includesubdomains'] ? '; includeSubDomains' :'')
-                        . ($this->hpkp['report-uri'] ? '; report-uri="' .$this->hpkp['report-uri']. '"' :'')
+                        . ($this->hpkp['includesubdomains'] ? 'includeSubDomains; ' :'')
+                        . ($this->hpkp['report-uri'] ? 'report-uri="' .$this->hpkp['report-uri']. '"' :'')
                 );
             }
         }
@@ -1264,14 +1318,22 @@ class SecureHeaders{
         $new_length = strlen($new_value);
 
         # perform the replacement
-        $this->headers[$header]['value'] = substr_replace($this->headers[$header]['value'], $new_value, $current_offset, $current_length);
+        $this->headers[$header]['value'] =
+            substr_replace($this->headers[$header]['value'], $new_value, $current_offset, $current_length);
 
         # in the case that a flag was removed, we may need to strip out a delimiter too
-        if ( ! is_string($current_value) and preg_match('/^;[ ]?/', substr($this->headers[$header]['value'], $current_offset + $new_length, 2), $match))
-        {
+        if (    ! is_string($current_value)
+            and preg_match(
+                '/^;[ ]?/',
+                substr($this->headers[$header]['value'], $current_offset + $new_length, 2),
+                $match
+            )
+        ){
             $tail_length = strlen($match[0]);
 
-            $this->headers[$header]['value'] = substr_replace($this->headers[$header]['value'], '', $current_offset + $new_length, $tail_length);
+            $this->headers[$header]['value'] =
+                substr_replace($this->headers[$header]['value'], '', $current_offset + $new_length, $tail_length);
+
             $new_length -= $tail_length;
         }
 
@@ -1442,8 +1504,10 @@ class SecureHeaders{
     {
         $this->assert_types(array('int' => [$level], 'string' => [$message]));
 
-        if (error_reporting() & $level and (strtolower(ini_get('display_errors')) === 'on' and ini_get('display_errors')))
-        {
+        if (    error_reporting() & $level
+            and (strtolower(ini_get('display_errors')) === 'on'
+            and ini_get('display_errors'))
+        ){
             if ($level === E_USER_NOTICE)
             {
                 $error = '<strong>Notice:</strong> ' . $message . "<br><br>\n\n";
@@ -1487,8 +1551,9 @@ class SecureHeaders{
             {
                 if (($var_type = gettype($var)) !== $type and $var_type !== 'NULL')
                 {
-                    $typeError = new SecureHeadersTypeError('Argument '.$arg_nums[$i].' passed to '.__CLASS__."::${caller['function']}()
-                    must be of the type $type, $var_type given in ${caller['file']} on line ${caller['line']}");
+                    $typeError = new SecureHeadersTypeError('Argument '.$arg_nums[$i].' passed to '.
+                    __CLASS__."::${caller['function']}() must be of the type $type, $var_type given in ".
+                    "${caller['file']} on line ${caller['line']}");
                     $typeError->passHeaders($this);
 
                     throw $typeError;
@@ -1547,6 +1612,8 @@ class SecureHeaders{
 
     private $buffer_returned = false;
 
+    private $headers_string;
+
     # private variables: (pre-defined static structures)
 
     private $csp_directive_shortcuts = array(
@@ -1578,10 +1645,11 @@ class SecureHeaders{
             'max-age' => 86400,
             'includesubdomains' => false,
             'preload' => false,
-            'HSTS settings were overridden because Safe-Mode is enabled. <a href="https://scotthelme.co.uk/death-by-copy-paste/#hstsandpreloading">
-            Read about</a> some common mistakes when setting HSTS via copy/paste, and ensure you
-            <a href="https://www.owasp.org/index.php/HTTP_Strict_Transport_Security_Cheat_Sheet">
-            understand the details</a> and possible side effects of this security feature before using it.'
+            'HSTS settings were overridden because Safe-Mode is enabled.
+            <a href="https://scotthelme.co.uk/death-by-copy-paste/#hstsandpreloading">Read about</a> some common
+            mistakes when setting HSTS via copy/paste, and ensure you
+            <a href="https://www.owasp.org/index.php/HTTP_Strict_Transport_Security_Cheat_Sheet">understand the
+            details</a> and possible side effects of this security feature before using it.'
         ),
         'public-key-pins' => array(
             'max-age' => 10,
