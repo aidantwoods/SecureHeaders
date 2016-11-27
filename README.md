@@ -1,6 +1,4 @@
-[![Build Status](https://travis-ci.org/aidantwoods/SecureHeaders.svg?branch=master)](https://travis-ci.org/aidantwoods/SecureHeaders)
-
-# SecureHeaders
+# SecureHeaders [![Build Status](https://travis-ci.org/aidantwoods/SecureHeaders.svg?branch=master)](https://travis-ci.org/aidantwoods/SecureHeaders)
 A PHP class aiming to make the use of browser security features more accessible.
 
 ## What is a 'secure header'?
