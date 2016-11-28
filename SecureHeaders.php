@@ -1,4 +1,34 @@
 <?php
+#
+# SecureHeaders
+# https://github.com/aidantwoods/SecureHeaders
+#
+# ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~
+#
+# MIT License
+#
+# Copyright (c) 2016 Aidan Woods
+# https://aidanwoods.com
+#
+# Permission is hereby granted, free of charge, to any person obtaining a
+# copy of this software and associated documentation files (the "Software"),
+# to deal in the Software without restriction, including without limitation
+# the rights to use, copy, modify, merge, publish, distribute, sublicense,
+# and/or sell copies of the Software, and to permit persons to whom the
+# Software is furnished to do so, subject to the following conditions:
+#
+# The above copyright notice and this permission notice shall be included in
+# all copies or substantial portions of the Software.
+#
+# THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+# IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+# FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+# AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+# LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
+# FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS
+# IN THE SOFTWARE.
+#
+#
 
 class SecureHeaders{
     # ~~
@@ -93,7 +123,7 @@ class SecureHeaders{
 
     public function safe_mode_exception($name)
     {
-        $this->assert_types(array('string' => [$name]));
+        $this->assert_types(array('string' => array($name)));
 
         $this->safe_mode_exceptions[strtolower($name)] = true;
     }
@@ -112,14 +142,14 @@ class SecureHeaders{
 
     public function auto($mode = null)
     {
-        $this->assert_types(array('int' => [$mode]));
+        $this->assert_types(array('int' => array($mode)));
 
         $this->automatic_headers = $mode;
     }
 
     public function add_protected_cookie_name($name)
     {
-        $this->assert_types(array('string' => [$name]));
+        $this->assert_types(array('string' => array($name)));
 
         if (
             ! in_array(
@@ -133,7 +163,7 @@ class SecureHeaders{
 
     public function remove_protected_cookie_name($name)
     {
-        $this->assert_types(array('string' => [$name]));
+        $this->assert_types(array('string' => array($name)));
 
         if (
             (
@@ -149,7 +179,7 @@ class SecureHeaders{
 
     public function add_protected_cookie_substring($substr)
     {
-        $this->assert_types(array('string' => [$substr]));
+        $this->assert_types(array('string' => array($substr)));
 
         if (
             ! in_array(
@@ -164,7 +194,7 @@ class SecureHeaders{
 
     public function remove_protected_cookie_substring($substr)
     {
-        $this->assert_types(array('string' => [$substr]));
+        $this->assert_types(array('string' => array($substr)));
 
         if (
             (
@@ -188,8 +218,8 @@ class SecureHeaders{
     ) {
         $this->assert_types(
             array(
-                'string'    => [$name, $value],
-                'bool'      => [$attempt_name_correction]
+                'string'    => array($name, $value),
+                'bool'      => array($attempt_name_correction)
             )
         );
 
@@ -273,8 +303,8 @@ class SecureHeaders{
     ) {
         $this->assert_types(
             array(
-                'string'    => [$name, $value],
-                'bool'      => [$attempt_name_correction]
+                'string'    => array($name, $value),
+                'bool'      => array($attempt_name_correction)
             )
         );
 
@@ -283,7 +313,7 @@ class SecureHeaders{
 
     public function remove_header($name)
     {
-        $this->assert_types(array('string' => [$name]));
+        $this->assert_types(array('string' => array($name)));
 
         $name = strtolower($name);
         $headers = $this->get_header_aliases($name);
@@ -308,7 +338,7 @@ class SecureHeaders{
 
     public function add_cookie($name, $value = null, $extract_cookie = null)
     {
-        $this->assert_types(array('string' => [$name, $value]));
+        $this->assert_types(array('string' => array($name, $value)));
 
         # if extract_cookie loosely compares to true, the value will be
         # extracted from the cookie name e.g. the from the form
@@ -328,8 +358,14 @@ class SecureHeaders{
             ) {
                 $name = $matches[0][1];
 
-                if (isset($matches[0][2]))  $cookie[0] = $matches[0][2];
-                else                        $cookie[0] = '';
+                if (isset($matches[0][2]))
+                {
+                    $cookie[0] = $matches[0][2];
+                }
+                else
+                {
+                    $cookie[0] = '';
+                }
 
                 unset($matches[0]);
 
@@ -351,7 +387,7 @@ class SecureHeaders{
 
     public function remove_cookie($name)
     {
-        $this->assert_types(array('string' => [$name]));
+        $this->assert_types(array('string' => array($name)));
 
         unset($this->cookies[$name]);
     }
@@ -457,7 +493,7 @@ class SecureHeaders{
 
     public function remove_csp_source($directive, $source, $report_only = null)
     {
-        $this->assert_types(array('string' => [$directive, $source]));
+        $this->assert_types(array('string' => array($directive, $source)));
 
         $csp = &$this->get_csp_object($report_only);
 
@@ -473,7 +509,7 @@ class SecureHeaders{
 
     public function remove_csp_directive($directive, $report_only = null)
     {
-        $this->assert_types(array('string' => [$directive]));
+        $this->assert_types(array('string' => array($directive)));
 
         $csp = &$this->get_csp_object($report_only);
 
@@ -504,7 +540,7 @@ class SecureHeaders{
         $report_only = null
     ) {
         $this->assert_types(
-            array('string' => [$friendly_directive, $string, $algo])
+            array('string' => array($friendly_directive, $string, $algo))
         );
 
         if (
@@ -533,7 +569,7 @@ class SecureHeaders{
         $is_file = null
     ) {
         $this->assert_types(
-            array('string' => [$friendly_directive, $string, $algo])
+            array('string' => array($friendly_directive, $string, $algo))
         );
 
         return $this->csp_hash(
@@ -552,7 +588,7 @@ class SecureHeaders{
         $report_only = null
     ) {
         $this->assert_types(
-            array('string' => [$friendly_directive, $string, $algo])
+            array('string' => array($friendly_directive, $string, $algo))
         );
 
         return $this->csp_hash(
@@ -567,7 +603,7 @@ class SecureHeaders{
     public function cspro_hash_file($friendly_directive, $string, $algo = null)
     {
         $this->assert_types(
-            array('string' => [$friendly_directive, $string, $algo])
+            array('string' => array($friendly_directive, $string, $algo))
         );
 
         return $this->csp_hash($friendly_directive, $string, $algo, true, true);
@@ -577,7 +613,7 @@ class SecureHeaders{
 
     public function csp_nonce($friendly_directive, $report_only = null)
     {
-        $this->assert_types(array('string' => [$friendly_directive]));
+        $this->assert_types(array('string' => array($friendly_directive)));
 
         $nonce = $this->csp_generate_nonce();
 
@@ -590,7 +626,7 @@ class SecureHeaders{
 
     public function cspro_nonce($friendly_directive)
     {
-        $this->assert_types(array('string' => [$friendly_directive]));
+        $this->assert_types(array('string' => array($friendly_directive)));
 
         return $this->csp_nonce($friendly_directive, true);
     }
@@ -626,7 +662,7 @@ class SecureHeaders{
         $subdomains = null,
         $report_uri = null
     ) {
-        $this->assert_types(array('string' => [$report_uri]), array(4));
+        $this->assert_types(array('string' => array($report_uri)), array(4));
 
         # type inference
 
@@ -808,7 +844,10 @@ class SecureHeaders{
     private function import_csp($header_value, $report_only)
     {
         $this->assert_types(
-            array('string' => [$header_value], 'bool' => [$report_only])
+            array(
+                'string' => array($header_value),
+                'bool' => array($report_only)
+            )
         );
 
         $directives = $this->deconstruct_header_value(
@@ -837,7 +876,7 @@ class SecureHeaders{
 
     private function import_hsts($header_value)
     {
-        $this->assert_types(array('string' => [$header_value]));
+        $this->assert_types(array('string' => array($header_value)));
 
         $hsts = $this->deconstruct_header_value($header_value);
 
@@ -862,7 +901,10 @@ class SecureHeaders{
     private function import_hpkp($header_value, $report_only = null)
     {
         $this->assert_types(
-            array('string' => [$header_value], 'bool' => [$report_only])
+            array(
+                'string' => array($header_value),
+                'bool' => array($report_only)
+            )
         );
 
         $hpkp = $this->deconstruct_header_value(
@@ -996,7 +1038,10 @@ class SecureHeaders{
         $get_position = null
     ) {
         $this->assert_types(
-            array('string' => [$header, $name], 'bool' => [$get_position])
+            array(
+                'string' => array($header, $name),
+                'bool' => array($get_position)
+            )
         );
 
         if ( ! isset($header)) return array();
@@ -1183,7 +1228,7 @@ class SecureHeaders{
         $report_only = null
     ) {
         $this->assert_types(
-            array('string' => [$friendly_directive, $friendly_source])
+            array('string' => array($friendly_directive, $friendly_source))
         );
 
         $friendly_directive = strtolower($friendly_directive);
@@ -1216,7 +1261,7 @@ class SecureHeaders{
         $source = null,
         $report_only = null
     ) {
-        $this->assert_types(array('string' => [$directive, $source]));
+        $this->assert_types(array('string' => array($directive, $source)));
 
         $csp = &$this->get_csp_object($report_only);
 
@@ -1358,7 +1403,7 @@ class SecureHeaders{
         $is_flag = null,
         $report_only = null
     ) {
-        $this->assert_types(array('string' => [$directive]));
+        $this->assert_types(array('string' => array($directive)));
 
         if ( ! isset($is_flag)) $is_flag = false;
 
@@ -1380,7 +1425,7 @@ class SecureHeaders{
         $algo = null,
         $is_file = null
     ) {
-        $this->assert_types(array('string' => [$string, $algo]));
+        $this->assert_types(array('string' => array($string, $algo)));
 
         if ( ! isset($algo)) $algo = 'sha256';
 
@@ -1492,7 +1537,7 @@ class SecureHeaders{
 
     private function modify_cookie($substr, $flag, $full_match = null)
     {
-        $this->assert_types(array('string' => [$substr, $flag]));
+        $this->assert_types(array('string' => array($substr, $flag)));
 
         if ( ! isset($full_match)) $full_match = false;
 
@@ -1578,7 +1623,7 @@ class SecureHeaders{
 
     private function modify_header_value($header, $attribute, $new_value)
     {
-        $this->assert_types(array('string' => [$header, $attribute]));
+        $this->assert_types(array('string' => array($header, $attribute)));
 
         # if the attribute doesn't exist, dangerous to guess insersion method
         if ( ! isset($this->headers[$header]['attributes'][$attribute]))
@@ -1663,7 +1708,9 @@ class SecureHeaders{
 
     private function add_error($message, $error = E_USER_NOTICE)
     {
-        $this->assert_types(array('string' => [$message], 'int' => [$error]));
+        $this->assert_types(
+            array('string' => array($message), 'int' => array($error))
+        );
 
         $this->errors[] = array($message, $error);
     }
@@ -1694,8 +1741,8 @@ class SecureHeaders{
     ) {
         $this->assert_types(
             array(
-                'string' => [$pattern],
-                'int' => [$value_capture_group, $pair_value_capture_group]
+                'string' => array($pattern),
+                'int' => array($value_capture_group, $pair_value_capture_group)
             ),
             array(1, 3, 4)
         );
@@ -1729,7 +1776,7 @@ class SecureHeaders{
 
     private function is_unsafe_header($name)
     {
-        $this->assert_types(array('string' => [$name]));
+        $this->assert_types(array('string' => array($name)));
 
         return (
             $this->safe_mode
@@ -1753,8 +1800,10 @@ class SecureHeaders{
 
             $nonce_or_hash_re = implode(
                 '|',
-                array_merge(['nonce'],
-                $this->allowed_csp_hash_algs)
+                array_merge(
+                    array('nonce'),
+                    $this->allowed_csp_hash_algs
+                )
             );
 
             # if the directive contains a nonce or hash, return the directive
@@ -1869,7 +1918,9 @@ class SecureHeaders{
 
     private function error_handler($level, $message)
     {
-        $this->assert_types(array('int' => [$level], 'string' => [$message]));
+        $this->assert_types(
+            array('int' => array($level), 'string' => array($message))
+        );
 
         if (    error_reporting() & $level
             and (strtolower(ini_get('display_errors')) === 'on'
@@ -1940,7 +1991,7 @@ class SecureHeaders{
 
     private function get_header_aliases($name)
     {
-        $this->assert_types(array('string' => [$name]));
+        $this->assert_types(array('string' => array($name)));
 
         $headers = array_merge(
             $this->preg_match_array(
@@ -2085,11 +2136,11 @@ class SecureHeaders{
 
         # auto-headers
 
-        const AUTO_ADD             = 0b0001;
-        const AUTO_REMOVE          = 0b0010;
-        const AUTO_COOKIE_SECURE   = 0b0100;
-        const AUTO_COOKIE_HTTPONLY = 0b1000;
-        const AUTO_ALL             = 0b1111;
+        const AUTO_ADD             = 1;
+        const AUTO_REMOVE          = 2;
+        const AUTO_COOKIE_SECURE   = 4;
+        const AUTO_COOKIE_HTTPONLY = 8;
+        const AUTO_ALL             = 15;
 }
 
 class SecureHeadersTypeError extends Exception{

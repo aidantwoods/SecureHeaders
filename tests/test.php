@@ -14,37 +14,37 @@ class Test extends PHPUnit_Framework_TestCase
 	function data_safe_mode()
 	{
 		return array(
-			[
+			array(
 				'test' => 
 					function(&$headers){
 						$headers->header('Strict-Transport-Security', 'max-age=31536000; includeSubDomains; preload');
 					},
-				'assertions' => [
+				'assertions' => array(
 					'Contains' => 'Strict-Transport-Security: max-age=31536000; includeSubDomains; preload'
-				]
-			],
-			[
+				)
+			),
+			array(
 				'test' => 
 					function(&$headers){
 						$headers->safe_mode();
 						$headers->header('Strict-Transport-Security', 'max-age=31536000; includeSubDomains; preload');
 					},
-				'assertions' => [
+				'assertions' => array(
 					'NotContains' => 'Strict-Transport-Security: max-age=31536000; includeSubDomains; preload',
 					'Contains' => 'Strict-Transport-Security: max-age=86400'
-				]
-			],
-			[
+				)
+			),
+			array(
 				'test' => 
 					function(&$headers){
 						$headers->safe_mode();
 						$headers->header('Public-Key-Pins', 'max-age=31536000; pin-sha256="abcd"; includeSubDomains');
 					},
-				'assertions' => [
+				'assertions' => array(
 					'NotContains' => 'max-age=31536000; pin-sha256="abcd"; includeSubDomains',
 					'Contains' => 'Public-Key-Pins: max-age=10; pin-sha256="abcd"'
-				]
-			]
+				)
+			)
 		);
 	}
 
