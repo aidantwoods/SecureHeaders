@@ -13,7 +13,6 @@ php:
 matrix:
   allow_failures:
     - php: nightly
-    - php: hhvm-nightly
 
 script: phpunit tests/test.php
 
