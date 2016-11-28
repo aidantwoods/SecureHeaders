@@ -5,6 +5,12 @@ php:
   - 5.6
   - 5.5
   - 5.4
+  - 5.3
   - hhvm
+
+matrix:
+  allow_failures:
+    - php: 5.3
+
 script: phpunit tests/test.php
 
