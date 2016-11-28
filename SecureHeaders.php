@@ -286,8 +286,9 @@ class SecureHeaders{
         $this->assert_types(array('string' => [$name]));
 
         $name = strtolower($name);
+        $headers = $this->get_header_aliases($name);
 
-        if ( ! empty($headers = $this->get_header_aliases($name)))
+        if ( ! empty($headers))
         {
             foreach ($headers as $header)
             {
@@ -669,11 +670,10 @@ class SecureHeaders{
         {
             if (is_array($pin) and count($pin) === 2)
             {
-                if (
-                    ! empty(
-                        $res = array_intersect($pin, $this->allowed_hpkp_algs)
-                    )
-                ) {
+                $res = array_intersect($pin, $this->allowed_hpkp_algs);
+
+                if ( ! empty($res))
+                {
                     $key = key($res);
                     $this->hpkp['pins'][] = array(
                         $pin[($key + 1) % 2],
@@ -1119,15 +1119,7 @@ class SecureHeaders{
                         )
                     ) {
                         if (
-                            ! in_array(
-                                $name,
-                                array(
-                                    'default-src',
-                                    'script-src',
-                                    'style-src',
-                                    'object-src'
-                                )
-                            )
+                            ! in_array($name, $this->csp_sensitive_directives)
                         ) {
                             # if we're not looking at one of the above, we'll
                             # be a little less strict with data:
@@ -1467,8 +1459,10 @@ class SecureHeaders{
         {
             $hpkp_string = '';
 
-            foreach ($this->hpkp['pins'] as list($pin, $alg))
+            foreach ($this->hpkp['pins'] as $pin_alg)
             {
+                list($pin, $alg) = $pin_alg;
+
                 $hpkp_string .= 'pin-' . $alg . '="' . $pin . '"; ';
             }
 
@@ -1682,8 +1676,10 @@ class SecureHeaders{
 
         if ( ! empty($this->errors)) $this->buffer_returned = true;
 
-        foreach ($this->errors as list($message, $level))
+        foreach ($this->errors as $msg_lvl)
         {
+            list($message, $level) = $msg_lvl;
+
             trigger_error($message, $level);
         }
 
@@ -1763,12 +1759,13 @@ class SecureHeaders{
 
             # if the directive contains a nonce or hash, return the directive
             # that strict-dynamic should be injected into
-            if (
-                ! empty(preg_grep(
-                    "/^'(?:$nonce_or_hash_re)-/i",
-                    array_keys($this->csp[$directive]))
-                )
-            ) {
+            $nonce_or_hash = preg_grep(
+                "/^'(?:$nonce_or_hash_re)-/i",
+                array_keys($this->csp[$directive])
+            );
+
+            if ( ! empty($nonce_or_hash))
+            {
                 return $directive;
             }
         }
@@ -1945,20 +1942,19 @@ class SecureHeaders{
     {
         $this->assert_types(array('string' => [$name]));
 
-        if (
-            ! empty(
-                $headers = array_merge(
-                    $this->preg_match_array(
-                        '/^'.preg_quote($name).'$/i',
-                        array_keys($this->headers)
-                    ),
-                    $this->preg_match_array(
-                        '/^'.preg_quote($name).'(?=[:])/i',
-                        headers_list()
-                    )
-                )
+        $headers = array_merge(
+            $this->preg_match_array(
+                '/^'.preg_quote($name).'$/i',
+                array_keys($this->headers)
+            ),
+            $this->preg_match_array(
+                '/^'.preg_quote($name).'(?=[:])/i',
+                headers_list()
             )
-        ) {
+        );
+
+        if ( ! empty($headers))
+        {
             return $headers;
         }
 
@@ -2027,6 +2023,13 @@ class SecureHeaders{
         'unsafe-inline'     => "'unsafe-inline'",
         'unsafe-eval'       => "'unsafe-eval'",
         'strict-dynamic'    => "'strict-dynamic'",
+    );
+
+    private $csp_sensitive_directives = array(
+        'default-src',
+        'script-src',
+        'style-src',
+        'object-src'
     );
 
     private $safe_mode_unsafe_headers = array(
