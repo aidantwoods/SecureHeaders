@@ -2,7 +2,6 @@
 ## pending
 * In place of type hinting, fully document code with expected parameter types
 * Greater granularity in safe-mode (allow user set defaults + user set 'unsafe' header additions)
-* Better hpkp and hsts functions (flexible-ish input like the csp function)
 * Add hpkpro function for hpkp in report only mode
 * Validate more header values
 
