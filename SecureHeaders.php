@@ -58,7 +58,7 @@ class SecureHeaders{
 
     protected $automatic_headers = self::AUTO_ALL;
 
-    protected $protected_cookie_identifiers = array(
+    protected $protected_cookies = array(
         'substrings' => array(
             'sess',
             'auth',
@@ -90,14 +90,16 @@ class SecureHeaders{
     # ~~
     # Public Functions
 
-    public function done_on_output()
+    public function done_on_output($mode = self::ENABLED)
     {
-        ob_start(array($this, 'return_buffer'));
-    }
-
-    public function stop_done_on_output()
-    {
-        if (ob_get_level()) ob_end_clean();
+        if ($mode == true)
+        {
+            ob_start(array($this, 'return_buffer'));
+        }
+        else
+        {
+            if (ob_get_level()) ob_end_clean();
+        }
     }
 
     # ~~
@@ -108,15 +110,10 @@ class SecureHeaders{
 
     public function safe_mode($mode = null)
     {
-        if ($mode === false or strtolower($mode) === 'off')
+        if ($mode == false or strtolower($mode) === 'off')
             $this->safe_mode = false;
         else
             $this->safe_mode = true;
-    }
-
-    public function headers_as_string($mode)
-    {
-        $this->headers_as_string = ($mode == true);
     }
 
     # if operating in safe mode, use this to manually allow a specific header
@@ -140,72 +137,63 @@ class SecureHeaders{
         }
     }
 
-    public function auto($mode = null)
+    public function auto($mode = self::AUTO_ALL)
     {
         $this->assert_types(array('int' => array($mode)));
 
         $this->automatic_headers = $mode;
     }
 
-    public function add_protected_cookie_name($name)
-    {
-        $this->assert_types(array('string' => array($name)));
-
-        if (
-            ! in_array(
-                strtolower($name),
-                $this->protected_cookie_identifiers['names']
+    public function protected_cookie(
+        $name,
+        $mode = self::COOKIE_DEFAULT
+    ) {
+        $this->assert_types(
+            array(
+                'string|array' => array($name),
+                'int' => array($mode)
             )
-        ) {
-            $this->protected_cookie_identifiers['names'][] = strtolower($name);
-        }
-    }
+        );
 
-    public function remove_protected_cookie_name($name)
-    {
-        $this->assert_types(array('string' => array($name)));
+        if (is_string($name))
+        {
+            $name = strtolower($name);
+        }
+        elseif (is_array($name))
+        {
+            foreach ($name as $cookie)
+            {
+                $this->protected_cookie($cookie, $mode);
+            }
+            return;
+        }
+
+        $string_type = 'substrings';
+
+        if ($mode & self::COOKIE_NAME) $string_type = 'names';
 
         if (
-            (
+            $mode & ~self::COOKIE_REMOVE
+            and ! in_array($name, $this->protected_cookies[$string_type])
+        ) {
+            $this->protected_cookies[$string_type][] = $name;
+        }
+        elseif (
+            $mode & self::COOKIE_REMOVE
+            and (
                 $key = array_search(
-                    strtolower($name),
-                    $this->protected_cookie_identifiers['names']
+                    $name,
+                    $this->protected_cookies[$string_type]
                 )
             ) !== false
         ) {
-            unset($this->protected_cookie_identifiers['names'][$key]);
+            unset($this->protected_cookies[$string_type][$key]);
         }
     }
 
-    public function add_protected_cookie_substring($substr)
+    public function headers_as_string($mode)
     {
-        $this->assert_types(array('string' => array($substr)));
-
-        if (
-            ! in_array(
-                strtolower($substr),
-                $this->protected_cookie_identifiers['substrings']
-            )
-        ) {
-            $this->protected_cookie_identifiers['substrings']
-                []= strtolower($substr);
-        }
-    }
-
-    public function remove_protected_cookie_substring($substr)
-    {
-        $this->assert_types(array('string' => array($substr)));
-
-        if (
-            (
-                $key = array_search(
-                    strtolower($substr),
-                    $this->protected_cookie_identifiers['substrings']
-                )
-            ) !== false
-        ) {
-            unset($this->protected_cookie_identifiers['substrings'][$key]);
-        }
+        $this->headers_as_string = ($mode == true);
     }
 
     # ~~
@@ -336,55 +324,6 @@ class SecureHeaders{
     # ~~
     # public functions: cookies
 
-    public function add_cookie($name, $value = null, $extract_cookie = null)
-    {
-        $this->assert_types(array('string' => array($name, $value)));
-
-        # if extract_cookie loosely compares to true, the value will be
-        # extracted from the cookie name e.g. the from the form
-        # ('name=value; attribute=abc; attrib;')
-
-        $cookie = array();
-
-        if ($extract_cookie)
-        {
-            if (
-                preg_match_all(
-                    '/[; ]*([^=; ]+)(?:(?:=)([^;]+)|)/',
-                    $name,
-                    $matches,
-                    PREG_SET_ORDER
-                )
-            ) {
-                $name = $matches[0][1];
-
-                if (isset($matches[0][2]))
-                {
-                    $cookie[0] = $matches[0][2];
-                }
-                else
-                {
-                    $cookie[0] = '';
-                }
-
-                unset($matches[0]);
-
-                foreach ($matches as $match)
-                {
-                    if ( ! isset($match[2])) $match[2] = true;
-
-                    $cookie[strtolower($match[1])] = $match[2];
-                }
-            }
-        }
-        else
-        {
-            $cookie[0] = $value;
-        }
-
-        $this->cookies[$name] = $cookie;
-    }
-
     public function remove_cookie($name)
     {
         $this->assert_types(array('string' => array($name)));
@@ -479,14 +418,9 @@ class SecureHeaders{
 
      # Content-Security-Policy: Settings
 
-    public function add_csp_legacy()
+    public function csp_legacy($mode)
     {
-        $this->csp_legacy = true;
-    }
-
-    public function remove_csp_legacy()
-    {
-        $this->csp_legacy = false;
+        $this->csp_legacy = ($mode == true);
     }
 
     # Content-Security-Policy: Policy string removals
@@ -634,9 +568,12 @@ class SecureHeaders{
     # ~~
     # public functions: HSTS
 
-    public function hsts($max_age = null, $subdomains = false, $preload = false)
-    {
-        if ( ! is_int($max_age) and ! is_string($max_age)) $max_age = null;
+    public function hsts(
+        $max_age = 31536000,
+        $subdomains = false,
+        $preload = false
+    ) {
+        $this->assert_types(array('int|string' => array($max_age)));
 
         $this->hsts['max-age']      = $max_age;
         $this->hsts['subdomains']   = ($subdomains == true);
@@ -657,26 +594,19 @@ class SecureHeaders{
     # public functions: HPKP
 
     public function hpkp(
-        $pins = null,
+        $pins,
         $max_age = null,
         $subdomains = null,
         $report_uri = null
     ) {
-        $this->assert_types(array('string' => array($report_uri)), array(4));
-
-        # type inference
-
-        if (isset($pins) and ! isset($max_age) and is_int($pins))
-        {
-            $max_age = $pins;
-            $pins = null;
-        }
-
-        if (isset($pins) and ! isset($subdomains) and is_bool($pins))
-        {
-            $subdomains = $pins;
-            $pins = null;
-        }
+        $this->assert_types(
+            array(
+                'string|array' => array($pins),
+                'int|string' => array($max_age),
+                'string' => array($report_uri)
+            ),
+            array(1, 2, 4)
+        );
 
         # set single values
 
@@ -781,10 +711,7 @@ class SecureHeaders{
 
     public function error_reporting($mode)
     {
-        if ($mode == false)
-            $this->error_reporting = false;
-        else
-            $this->error_reporting = true;
+        $this->error_reporting = ($mode == true);
     }
 
     public function return_buffer($buffer = null)
@@ -1022,7 +949,7 @@ class SecureHeaders{
             }
             else
             {
-                header($header_string);
+                header($header_string, false);
             }
         }
 
@@ -1215,6 +1142,57 @@ class SecureHeaders{
                 }
             }
         }
+    }
+
+    # ~~ private functions: Cookies
+
+    private function add_cookie($name, $value = null, $extract_cookie = null)
+    {
+        $this->assert_types(array('string' => array($name, $value)));
+
+        # if extract_cookie loosely compares to true, the value will be
+        # extracted from the cookie name e.g. the from the form
+        # ('name=value; attribute=abc; attrib;')
+
+        $cookie = array();
+
+        if ($extract_cookie)
+        {
+            if (
+                preg_match_all(
+                    '/[; ]*([^=; ]+)(?:(?:=)([^;]+)|)/',
+                    $name,
+                    $matches,
+                    PREG_SET_ORDER
+                )
+            ) {
+                $name = $matches[0][1];
+
+                if (isset($matches[0][2]))
+                {
+                    $cookie[0] = $matches[0][2];
+                }
+                else
+                {
+                    $cookie[0] = '';
+                }
+
+                unset($matches[0]);
+
+                foreach ($matches as $match)
+                {
+                    if ( ! isset($match[2])) $match[2] = true;
+
+                    $cookie[strtolower($match[1])] = $match[2];
+                }
+            }
+        }
+        else
+        {
+            $cookie[0] = $value;
+        }
+
+        $this->cookies[$name] = $cookie;
     }
 
     # ~~
@@ -1480,11 +1458,6 @@ class SecureHeaders{
     {
         if ( ! empty($this->hsts))
         {
-            if ( ! isset($this->hsts['max-age']))
-            {
-                $this->hsts['max-age'] = 31536000;
-            }
-
             $this->add_header(
                 'Strict-Transport-Security',
 
@@ -1886,12 +1859,12 @@ class SecureHeaders{
         {
             # add a secure flag to cookies that look like they hold session data
             foreach (
-                $this->protected_cookie_identifiers['substrings'] as $substr
+                $this->protected_cookies['substrings'] as $substr
             ) {
                 $this->modify_cookie($substr, 'secure');
             }
 
-            foreach ($this->protected_cookie_identifiers['names'] as $name)
+            foreach ($this->protected_cookies['names'] as $name)
             {
                 $this->modify_cookie($name, 'secure', true);
             }
@@ -1902,12 +1875,12 @@ class SecureHeaders{
             # add a httpOnly flag to cookies that look like they hold
             # session data
             foreach (
-                $this->protected_cookie_identifiers['substrings'] as $substr
+                $this->protected_cookies['substrings'] as $substr
             ) {
                 $this->modify_cookie($substr, 'httpOnly');
             }
 
-            foreach ($this->protected_cookie_identifiers['names'] as $name)
+            foreach ($this->protected_cookies['names'] as $name)
             {
                 $this->modify_cookie($name, 'httpOnly', true);
             }
@@ -1962,15 +1935,30 @@ class SecureHeaders{
 
         foreach ($type_list as $type => $vars)
         {
-            if ($type === 'bool') $type = 'boolean';
-            if ($type === 'int') $type = 'integer';
+            $type = strtolower($type);
+
+            $type = preg_replace(
+                array(
+                    '/bool(?=$|[\|])/',
+                    '/int(?=$|[\|])/'
+                ),
+                array(
+                    'boolean',
+                    'integer'
+                ),
+                $type
+            );
+
 
             foreach ($vars as $var)
             {
-                if (
-                    ($var_type = gettype($var)) !== $type
-                    and $var_type !== 'NULL'
-                ) {
+                $allowed_types = array_merge(
+                    array('NULL'),
+                    explode('|', $type)
+                );
+
+                if ( ! in_array(($var_type = gettype($var)), $allowed_types))
+                {
                     $typeError
                         = new SecureHeadersTypeError(
                             'Argument '.$arg_nums[$i].' passed to '.
@@ -2134,13 +2122,26 @@ class SecureHeaders{
         # ~
         # Constants
 
+        # general
+
+        const DISABLED              = 0; # 0b0000
+        const ENABLED               = 1; # 0b0001
+
         # auto-headers
 
-        const AUTO_ADD             = 1;
-        const AUTO_REMOVE          = 2;
-        const AUTO_COOKIE_SECURE   = 4;
-        const AUTO_COOKIE_HTTPONLY = 8;
-        const AUTO_ALL             = 15;
+        const AUTO_ADD              = 1;  # 0b0001
+        const AUTO_REMOVE           = 2;  # 0b0010
+        const AUTO_COOKIE_SECURE    = 4;  # 0b0100
+        const AUTO_COOKIE_HTTPONLY  = 8;  # 0b1000
+        const AUTO_ALL              = 15; # 0b1111
+
+        # cookie upgrades
+
+        const COOKIE_NAME           = 1;  # 0b0001
+        const COOKIE_SUBSTR         = 2;  # 0b0010
+        const COOKIE_ALL            = 3;  # COOKIE_NAME | COOKIE_SUBSTR
+        const COOKIE_REMOVE         = 4;  # 0b0100
+        const COOKIE_DEFAULT        = 6;  # ~COOKIE_REMOVE | COOKIE_SUBSTR
 }
 
 class SecureHeadersTypeError extends Exception{
@@ -2150,6 +2151,7 @@ class SecureHeadersTypeError extends Exception{
     {
         $this->headers = $headers;
     }
+
     public function __toString()
     {
         header($_SERVER['SERVER_PROTOCOL'].' 500 Internal Server Error');
