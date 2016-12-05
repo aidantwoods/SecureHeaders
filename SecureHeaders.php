@@ -424,7 +424,7 @@ class SecureHeaders{
 
      # Content-Security-Policy: Settings
 
-    public function csp_legacy($mode)
+    public function csp_legacy($mode = true)
     {
         $this->csp_legacy = ($mode == true);
     }
@@ -437,7 +437,10 @@ class SecureHeaders{
 
         $csp = &$this->get_csp_object($report_only);
 
-        if( ! isset($csp[$directive]))
+        $source = strtolower($source);
+        $directive = strtolower($directive);
+
+        if( ! isset($csp[$directive][$source]))
         {
             return false;
         }
@@ -452,6 +455,8 @@ class SecureHeaders{
         $this->assert_types(array('string' => array($directive)));
 
         $csp = &$this->get_csp_object($report_only);
+
+        $directive = strtolower($directive);
 
         if( ! isset($csp[$directive]))
         {
