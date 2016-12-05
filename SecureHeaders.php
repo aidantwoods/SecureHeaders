@@ -46,16 +46,6 @@ class SecureHeaders{
     protected $safe_mode = false;
     protected $safe_mode_exceptions = array();
 
-    protected $allowed_hpkp_algs = array(
-        'sha256'
-    );
-
-    protected $allowed_csp_hash_algs = array(
-        'sha256',
-        'sha384',
-        'sha512'
-    );
-
     protected $automatic_headers = self::AUTO_ALL;
 
     protected $protected_cookies = array(
@@ -591,7 +581,7 @@ class SecureHeaders{
         $this->hsts['preload']      = ($preload == true);
     }
 
-    public function hsts_subdomains($mode = null)
+    public function hsts_subdomains($mode = true)
     {
         $this->hsts['subdomains'] = ($mode == true);
     }
@@ -672,16 +662,9 @@ class SecureHeaders{
         }
     }
 
-    public function hpkp_subdomains($mode = null)
+    public function hpkp_subdomains($mode = true)
     {
-        if ($mode == false)
-        {
-            $this->hpkp['includesubdomains'] = false;
-        }
-        else
-        {
-            $this->hpkp['includesubdomains'] = true;
-        }
+        $this->hpkp['includesubdomains'] = ($mode == true);
     }
 
     # ~~
@@ -2086,6 +2069,16 @@ class SecureHeaders{
         'script-src',
         'style-src',
         'object-src'
+    );
+
+    private $allowed_csp_hash_algs = array(
+        'sha256',
+        'sha384',
+        'sha512'
+    );
+
+    private $allowed_hpkp_algs = array(
+        'sha256'
     );
 
     private $safe_mode_unsafe_headers = array(
