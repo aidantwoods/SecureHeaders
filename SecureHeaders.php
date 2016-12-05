@@ -586,7 +586,7 @@ class SecureHeaders{
         $this->hsts['subdomains'] = ($mode == true);
     }
 
-    public function hsts_preload($mode = null)
+    public function hsts_preload($mode = true)
     {
         $this->hsts['preload'] = ($mode == true);
     }
