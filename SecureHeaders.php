@@ -110,6 +110,8 @@ class SecureHeaders{
 
     public function safe_mode($mode = null)
     {
+        if ( ! isset($mode)) $mode = true;
+        
         if ($mode == false or strtolower($mode) === 'off')
             $this->safe_mode = false;
         else
