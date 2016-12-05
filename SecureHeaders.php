@@ -108,14 +108,16 @@ class SecureHeaders{
     # safe-mode enforces settings that shouldn't cause too much accidental
     # down-time safe-mode intentionally overwrites user specified settings
 
-    public function safe_mode($mode = null)
+    public function safe_mode($mode = true)
     {
-        if ( ! isset($mode)) $mode = true;
-        
         if ($mode == false or strtolower($mode) === 'off')
+        {
             $this->safe_mode = false;
+        }
         else
+        {
             $this->safe_mode = true;
+        }
     }
 
     # if operating in safe mode, use this to manually allow a specific header
@@ -127,9 +129,9 @@ class SecureHeaders{
         $this->safe_mode_exceptions[strtolower($name)] = true;
     }
 
-    public function strict_mode($mode = null)
+    public function strict_mode($mode = true)
     {
-        if ($mode === false or strtolower($mode) === 'off')
+        if ($mode == false or strtolower($mode) === 'off')
         {
             $this->strict_mode = false;
         }
@@ -331,6 +333,8 @@ class SecureHeaders{
         $this->assert_types(array('string' => array($name)));
 
         unset($this->cookies[$name]);
+
+        $this->removed_cookies[strtolower($name)] = true;
     }
 
     # ~~
@@ -894,6 +898,11 @@ class SecureHeaders{
 
         foreach ($this->cookies as $name => $cookie)
         {
+            if (isset($this->removed_cookies[strtolower($name)]))
+            {
+                continue;
+            }
+
             if ( ! isset($cookie['max-age']) and isset($cookie['expires']))
             {
                 $cookie['max-age'] = strtotime($cookie['expires']);
@@ -2023,6 +2032,7 @@ class SecureHeaders{
     private $removed_headers = array();
 
     private $cookies = array();
+    private $removed_cookies = array();
 
     private $errors = array();
     private $error_string;
