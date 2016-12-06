@@ -5,7 +5,12 @@ For full documentation, please see the
 [Wiki](https://github.com/aidantwoods/SecureHeaders/wiki)
 
 ## What is a 'secure header'?
-Secure headers, are a [set of headers](https://www.owasp.org/index.php/OWASP_Secure_Headers_Project#tab=Headers) that configure browser security features. All of these headers can be used in any web application, and most can be deployed without any, or very minor code changes. However some of the most effective ones *do* require code changes – especially to implement well.
+Secure headers, are a
+[set of headers](https://www.owasp.org/index.php/OWASP_Secure_Headers_Project#tab=Headers)
+that configure browser security features. All of these headers can be used in
+any web application, and most can be deployed without any, or very minor code
+changes. However some of the most effective ones *do* require code changes –
+especially to implement well.
 
 ## Development Notice
 This project is currently under initial development, so there is the potential
@@ -35,7 +40,7 @@ will generate `E_USER_WARNING` and `E_USER_NOTICE` level error messages to
 inform the programmer about either misconfigurations or lack of configuration.
 
 In addition to error reporting, SecureHeaders will make some **safe** proactive
-changes to certain headers, or even add new ones if they're missing. 
+changes to certain headers, or even add new ones if they're missing.
 
 ## Sounds good, but let's see some of the code...
 Here is a good implementation example
@@ -78,7 +83,7 @@ With such code, the following will occur:
 * The following header will also be removed (SecureHeaders will also attempt to
 remove the `Server` header, though it is unlikely this header will be under PHP
 jurisdiction)
-  
+
   ```
   X-Powered-By
   ```
@@ -107,7 +112,7 @@ SecureHeaders' behaviour, or conversely you can tell SecureHeaders about some
 of your cookies that have less obvious names – but may need protecting in case
 of accidental missing flags.
 
-Let's take a look at those other three lines, the first of which was 
+Let's take a look at those other three lines, the first of which was
 ```php
 $headers->hsts();
 ```
@@ -115,7 +120,7 @@ This enabled HSTS (Strict-Transport-Security) on the application for a duration
 of 1 year.
 
 *That sounds like something that might break things – I wouldn't want to
-accidentally enable that.* 
+accidentally enable that.*
 
 #### Safe Mode
 
@@ -155,7 +160,7 @@ $headers->safe_mode();
 ```
 
 The same above notice will be generated, max-age will be modified to 1 day, and
-the preload and includesubdomains flags will be removed. 
+the preload and includesubdomains flags will be removed.
 
 #### Content Security Policy
 
@@ -233,7 +238,10 @@ $headers->cspro('report', 'whatisthis');
 ```
 
 ```
-Content-Security-Policy:default-src *; script-src 'unsafe-inline' http://insecure.cdn.org; style-src https: *; report-uri https://valid-enforced-url.org;
+Content-Security-Policy:default-src *; script-src 'unsafe-inline'
+http://insecure.cdn.org; style-src https: *; report-uri
+https://valid-enforced-url.org;
+
 Content-Security-Policy-Report-Only:report-uri whatisthis;
 ```
 
@@ -245,7 +253,7 @@ The following messages will be issued with regard to CSP:
   > **Warning:** Content Security Policy contains a wildcard **\*** as a source
   > value in **default-src**; this can allow anyone to insert elements covered
   > by the **default-src** directive into the page.
-* The script-src directive contains an a flag that allows inline script (so is 
+* The script-src directive contains an a flag that allows inline script (so is
 a CSP bypass)
 
   > **Warning:** Content Security Policy contains the **'unsafe-inline'**
@@ -260,7 +268,7 @@ a CSP bypass)
 * The style-src directive contains two wildcards (so is a CSP bypass) – both
 wildcards are listed
 
-  > **Warning:** Content Security Policy contains the following wildcards 
+  > **Warning:** Content Security Policy contains the following wildcards
   > **https:**, **\*** as a source value in **style-src**; this can allow
   > anyone to insert elements covered by the style-src directive into the page.
 * The report only header was sent, but no/an invalid reporting address was
@@ -276,20 +284,20 @@ given – preventing the report only header from doing anything useful in the wi
 ## Using CSP
 
 If you're new to Content-Security-Policy then running your proposed policy
-through [Google's CSP Evaluator](https://csp-evaluator.withgoogle.com/) may be 
+through [Google's CSP Evaluator](https://csp-evaluator.withgoogle.com/) may be
 a good idea.
 
-Let's take a look at a few ways of declaring the following CSP (or parts of 
+Let's take a look at a few ways of declaring the following CSP (or parts of
 it). Newlines and indentation added here for readability
 ```
 Content-Security-Policy:
-    default-src 'self'; 
-    script-src 'self' https://my.cdn.org https://scripts.cdn.net https://other.cdn.com; 
-    img-src https://images.cdn.xyz; 
-    style-src https://amazingstylesheets.cdn.pizza; 
-    base-uri 'self'; 
-    form-action 'none'; 
-    upgrade-insecure-requests; 
+    default-src 'self';
+    script-src 'self' https://my.cdn.org https://scripts.cdn.net https://other.cdn.com;
+    img-src https://images.cdn.xyz;
+    style-src https://amazingstylesheets.cdn.pizza;
+    base-uri 'self';
+    form-action 'none';
+    upgrade-insecure-requests;
     block-all-mixed-content;
 ```
 #### CSP as an array
@@ -417,14 +425,24 @@ $whoopsIforgotThisCSP = array(
     'form' => 'none'
 );
 
-$headers->csp($myCSP, 'script', 'https://other.cdn.com', ['block-all-mixed-content'], 'img', 'https://images.cdn.xyz', $myotherCSP);
-$headers->csp('style', 'https://amazingstylesheets.cdn.pizza', $whoopsIforgotThisCSP, 'upgrade-insecure-requests');
+$headers->csp(
+    $myCSP, 'script', 'https://other.cdn.com',
+    ['block-all-mixed-content'], 'img',
+    'https://images.cdn.xyz', $myotherCSP
+);
+$headers->csp(
+    'style', 'https://amazingstylesheets.cdn.pizza',
+    $whoopsIforgotThisCSP, 'upgrade-insecure-requests'
+);
 ```
 
 #### Behaviour when a CSP header has already been set
 ```php
 header("Content-Security-Policy: default-src 'self'; script-src http://insecure.cdn.org 'self'");
-$headers->add_header('Content-Security-Policy', "block-all-mixed-content; img-src 'self' https://cdn.net");
+$headers->add_header(
+    'Content-Security-Policy',
+    "block-all-mixed-content; img-src 'self' https://cdn.net"
+);
 $headers->csp('script', 'https://another.domain.example.com');
 ```
 
@@ -432,11 +450,13 @@ The above code will perform a merge on the two set CSP headers, and will also
 merge in the additional `script-src` value set in the final line. Producing
 the following merged CSP header
 ```
-Content-Security-Policy:block-all-mixed-content; img-src 'self' https://cdn.net; script-src https://another.domain.example.com http://insecure.cdn.org 'self'; default-src 'self';
+Content-Security-Policy:block-all-mixed-content; img-src 'self' https://cdn.net;
+script-src https://another.domain.example.com http://insecure.cdn.org 'self';
+default-src 'self';
 ```
 
 This merge capability is fully supported by `->add_header` (so that if two
-calls to add header are made – the CSPs will be extracted and merged). 
+calls to add header are made – the CSPs will be extracted and merged).
 
 However, because `header` is part of PHP, this will continue to behave as
 normal (i.e. overwrite the last header if called again). Because of this, only
@@ -468,7 +488,7 @@ structures a Content-Security-Policy can be communicated in.
 For full documentation, please see the
 [Wiki](https://github.com/aidantwoods/SecureHeaders/wiki)
 
-e.g. the following will combine `$baseCSP` with `$csp` to create an overall 
+e.g. the following will combine `$baseCSP` with `$csp` to create an overall
 Content-Security-Policy.
 ```php
 $headers = new SecureHeaders();
@@ -511,7 +531,7 @@ class CustomSecureHeaders extends SecureHeaders{
             "https://cdnjs.cloudflare.com/ajax/libs/font-awesome/"
         ]
     );
-    
+
 }
 ```
 
