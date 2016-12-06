@@ -60,30 +60,24 @@ class SecureHeaders{
         )
     );
 
-    protected $report_missing_headers = array(
-        'Strict-Transport-Security',
-        'Content-Security-Policy',
-        'X-XSS-Protection',
-        'X-Content-Type-Options',
-        'X-Frame-Options'
-    );
-
     protected $strict_mode = false;
-
-    protected $headers_as_string = false;
 
     # ~~
     # Public Functions
 
-    public function done_on_output($mode = self::ENABLED)
+    public function done_on_output($mode = true)
     {
-        if ($mode == true)
+        if ($mode == true and $this->done_on_output === false)
         {
             ob_start(array($this, 'return_buffer'));
+
+            $this->done_on_output = true;
         }
-        else
+        elseif ($this->done_on_output === true)
         {
-            if (ob_get_level()) ob_end_clean();
+            ob_end_clean();
+
+            $this->done_on_output = false;
         }
     }
 
@@ -2033,6 +2027,8 @@ class SecureHeaders{
 
     private $headers_string;
     private $headers_as_string = false;
+
+    private $done_on_output = false;
 
     # private variables: (pre-defined static structures)
 
