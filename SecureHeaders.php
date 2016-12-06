@@ -174,11 +174,6 @@ class SecureHeaders{
         }
     }
 
-    public function headers_as_string($mode)
-    {
-        $this->headers_as_string = ($mode == true);
-    }
-
     # ~~
     # public functions: raw headers
 
@@ -679,23 +674,16 @@ class SecureHeaders{
         $this->report_errors();
     }
 
-    public function get_headers_as_string()
-    {
-        if ( ! $this->headers_as_string) return;
-
-        $reporting_state = $this->error_reporting;
-        $this->error_reporting = false;
-
-        $this->done();
-        $this->error_reporting = $reporting_state;
-
-        return $this->headers_string;
-    }
-
     public function error_reporting($mode)
     {
         $this->error_reporting = ($mode == true);
     }
+
+    # ~~
+    # public functions: non-user
+    #
+    # These aren't documented because they aren't meant to be used directly,
+    # but still need to have public visability.
 
     public function return_buffer($buffer = null)
     {
@@ -715,6 +703,24 @@ class SecureHeaders{
         $this->buffer_returned = true;
 
         return $buffer;
+    }
+
+    public function headers_as_string($mode = true)
+    {
+        $this->headers_as_string = ($mode == true);
+    }
+
+    public function get_headers_as_string()
+    {
+        if ( ! $this->headers_as_string) return;
+
+        $reporting_state = $this->error_reporting;
+        $this->error_reporting = false;
+
+        $this->done();
+        $this->error_reporting = $reporting_state;
+
+        return $this->headers_string;
     }
 
     # ~~
