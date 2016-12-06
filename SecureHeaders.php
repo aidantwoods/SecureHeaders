@@ -36,11 +36,6 @@ class SecureHeaders{
 
     protected $error_reporting = true;
 
-    protected $csp_ro_blacklist = array(
-        'block-all-mixed-content',
-        'upgrade-insecure-requests'
-    );
-
     protected $csp_legacy = false;
 
     protected $safe_mode = false;
@@ -2037,6 +2032,7 @@ class SecureHeaders{
     private $buffer_returned = false;
 
     private $headers_string;
+    private $headers_as_string = false;
 
     # private variables: (pre-defined static structures)
 
@@ -2071,6 +2067,11 @@ class SecureHeaders{
         'object-src'
     );
 
+    protected $csp_ro_blacklist = array(
+        'block-all-mixed-content',
+        'upgrade-insecure-requests'
+    );
+
     private $allowed_csp_hash_algs = array(
         'sha256',
         'sha384',
@@ -2100,6 +2101,14 @@ class SecureHeaders{
             'includesubdomains' => false,
             'Some HPKP settings were overridden because Safe-Mode is enabled.'
         )
+    );
+
+    private $report_missing_headers = array(
+        'Strict-Transport-Security',
+        'Content-Security-Policy',
+        'X-XSS-Protection',
+        'X-Content-Type-Options',
+        'X-Frame-Options'
     );
 
     private $csp_source_wildcard_re
@@ -2132,26 +2141,21 @@ class SecureHeaders{
         # ~
         # Constants
 
-        # general
-
-        const DISABLED              = 0; # 0b0000
-        const ENABLED               = 1; # 0b0001
-
         # auto-headers
 
-        const AUTO_ADD              = 1;  # 0b0001
-        const AUTO_REMOVE           = 2;  # 0b0010
-        const AUTO_COOKIE_SECURE    = 4;  # 0b0100
-        const AUTO_COOKIE_HTTPONLY  = 8;  # 0b1000
+        const AUTO_ADD              =  1; # 0b0001
+        const AUTO_REMOVE           =  2; # 0b0010
+        const AUTO_COOKIE_SECURE    =  4; # 0b0100
+        const AUTO_COOKIE_HTTPONLY  =  8; # 0b1000
         const AUTO_ALL              = 15; # 0b1111
 
         # cookie upgrades
 
-        const COOKIE_NAME           = 1;  # 0b0001
-        const COOKIE_SUBSTR         = 2;  # 0b0010
-        const COOKIE_ALL            = 3;  # COOKIE_NAME | COOKIE_SUBSTR
-        const COOKIE_REMOVE         = 4;  # 0b0100
-        const COOKIE_DEFAULT        = 6;  # ~COOKIE_REMOVE | COOKIE_SUBSTR
+        const COOKIE_NAME           =  1; # 0b0001
+        const COOKIE_SUBSTR         =  2; # 0b0010
+        const COOKIE_ALL            =  3; # COOKIE_NAME | COOKIE_SUBSTR
+        const COOKIE_REMOVE         =  4; # 0b0100
+        const COOKIE_DEFAULT        =  6; # ~COOKIE_REMOVE | COOKIE_SUBSTR
 }
 
 class SecureHeadersTypeError extends Exception{
