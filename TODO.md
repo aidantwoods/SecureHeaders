@@ -1,7 +1,6 @@
 # TODO
 ## pending
 * Greater granularity in safe-mode (allow user set defaults + user set 'unsafe' header additions)
-* Add hpkpro function for hpkp in report only mode
 * Validate more header values
 
 ## done
@@ -11,3 +10,4 @@
 * ~~Remove type hinting and use custom type enforcement function that generates errors similar to those produced by type hinting in PHP 7. (backwards-compatibility for PHP 5)~~ **Added!**
 * ~~Greater 'strict-dynamic' integration~~ **Added!**
 * ~~In place of type hinting, fully document code with expected parameter types~~ **Added!** (in Wiki)
+* ~~Add hpkpro function for hpkp in report only mode~~ **Added!**
