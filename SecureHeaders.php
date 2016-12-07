@@ -38,6 +38,8 @@ class SecureHeaders{
 
     protected $csp_legacy = false;
 
+    protected $strict_mode = false;
+
     protected $safe_mode = false;
     protected $safe_mode_exceptions = array();
 
@@ -59,8 +61,6 @@ class SecureHeaders{
             'persistent'
         )
     );
-
-    protected $strict_mode = false;
 
     # ~~
     # Public Functions
@@ -582,7 +582,8 @@ class SecureHeaders{
         $pins,
         $max_age = null,
         $subdomains = null,
-        $report_uri = null
+        $report_uri = null,
+        $report_only = null
     ) {
         $this->assert_types(
             array(
@@ -593,22 +594,24 @@ class SecureHeaders{
             array(1, 2, 4)
         );
 
+        $hpkp = &$this->get_hpkp_object($report_only);
+
         # set single values
 
         if(isset($max_age) or ! isset($this->hpkp['max-age']))
         {
-            $this->hpkp['max-age'] 	= $max_age;
+            $hpkp['max-age'] 	= $max_age;
         }
 
         if(isset($subdomains) or ! isset($this->hpkp['includesubdomains']))
         {
-            $this->hpkp['includesubdomains']
+            $hpkp['includesubdomains']
                 = (isset($subdomains) ? ($subdomains == true) : null);
         }
 
         if(isset($report_uri) or ! isset($this->hpkp['report-uri']))
         {
-            $this->hpkp['report-uri'] = $report_uri;
+            $hpkp['report-uri'] = $report_uri;
         }
 
         if ( ! is_array($pins) and ! is_string($pins)) return;
@@ -626,7 +629,7 @@ class SecureHeaders{
                 if ( ! empty($res))
                 {
                     $key = key($res);
-                    $this->hpkp['pins'][] = array(
+                    $hpkp['pins'][] = array(
                         $pin[($key + 1) % 2],
                         $pin[$key]
                     );
@@ -641,14 +644,39 @@ class SecureHeaders{
                 and count($pin) === 1
                 and ($pin = $pin[0]) !== false)
             ) {
-                $this->hpkp['pins'][] = array($pin, 'sha256');
+                $hpkp['pins'][] = array($pin, 'sha256');
             }
         }
     }
 
-    public function hpkp_subdomains($mode = true)
+    public function hpkpro(
+        $pins,
+        $max_age = null,
+        $subdomains = null,
+        $report_uri = null
+    ) {
+        $this->assert_types(
+            array(
+                'string|array' => array($pins),
+                'int|string' => array($max_age),
+                'string' => array($report_uri)
+            ),
+            array(1, 2, 4)
+        );
+
+        return $this->hpkp($pins, $max_age, $subdomains, $report_uri, true);
+    }
+
+    public function hpkp_subdomains($mode = true, $report_only = null)
     {
-        $this->hpkp['includesubdomains'] = ($mode == true);
+        $hpkp = &$this->get_hpkp_object($report_only);
+
+        $hpkp['includesubdomains'] = ($mode == true);
+    }
+
+    public function hpkpro_subdomains($mode = true)
+    {
+        return $this->hpkp_subdomains($mode, true);
     }
 
     # ~~
@@ -1334,7 +1362,9 @@ class SecureHeaders{
             $this->add_header('Content-Security-Policy', $csp_string);
 
             if($this->csp_legacy)
+            {
                 $this->add_header('X-Content-Security-Policy', $csp_string);
+            }
         }
 
         if ( ! empty($csp_ro_string))
@@ -1467,36 +1497,76 @@ class SecureHeaders{
 
     private function compile_hpkp()
     {
-        if ( ! empty($this->hpkp))
+        $hpkp_string = '';
+        $hpkp_ro_string = '';
+
+        $hpkp 	 = &$this->get_hpkp_object(false);
+        $hpkp_ro = &$this->get_hpkp_object(true);
+
+        foreach (array('hpkp', 'hpkp_ro') as $type)
         {
-            $hpkp_string = '';
-
-            foreach ($this->hpkp['pins'] as $pin_alg)
+            if ( ! empty(${$type}) and ! empty(${$type}['pins']))
             {
-                list($pin, $alg) = $pin_alg;
+                ${$type.'_string'} = '';
 
-                $hpkp_string .= 'pin-' . $alg . '="' . $pin . '"; ';
-            }
-
-            if ( ! empty($hpkp_string))
-            {
-                if ( ! isset($this->hpkp['max-age']))
+                foreach (${$type}['pins'] as $pin_alg)
                 {
-                    $this->hpkp['max-age'] = 10;
+                    list($pin, $alg) = $pin_alg;
+
+                    ${$type.'_string'} .= 'pin-' . $alg . '="' . $pin . '"; ';
                 }
 
-                $this->add_header(
-                    'Public-Key-Pins',
-
-                    'max-age='.$this->hpkp['max-age'] . '; '
-                    . $hpkp_string
-                    . ($this->hpkp['includesubdomains'] ?
-                        'includeSubDomains; ' :'')
-                    . ($this->hpkp['report-uri'] ?
-                        'report-uri="' .$this->hpkp['report-uri']. '"' :'')
-                );
+                if ( ! empty(${$type.'_string'}))
+                {
+                    if ( ! isset(${$type}['max-age']))
+                    {
+                        ${$type}['max-age'] = 10;
+                    }
+                }
             }
         }
+
+        if ( ! empty($hpkp_string))
+        {
+            $this->add_header(
+                'Public-Key-Pins',
+
+                'max-age='.$hpkp['max-age'] . '; '
+                . $hpkp_string
+                . ($hpkp['includesubdomains'] ?
+                    'includeSubDomains; ' :'')
+                . ($hpkp['report-uri'] ?
+                    'report-uri="' .$hpkp['report-uri']. '"' :'')
+            );
+        }
+
+        if ( ! empty($hpkp_ro_string))
+        {
+            $this->add_header(
+                'Public-Key-Pins-Report-Only',
+
+                'max-age='.$hpkp_ro['max-age'] . '; '
+                . $hpkp_ro_string
+                . ($hpkp_ro['includesubdomains'] ?
+                    'includeSubDomains; ' :'')
+                . ($hpkp_ro['report-uri'] ?
+                    'report-uri="' .$hpkp_ro['report-uri']. '"' :'')
+            );
+        }
+    }
+
+    private function &get_hpkp_object($report_only)
+    {
+        if ( ! isset($report_only) or ! $report_only)
+        {
+            $hpkp = &$this->hpkp;
+        }
+        else
+        {
+            $hpkp = &$this->hpkp_ro;
+        }
+
+        return $hpkp;
     }
 
     # ~~
@@ -2011,30 +2081,32 @@ class SecureHeaders{
     # ~~
     # private variables: (non settings)
 
-    private $headers = array();
-    private $removed_headers = array();
+    private $headers            = array();
+    private $removed_headers    = array();
 
-    private $cookies = array();
-    private $removed_cookies = array();
+    private $cookies            = array();
+    private $removed_cookies    = array();
 
-    private $errors = array();
+    private $errors             = array();
     private $error_string;
 
-    private $csp = array();
-    private $csp_ro = array();
+    private $csp                = array();
+    private $csp_ro             = array();
 
-    private $hsts = array();
-    private $hpkp = array();
+    private $hsts               = array();
 
-    private $allow_imports = true;
-    private $propose_headers = false;
+    private $hpkp               = array();
+    private $hpkp_ro            = array();
 
-    private $buffer_returned = false;
+    private $allow_imports      = true;
+    private $propose_headers    = false;
+
+    private $buffer_returned    = false;
 
     private $headers_string;
-    private $headers_as_string = false;
+    private $headers_as_string  = false;
 
-    private $done_on_output = false;
+    private $done_on_output     = false;
 
     # private variables: (pre-defined static structures)
 
