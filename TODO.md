@@ -1,7 +1,6 @@
 # TODO
 ## pending
 * Greater granularity in safe-mode (allow user set defaults + user set 'unsafe' header additions)
-* Validate more header values
 
 ## done
 * ~~HPKP reporting~~ **Added!**
@@ -11,3 +10,6 @@
 * ~~Greater 'strict-dynamic' integration~~ **Added!**
 * ~~In place of type hinting, fully document code with expected parameter types~~ **Added!** (in Wiki)
 * ~~Add hpkpro function for hpkp in report only mode~~ **Added!**
+
+## long term goals
+* Validate more header values
