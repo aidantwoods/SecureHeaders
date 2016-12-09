@@ -614,8 +614,6 @@ class SecureHeaders{
             $hpkp['report-uri'] = $report_uri;
         }
 
-        if ( ! is_array($pins) and ! is_string($pins)) return;
-
         if ( ! is_array($pins)) $pins = array($pins);
 
         # set pins
