@@ -894,8 +894,8 @@ class SecureHeaders{
         foreach ($this->headers as $key => $header)
         {
             $header_string
-                =   $header['name'] .
-                    ($header['value'] === '' ? '' : ': ' . $header['value']);
+                =   $header['name']
+                    . ($header['value'] === '' ? '' : ': ' . $header['value']);
 
             if ($this->headers_as_string)
             {
@@ -947,19 +947,19 @@ class SecureHeaders{
 
             # format: https://tools.ietf.org/html/rfc6265#section-4.1.1
 
-            $header_string = 'Set-Cookie: ' .
-                $name . '=' . $cookie[0].'; '.
-                (isset($cookie['expires']) ?
-                    'Expires='.$cookie['expires'].'; ' : '').
-                (isset($cookie['max-age']) ?
-                    'Max-Age='.$cookie['max-age'].'; ' : '').
-                (isset($cookie['domain']) ?
-                    'Domain='.$cookie['domain'].'; ' : '').
-                (isset($cookie['path']) ?
-                    'Path='.$cookie['path'].'; ' : '').
-                ( ! empty($cookie['secure']) ?
-                    'Secure; ' : '').
-                ( ! empty($cookie['httponly']) ?
+            $header_string = 'Set-Cookie: '
+                . $name . '=' . $cookie[0].'; '
+                . (isset($cookie['expires']) ?
+                    'Expires='.$cookie['expires'].'; ' : '')
+                . (isset($cookie['max-age']) ?
+                    'Max-Age='.$cookie['max-age'].'; ' : '')
+                . (isset($cookie['domain']) ?
+                    'Domain='.$cookie['domain'].'; ' : '')
+                . (isset($cookie['path']) ?
+                    'Path='.$cookie['path'].'; ' : '')
+                . ( ! empty($cookie['secure']) ?
+                    'Secure; ' : '')
+                . ( ! empty($cookie['httponly']) ?
                     'HttpOnly; ' : '');
 
             # remove final '; '
@@ -1073,12 +1073,12 @@ class SecureHeaders{
                         )
                     )
                 ) {
-                    $this->add_error($friendly_header.' header was sent, '.
-                        'but an invalid, or no reporting address was given. '.
-                        'This header will not enforce violations, and with no '.
-                        'reporting address specified, the browser can only '.
-                        'report them locally in its console. Consider adding '.
-                        'a reporting address to make full use of this header.'
+                    $this->add_error($friendly_header.' header was sent, '
+                        . 'but an invalid, or no reporting address was given. '
+                        . 'This header will not enforce violations, and with no'
+                        . ' reporting address specified, the browser can only '
+                        . 'report them locally in its console. Consider adding '
+                        . 'a reporting address to make full use of this header.'
                     );
                 }
 
@@ -1093,11 +1093,11 @@ class SecureHeaders{
                             if (strpos($value, $bad_flag) !== false)
                             {
                                 $this->add_error(
-                                    $friendly_header.' contains the <b>'.
-                                    $bad_flag.'</b> keyword in <b>'.$name.
-                                    '</b>, which prevents CSP protecting '.
-                                    'against the injection of arbitrary code '.
-                                    'into the page.',
+                                    $friendly_header.' contains the <b>'
+                                    . $bad_flag.'</b> keyword in <b>'.$name
+                                    . '</b>, which prevents CSP protecting '
+                                    . 'against the injection of arbitrary code'
+                                    . ' into the page.',
 
                                     E_USER_WARNING
                                 );
@@ -1131,11 +1131,12 @@ class SecureHeaders{
                             $this->add_error(
                                 $friendly_header.' '.(count($matches[0]) > 1 ?
                                     'contains the following wildcards '
-                                    : 'contains a wildcard ') .
-                                '<b>'.implode(', ', $matches[0]).'</b> as a '.
-                                'source value in <b>'.$name.'</b>; this can '.
-                                'allow anyone to insert elements covered by '.
-                                'the <b>'.$name.'</b> directive into the page.',
+                                    : 'contains a wildcard ')
+                                . '<b>'.implode(', ', $matches[0]).'</b> as a '
+                                . 'source value in <b>'.$name.'</b>; this can '
+                                . 'allow anyone to insert elements covered by '
+                                . 'the <b>'.$name.'</b> directive into the '
+                                . 'page.',
 
                                 E_USER_WARNING
                             );
@@ -1150,13 +1151,13 @@ class SecureHeaders{
                         )
                     ) {
                         $this->add_error(
-                            $friendly_header.' contains the insecure protocol '.
-                            'HTTP in '.(count($matches[0]) > 1 ?
+                            $friendly_header.' contains the insecure protocol '
+                            . 'HTTP in '.(count($matches[0]) > 1 ?
                                 'the following source values '
-                                :  'a source value ').
-                            '<b>'.implode(', ', $matches[0]).'</b>; this can '.
-                            'allow anyone to insert elements covered by the '.
-                            '<b>'.$name.'</b> directive into the page.',
+                                :  'a source value ')
+                            . '<b>'.implode(', ', $matches[0]).'</b>; this can '
+                            . 'allow anyone to insert elements covered by the '
+                            . '<b>'.$name.'</b> directive into the page.',
 
                             E_USER_WARNING
                         );
@@ -1343,8 +1344,8 @@ class SecureHeaders{
                 $add_to_csp
                     =   "$directive".($is_flag ?
                             ''
-                            : ' '.implode(' ', $sources)).
-                        '; ';
+                            : ' '.implode(' ', $sources))
+                        . '; ';
 
                 if (
                     $type !== 'csp_ro'
@@ -1446,8 +1447,8 @@ class SecureHeaders{
             else
             {
                 $this->add_error(
-                    __FUNCTION__.": The specified file
-                    <strong>'$string'</strong>, does not exist"
+                    __FUNCTION__.": The specified file"
+                    . "<strong>'$string'</strong>, does not exist"
                 );
 
                 return '';
@@ -1464,9 +1465,9 @@ class SecureHeaders{
         if ( ! $crypto_strong)
         {
             $this->add_error(
-                'OpenSSL (openssl_random_pseudo_bytes) reported that it did '.
-                '<strong>not</strong> use a cryptographically strong algorithm'.
-                ' to generate the nonce for CSP.',
+                'OpenSSL (openssl_random_pseudo_bytes) reported that it did '
+                .'<strong>not</strong> use a cryptographically strong algorithm'
+                .' to generate the nonce for CSP.',
 
                 E_USER_WARNING
             );
@@ -1486,8 +1487,8 @@ class SecureHeaders{
                 'Strict-Transport-Security',
 
                 'max-age='.$this->hsts['max-age']
-                    . ($this->hsts['subdomains'] ? '; includeSubDomains' :'')
-                    . ($this->hsts['preload'] ? '; preload' :'')
+                . ($this->hsts['subdomains'] ? '; includeSubDomains' :'')
+                . ($this->hsts['preload'] ? '; preload' :'')
             );
         }
     }
@@ -2025,10 +2026,10 @@ class SecureHeaders{
                 {
                     $typeError
                         = new SecureHeadersTypeError(
-                            'Argument '.$arg_nums[$i].' passed to '.
-                            __CLASS__."::${caller['function']}() must be of the
-                            type $type, $var_type given in ${caller['file']} on
-                            line ${caller['line']}"
+                            'Argument '.$arg_nums[$i].' passed to '
+                            .__CLASS__."::${caller['function']}() must be of"
+                            ." the type $type, $var_type given in "
+                            ."${caller['file']} on line ${caller['line']}"
                         );
 
                     $typeError->passHeaders($this);
