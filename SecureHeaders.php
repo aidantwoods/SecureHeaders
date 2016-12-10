@@ -1049,13 +1049,9 @@ class SecureHeaders{
     {
         foreach ($this->headers as $header => $data)
         {
-            $friendly_header = preg_replace_callback(
-                '/(?:^|-)([a-z])/',
-                function($match){
-                    return ' '.strtoupper($match[1]);
-                },
-                $header
-            );
+            $friendly_header = str_replace('-', ' ', $header);
+            $friendly_header = ucwords($friendly_header);
+
             if (
                 $header === 'content-security-policy'
                 or $header === 'content-security-policy-report-only'
