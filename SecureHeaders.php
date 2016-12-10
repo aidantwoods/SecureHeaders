@@ -474,7 +474,7 @@ class SecureHeaders{
 
         $hash = $this->csp_do_hash($string, $algo, $is_file);
 
-        $hash_string = "'$algo-" . $hash ."'";
+        $hash_string = "'$algo-$hash'";
 
         $this->csp_allow($friendly_directive, $hash_string, $report_only);
 
@@ -1071,12 +1071,12 @@ class SecureHeaders{
                         )
                     )
                 ) {
-                    $this->add_error($friendly_header.' header was sent, '
-                        . 'but an invalid, or no reporting address was given. '
-                        . 'This header will not enforce violations, and with no'
-                        . ' reporting address specified, the browser can only '
-                        . 'report them locally in its console. Consider adding '
-                        . 'a reporting address to make full use of this header.'
+                    $this->add_error($friendly_header.' header was sent, 
+                        but an invalid, or no reporting address was given.
+                        This header will not enforce violations, and with no
+                        reporting address specified, the browser can only
+                        report them locally in its console. Consider adding
+                        a reporting address to make full use of this header.'
                     );
                 }
 
@@ -1093,9 +1093,9 @@ class SecureHeaders{
                                 $this->add_error(
                                     $friendly_header.' contains the <b>'
                                     . $bad_flag.'</b> keyword in <b>'.$name
-                                    . '</b>, which prevents CSP protecting '
-                                    . 'against the injection of arbitrary code'
-                                    . ' into the page.',
+                                    . '</b>, which prevents CSP protecting
+                                    against the injection of arbitrary code
+                                    into the page.',
 
                                     E_USER_WARNING
                                 );
@@ -1130,11 +1130,11 @@ class SecureHeaders{
                                 $friendly_header.' '.(count($matches[0]) > 1 ?
                                     'contains the following wildcards '
                                     : 'contains a wildcard ')
-                                . '<b>'.implode(', ', $matches[0]).'</b> as a '
-                                . 'source value in <b>'.$name.'</b>; this can '
-                                . 'allow anyone to insert elements covered by '
-                                . 'the <b>'.$name.'</b> directive into the '
-                                . 'page.',
+                                . '<b>'.implode(', ', $matches[0]).'</b> as a
+                                source value in <b>'.$name.'</b>; this can
+                                allow anyone to insert elements covered by
+                                the <b>'.$name.'</b> directive into the
+                                page.',
 
                                 E_USER_WARNING
                             );
@@ -1149,13 +1149,13 @@ class SecureHeaders{
                         )
                     ) {
                         $this->add_error(
-                            $friendly_header.' contains the insecure protocol '
-                            . 'HTTP in '.(count($matches[0]) > 1 ?
+                            $friendly_header.' contains the insecure protocol
+                            HTTP in '.(count($matches[0]) > 1 ?
                                 'the following source values '
                                 :  'a source value ')
-                            . '<b>'.implode(', ', $matches[0]).'</b>; this can '
-                            . 'allow anyone to insert elements covered by the '
-                            . '<b>'.$name.'</b> directive into the page.',
+                            . '<b>'.implode(', ', $matches[0]).'</b>; this can
+                            allow anyone to insert elements covered by the
+                            <b>'.$name.'</b> directive into the page.',
 
                             E_USER_WARNING
                         );
@@ -1445,7 +1445,7 @@ class SecureHeaders{
             else
             {
                 $this->add_error(
-                    __FUNCTION__.": The specified file"
+                    __FUNCTION__.': The specified file'
                     . "<strong>'$string'</strong>, does not exist"
                 );
 
@@ -1463,9 +1463,9 @@ class SecureHeaders{
         if ( ! $crypto_strong)
         {
             $this->add_error(
-                'OpenSSL (openssl_random_pseudo_bytes) reported that it did '
-                .'<strong>not</strong> use a cryptographically strong algorithm'
-                .' to generate the nonce for CSP.',
+                'OpenSSL (openssl_random_pseudo_bytes) reported that it did
+                <strong>not</strong> use a cryptographically strong algorithm
+                to generate the nonce for CSP.',
 
                 E_USER_WARNING
             );
@@ -1748,6 +1748,8 @@ class SecureHeaders{
             array('string' => array($message), 'int' => array($error))
         );
 
+        $message = preg_replace('/\s+/', ' ', $message);
+
         $this->errors[] = array($message, $error);
     }
 
@@ -1876,10 +1878,10 @@ class SecureHeaders{
                 )
             ) {
                 $this->add_error(
-                    "Strict-Mode is enabled, but so is Safe-Mode. HSTS with
+                    'Strict-Mode is enabled, but so is Safe-Mode. HSTS with
                     long-duration, subdomains, and preload was added, but
                     Safe-Mode settings will take precedence if these settings
-                    conflict.",
+                    conflict.',
 
                     E_USER_NOTICE
                 );
@@ -2162,10 +2164,13 @@ class SecureHeaders{
             'preload' => false,
 
             'HSTS settings were overridden because Safe-Mode is enabled.
-            <a href="https://scotthelme.co.uk/death-by-copy-paste/#hstsandpreloading">
+            <a href="
+            https://scotthelme.co.uk/death-by-copy-paste/#hstsandpreloading">
             Read about</a> some common mistakes when setting HSTS via
             copy/paste, and ensure you
-            <a href="https://www.owasp.org/index.php/HTTP_Strict_Transport_Security_Cheat_Sheet">
+            <a href="
+            https://www.owasp.org/index.php/
+            HTTP_Strict_Transport_Security_Cheat_Sheet">
             understand the details</a> and possible side effects of this
             security feature before using it.'
         ),
