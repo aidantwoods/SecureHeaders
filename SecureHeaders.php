@@ -37,6 +37,7 @@ class SecureHeaders{
     protected $error_reporting = true;
 
     protected $csp_legacy = false;
+    protected $return_existing_nonce = true;
 
     protected $strict_mode = false;
 
@@ -118,6 +119,11 @@ class SecureHeaders{
         {
             $this->strict_mode = true;
         }
+    }
+
+    public function return_existing_nonce($mode = true)
+    {
+        $this->return_existing_nonce = ($mode == true);
     }
 
     public function auto($mode = self::AUTO_ALL)
@@ -534,11 +540,26 @@ class SecureHeaders{
     {
         $this->assert_types(array('string' => array($friendly_directive)));
 
+        $report_only = ($report_only == true);
+
+        $nonce_store = &$this->csp_nonces[
+            ($report_only ? 'report_only' : 'enforced')
+        ];
+
+        $directive = $this->long_directive($friendly_directive);
+
+        if ($this->return_existing_nonce and isset($nonce_store[$directive]))
+        {
+            return $nonce_store[$directive];
+        }
+
         $nonce = $this->csp_generate_nonce();
 
         $nonce_string = "'nonce-$nonce'";
 
-        $this->csp_allow($friendly_directive, $nonce_string, $report_only);
+        $this->add_csp_source($directive, $nonce_string, $report_only);
+
+        $nonce_store[$directive] = $nonce;
 
         return $nonce;
     }
@@ -1226,6 +1247,17 @@ class SecureHeaders{
             array('string' => array($friendly_directive, $friendly_source))
         );
 
+        $directive = $this->long_directive($friendly_directive);
+
+        $source = $this->long_source($friendly_source);
+
+        $this->add_csp_source($directive, $source, $report_only);
+    }
+
+    private function long_directive($friendly_directive)
+    {
+        $this->assert_types(array('string' => array($friendly_directive)));
+
         $friendly_directive = strtolower($friendly_directive);
 
         if (isset($this->csp_directive_shortcuts[$friendly_directive]))
@@ -1236,6 +1268,13 @@ class SecureHeaders{
         {
             $directive = $friendly_directive;
         }
+
+        return $directive;
+    }
+
+    private function long_source($friendly_source)
+    {
+        $this->assert_types(array('string' => array($friendly_source)));
 
         $lower_friendly_source = strtolower($friendly_source);
 
@@ -1248,7 +1287,7 @@ class SecureHeaders{
             $source = $friendly_source;
         }
 
-        $this->add_csp_source($directive, $source, $report_only);
+        return $source;
     }
 
     private function add_csp_source(
@@ -2089,6 +2128,10 @@ class SecureHeaders{
 
     private $csp                = array();
     private $csp_ro             = array();
+    private $csp_nonces         = array(
+        'enforced' => array(),
+        'report_only' => array()
+    );
 
     private $hsts               = array();
 
