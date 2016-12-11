@@ -215,8 +215,8 @@ class SecureHeaders{
                 or isset($this->headers[$name])
             )
         ) {
-            # a proposal header will only be added if the intented header
-            # has not been staged for removal or already added
+            # a proposal header will only be added if the intented header: {
+            # has not been staged for removal} or {already added}
             return;
         }
 
@@ -1088,7 +1088,7 @@ class SecureHeaders{
                         )
                     )
                 ) {
-                    $this->add_error($friendly_header.' header was sent, 
+                    $this->add_error($friendly_header.' header was sent,
                         but an invalid, or no reporting address was given.
                         This header will not enforce violations, and with no
                         reporting address specified, the browser can only
