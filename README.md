@@ -12,11 +12,6 @@ any web application, and most can be deployed without any, or very minor code
 changes. However some of the most effective ones *do* require code changes –
 especially to implement well.
 
-## Development Notice
-This project is currently under initial development, so there is the potential
-for non-backwards compatible changes etc.. That said, bug reports are still
-welcome from anyone who wants to test it out.
-
 ## Features
 * Add/remove and manage headers easily
 * Build a Content Security Policy, or combine multiple together
