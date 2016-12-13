@@ -245,7 +245,7 @@ The following messages will be issued with regard to CSP:
 
 * The default-src directive contains a wildcard (so is a CSP bypass)
 
-  > **Warning:** Content Security Policy contains a wildcard **\*** as a source
+  > **Warning:** Content Security Policy contains a wildcard __*__ as a source
   > value in **default-src**; this can allow anyone to insert elements covered
   > by the **default-src** directive into the page.
 * The script-src directive contains an a flag that allows inline script (so is
@@ -264,7 +264,7 @@ a CSP bypass)
 wildcards are listed
 
   > **Warning:** Content Security Policy contains the following wildcards
-  > **https:**, **\*** as a source value in **style-src**; this can allow
+  > **https:**, __*__ as a source value in **style-src**; this can allow
   > anyone to insert elements covered by the style-src directive into the page.
 * The report only header was sent, but no/an invalid reporting address was
 given – preventing the report only header from doing anything useful in the wild
