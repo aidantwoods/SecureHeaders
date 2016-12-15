@@ -1256,6 +1256,10 @@ class SecureHeaders{
 
     private function long_directive($friendly_directive)
     {
+        # takes directive A and returns the corresponding long directive, if the
+        # directive A is friendly directive. Otherwise, directive A will be
+        # returned
+
         $this->assert_types(array('string' => array($friendly_directive)));
 
         $friendly_directive = strtolower($friendly_directive);
@@ -1274,6 +1278,9 @@ class SecureHeaders{
 
     private function long_source($friendly_source)
     {
+        # takes source A and returns the corresponding long source, if the source A
+        # is friendly source. Otherwise, source A will be returned
+
         $this->assert_types(array('string' => array($friendly_source)));
 
         $lower_friendly_source = strtolower($friendly_source);
