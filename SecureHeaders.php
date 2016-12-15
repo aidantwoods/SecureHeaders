@@ -157,26 +157,33 @@ class SecureHeaders{
             return;
         }
 
-        $string_type = 'substrings';
+        $string_types = array();
 
-        if ($mode & self::COOKIE_NAME) $string_type = 'names';
+        if (($mode & self::COOKIE_NAME) === self::COOKIE_NAME)
+            $string_types[] = 'names';
 
-        if (
-            $mode & ~self::COOKIE_REMOVE
-            and ! in_array($name, $this->protected_cookies[$string_type])
-        ) {
-            $this->protected_cookies[$string_type][] = $name;
-        }
-        elseif (
-            $mode & self::COOKIE_REMOVE
-            and (
-                $key = array_search(
-                    $name,
-                    $this->protected_cookies[$string_type]
-                )
-            ) !== false
-        ) {
-            unset($this->protected_cookies[$string_type][$key]);
+        if (($mode & self::COOKIE_SUBSTR) === self::COOKIE_SUBSTR)
+            $string_types[] = 'substrings';
+
+        foreach ($string_types as $type)
+        {
+            if (
+                ($mode & self::COOKIE_REMOVE) !== self::COOKIE_REMOVE
+            and ! in_array($name, $this->protected_cookies[$type])
+            ) {
+                $this->protected_cookies[$type][] = $name;
+            }
+            elseif (
+                ($mode & self::COOKIE_REMOVE) === self::COOKIE_REMOVE
+                and (
+                    $key = array_search(
+                        $name,
+                        $this->protected_cookies[$type]
+                    )
+                ) !== false
+            ) {
+                unset($this->protected_cookies[$type][$key]);
+            }
         }
     }
 
@@ -1947,7 +1954,7 @@ class SecureHeaders{
             }
         }
 
-        if ($this->automatic_headers & self::AUTO_ADD)
+        if (($this->automatic_headers & self::AUTO_ADD) === self::AUTO_ADD)
         {
             # security headers for all (HTTP and HTTPS) connections
             $this->add_header('X-XSS-Protection', '1; mode=block');
@@ -1955,15 +1962,17 @@ class SecureHeaders{
             $this->add_header('X-Frame-Options', 'Deny');
         }
 
-        if($this->automatic_headers & self::AUTO_REMOVE)
+        if (($this->automatic_headers & self::AUTO_REMOVE) === self::AUTO_REMOVE)
         {
             # remove headers leaking server information
             $this->remove_header('Server');
             $this->remove_header('X-Powered-By');
         }
 
-        if($this->automatic_headers & self::AUTO_COOKIE_SECURE)
-        {
+        if (
+            ($this->automatic_headers & self::AUTO_COOKIE_SECURE)
+            === self::AUTO_COOKIE_SECURE
+        ) {
             # add a secure flag to cookies that look like they hold session data
             foreach (
                 $this->protected_cookies['substrings'] as $substr
@@ -1977,8 +1986,10 @@ class SecureHeaders{
             }
         }
 
-        if($this->automatic_headers & self::AUTO_COOKIE_HTTPONLY)
-        {
+        if (
+            ($this->automatic_headers & self::AUTO_COOKIE_HTTPONLY)
+            === self::AUTO_COOKIE_HTTPONLY
+        ) {
             # add a httpOnly flag to cookies that look like they hold
             # session data
             foreach (
@@ -2279,7 +2290,7 @@ class SecureHeaders{
         const COOKIE_SUBSTR         =  2; # 0b0010
         const COOKIE_ALL            =  3; # COOKIE_NAME | COOKIE_SUBSTR
         const COOKIE_REMOVE         =  4; # 0b0100
-        const COOKIE_DEFAULT        =  6; # ~COOKIE_REMOVE | COOKIE_SUBSTR
+        const COOKIE_DEFAULT        =  2; # COOKIE_REMOVE & ~COOKIE_SUBSTR
 }
 
 class SecureHeadersTypeError extends Exception{
