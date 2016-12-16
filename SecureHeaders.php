@@ -427,7 +427,7 @@ class SecureHeaders{
         $source = strtolower($source);
         $directive = strtolower($directive);
 
-        if( ! isset($csp[$directive][$source]))
+        if ( ! isset($csp[$directive][$source]))
         {
             return false;
         }
@@ -445,7 +445,7 @@ class SecureHeaders{
 
         $directive = strtolower($directive);
 
-        if( ! isset($csp[$directive]))
+        if ( ! isset($csp[$directive]))
         {
             return false;
         }
@@ -626,18 +626,18 @@ class SecureHeaders{
 
         # set single values
 
-        if(isset($max_age) or ! isset($this->hpkp['max-age']))
+        if (isset($max_age) or ! isset($this->hpkp['max-age']))
         {
             $hpkp['max-age'] 	= $max_age;
         }
 
-        if(isset($subdomains) or ! isset($this->hpkp['includesubdomains']))
+        if (isset($subdomains) or ! isset($this->hpkp['includesubdomains']))
         {
             $hpkp['includesubdomains']
                 = (isset($subdomains) ? ($subdomains == true) : null);
         }
 
-        if(isset($report_uri) or ! isset($this->hpkp['report-uri']))
+        if (isset($report_uri) or ! isset($this->hpkp['report-uri']))
         {
             $hpkp['report-uri'] = $report_uri;
         }
@@ -1313,7 +1313,7 @@ class SecureHeaders{
 
         $csp = &$this->get_csp_object($report_only);
 
-        if( ! isset($csp[$directive]))
+        if ( ! isset($csp[$directive]))
         {
             $this->add_csp_directive(
                 $directive,
@@ -1322,7 +1322,7 @@ class SecureHeaders{
             );
         }
 
-        if($csp[$directive] === null)
+        if ($csp[$directive] === null)
         {
             return false;
         }
@@ -1409,7 +1409,7 @@ class SecureHeaders{
 
             $this->add_header('Content-Security-Policy', $csp_string);
 
-            if($this->csp_legacy)
+            if ($this->csp_legacy)
             {
                 $this->add_header('X-Content-Security-Policy', $csp_string);
             }
@@ -1424,7 +1424,7 @@ class SecureHeaders{
                 $csp_ro_string
             );
 
-            if($this->csp_legacy)
+            if ($this->csp_legacy)
             {
                 $this->add_header(
                     'X-Content-Security-Policy-Report-Only',
@@ -1459,7 +1459,7 @@ class SecureHeaders{
 
         $csp = &$this->get_csp_object($report_only);
 
-        if(isset($csp[$directive]))
+        if (isset($csp[$directive]))
         {
             return false;
         }
@@ -2290,7 +2290,7 @@ class SecureHeaders{
         const COOKIE_SUBSTR         =  2; # 0b0010
         const COOKIE_ALL            =  3; # COOKIE_NAME | COOKIE_SUBSTR
         const COOKIE_REMOVE         =  4; # 0b0100
-        const COOKIE_DEFAULT        =  2; # COOKIE_REMOVE & ~COOKIE_SUBSTR
+        const COOKIE_DEFAULT        =  2; # ~COOKIE_REMOVE & COOKIE_SUBSTR
 }
 
 class SecureHeadersTypeError extends Exception{
