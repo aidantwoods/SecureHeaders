@@ -46,6 +46,8 @@ class SecureHeaders{
 
     protected $automatic_headers = self::AUTO_ALL;
 
+    protected $correct_header_name = true;
+
     protected $protected_cookies = array(
         'substrings' => array(
             'sess',
@@ -133,6 +135,11 @@ class SecureHeaders{
         $this->automatic_headers = $mode;
     }
 
+    public function correct_header_name($mode = true)
+    {
+        $this->correct_header_name = (true == $mode);
+    }
+
     public function protected_cookie(
         $name,
         $mode = self::COOKIE_DEFAULT
@@ -192,26 +199,21 @@ class SecureHeaders{
 
     public function add_header(
         $name,
-        $value = null,
-        $attempt_name_correction = null
+        $value = null
     ) {
-        $this->assert_types(
-            array(
-                'string'    => array($name, $value),
-                'bool'      => array($attempt_name_correction)
-            )
-        );
+        $this->assert_types(array('string' => array($name, $value)));
 
-        if ( ! isset($attempt_name_correction)) $attempt_name_correction = true;
-
-        if ( ! isset($auto_caps)) $auto_caps = true;
-
-        if ($attempt_name_correction and preg_match('/([^:]+)/', $name, $match))
-        {
+        if (
+            $this->correct_header_name
+            and preg_match('/([^:]+)/', $name, $match)
+        ) {
             $name = $match[1];
+            $capitalised_name = ucwords($name, "- \t\r\n\f\v");
         }
-
-        $capitalised_name = $name;
+        else
+        {
+            $capitalised_name = $name;
+        }
 
         $name = strtolower($name);
 
@@ -222,8 +224,8 @@ class SecureHeaders{
                 or isset($this->headers[$name])
             )
         ) {
-            # a proposal header will only be added if the intented header: {
-            # has not been staged for removal} or {already added}
+            # a proposal header will only be added if the intented header:
+            # {has not been staged for removal} or {already added}
             return;
         }
 
@@ -277,17 +279,11 @@ class SecureHeaders{
 
     public function header(
         $name,
-        $value = null,
-        $attempt_name_correction = null
+        $value = null
     ) {
-        $this->assert_types(
-            array(
-                'string'    => array($name, $value),
-                'bool'      => array($attempt_name_correction)
-            )
-        );
+        $this->assert_types(array('string' => array($name, $value)));
 
-        $this->add_header($name, $value, $attempt_name_correction);
+        $this->add_header($name, $value);
     }
 
     public function remove_header($name)
