@@ -208,7 +208,14 @@ class SecureHeaders{
             and preg_match('/([^:]+)/', $name, $match)
         ) {
             $name = $match[1];
-            $capitalised_name = ucwords($name, "- \t\r\n\f\v");
+            
+            $capitalised_name = preg_replace_callback(
+                '/(?<=[-\s]|^)[^-\s]/',
+                function ($match){
+                    return strtoupper($match[0]);
+                },
+                $name
+            );
         }
         else
         {
