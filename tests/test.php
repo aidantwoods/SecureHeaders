@@ -12,7 +12,7 @@ class Test extends PHPUnit_Framework_TestCase
         'NotRegExp'
     );
 
-    function data_safe_mode()
+    function dataSafeMode()
     {
         return array(
             array(
@@ -31,7 +31,7 @@ class Test extends PHPUnit_Framework_TestCase
             array(
                 'test' => 
                     function(&$headers){
-                        $headers->safe_mode();
+                        $headers->safeMode();
                         $headers->header(
                             'Strict-Transport-Security',
                             'max-age=31536000; includeSubDomains; preload'
@@ -47,8 +47,8 @@ class Test extends PHPUnit_Framework_TestCase
             array(
                 'test' => 
                     function(&$headers){
-                        $headers->safe_mode();
-                        $headers->strict_mode();
+                        $headers->safeMode();
+                        $headers->strictMode();
                     },
                 'assertions' => array(
                     'NotContains' =>
@@ -60,7 +60,7 @@ class Test extends PHPUnit_Framework_TestCase
             array(
                 'test' => 
                     function(&$headers){
-                        $headers->safe_mode();
+                        $headers->safeMode();
                         $headers->header(
                             'Public-Key-Pins',
                             'max-age=31536000; pin-sha256="abcd"; includeSubDomains'
@@ -77,17 +77,17 @@ class Test extends PHPUnit_Framework_TestCase
     }
 
     /**
-     * @dataProvider data_safe_mode
+     * @dataProvider dataSafeMode
      * @param $test
      * @param $assertions
      */
-    public function test_safe_mode($test, $assertions)
+    public function testSafeMode($test, $assertions)
     {
         $headers = new SecureHeaders;
-        $headers->headers_as_string(true);
+        $headers->headersAsString(true);
         $test($headers);
 
-        $headers_string = $headers->get_headers_as_string();
+        $headersString = $headers->getHeadersAsString();
 
         foreach ($this->assertions as $assertion)
         {
@@ -97,11 +97,11 @@ class Test extends PHPUnit_Framework_TestCase
                 {
                     $assertions[$assertion] = array($assertions[$assertion]);
                 }
-                foreach ($assertions[$assertion] as $assertion_string)
+                foreach ($assertions[$assertion] as $assertionString)
                 {
                     $this->{'assert'.$assertion}(
-                        $assertion_string,
-                        $headers_string
+                        $assertionString,
+                        $headersString
                     );
                 }
             }
@@ -109,13 +109,13 @@ class Test extends PHPUnit_Framework_TestCase
       }
 
 
-    function data_strict_mode()
+    function dataStrictMode()
     {
         return array(
             array(
                 'test' => 
                     function(&$headers){
-                        $headers->strict_mode();
+                        $headers->strictMode();
                     },
                 'assertions' => array(
                     'Contains' =>
@@ -125,8 +125,8 @@ class Test extends PHPUnit_Framework_TestCase
             array(
                 'test' => 
                     function(&$headers){
-                        $headers->strict_mode();
-                        $headers->csp_nonce('script');
+                        $headers->strictMode();
+                        $headers->cspNonce('script');
                     },
                 'assertions' => array(
                     'Regexp' =>
@@ -136,8 +136,8 @@ class Test extends PHPUnit_Framework_TestCase
             array(
                 'test' => 
                     function(&$headers){
-                        $headers->strict_mode();
-                        $headers->csp_nonce('default');
+                        $headers->strictMode();
+                        $headers->cspNonce('default');
                     },
                 'assertions' => array(
                     'Regexp' =>
@@ -147,9 +147,9 @@ class Test extends PHPUnit_Framework_TestCase
             array(
                 'test' => 
                     function(&$headers){
-                        $headers->strict_mode();
-                        $headers->csp_nonce('default');
-                        $headers->csp_nonce('script');
+                        $headers->strictMode();
+                        $headers->cspNonce('default');
+                        $headers->cspNonce('script');
                     },
                 'assertions' => array(
                     'Regexp' =>
@@ -161,8 +161,8 @@ class Test extends PHPUnit_Framework_TestCase
             array(
                 'test' => 
                     function(&$headers){
-                        $headers->strict_mode();
-                        $headers->csp_hash('default', 'abcd');
+                        $headers->strictMode();
+                        $headers->cspHash('default', 'abcd');
                     },
                 'assertions' => array(
                     'Regexp' =>
@@ -172,8 +172,8 @@ class Test extends PHPUnit_Framework_TestCase
             array(
                 'test' => 
                     function(&$headers){
-                        $headers->strict_mode();
-                        $headers->csp_hash('script', 'abcd');
+                        $headers->strictMode();
+                        $headers->cspHash('script', 'abcd');
                     },
                 'assertions' => array(
                     'Regexp' =>
@@ -183,9 +183,9 @@ class Test extends PHPUnit_Framework_TestCase
             array(
                 'test' => 
                     function(&$headers){
-                        $headers->strict_mode();
-                        $headers->csp_hash('default', 'abcd');
-                        $headers->csp_hash('script', 'abcd');
+                        $headers->strictMode();
+                        $headers->cspHash('default', 'abcd');
+                        $headers->cspHash('script', 'abcd');
                     },
                 'assertions' => array(
                     'Regexp' =>
@@ -197,7 +197,7 @@ class Test extends PHPUnit_Framework_TestCase
             array(
                 'test' => 
                     function(&$headers){
-                        $headers->strict_mode();
+                        $headers->strictMode();
                         $headers->csp('default', 'http://some-cdn.org');
                         $headers->csp('script', 'http://other-cdn.net');
                     },
@@ -210,17 +210,17 @@ class Test extends PHPUnit_Framework_TestCase
     }
 
     /**
-     * @dataProvider data_strict_mode
+     * @dataProvider dataStrictMode
      * @param $test
      * @param $assertions
      */
-    public function test_strict_mode($test, $assertions)
+    public function testStrictMode($test, $assertions)
     {
         $headers = new SecureHeaders;
-        $headers->headers_as_string(true);
+        $headers->headersAsString(true);
         $test($headers);
 
-        $headers_string = $headers->get_headers_as_string();
+        $headersString = $headers->getHeadersAsString();
 
         foreach ($this->assertions as $assertion)
         {
@@ -230,11 +230,11 @@ class Test extends PHPUnit_Framework_TestCase
                 {
                     $assertions[$assertion] = array($assertions[$assertion]);
                 }
-                foreach ($assertions[$assertion] as $assertion_string)
+                foreach ($assertions[$assertion] as $assertionString)
                 {
                     $this->{'assert'.$assertion}(
-                        $assertion_string,
-                        $headers_string
+                        $assertionString,
+                        $headersString
                     );
                 }
             }
