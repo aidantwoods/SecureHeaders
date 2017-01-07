@@ -1288,8 +1288,8 @@ class SecureHeaders{
 
     private function long_source($friendly_source)
     {
-        # takes source A and returns the corresponding long source, if the source A
-        # is friendly source. Otherwise, source A will be returned
+        # takes source A and returns the corresponding long source, if the 
+        # source A is friendly source. Otherwise, source A will be returned
 
         $this->assert_types(array('string' => array($friendly_source)));
 
@@ -1497,7 +1497,7 @@ class SecureHeaders{
             else
             {
                 $this->add_error(
-                    __FUNCTION__.': The specified file'
+                    __FUNCTION__.': The specified file '
                     . "<strong>'$string'</strong>, does not exist"
                 );
 
@@ -1965,8 +1965,10 @@ class SecureHeaders{
             $this->add_header('X-Frame-Options', 'Deny');
         }
 
-        if (($this->automatic_headers & self::AUTO_REMOVE) === self::AUTO_REMOVE)
-        {
+        if (
+            ($this->automatic_headers & self::AUTO_REMOVE)
+            === self::AUTO_REMOVE
+        ) {
             # remove headers leaking server information
             $this->remove_header('Server');
             $this->remove_header('X-Powered-By');
@@ -2149,9 +2151,10 @@ class SecureHeaders{
 
     private $csp                = array();
     private $csp_ro             = array();
+    
     private $csp_nonces         = array(
-        'enforced' => array(),
-        'report_only' => array()
+        'enforced'      =>  array(),
+        'report_only'   =>  array()
     );
 
     private $hsts               = array();
@@ -2172,27 +2175,27 @@ class SecureHeaders{
     # private variables: (pre-defined static structures)
 
     private $csp_directive_shortcuts = array(
-        'default'   =>  'default-src',
-        'script'    =>  'script-src',
-        'style'     =>  'style-src',
-        'image'     =>  'img-src',
-        'img'       =>  'img-src',
-        'font'      =>  'font-src',
-        'child'     =>  'child-src',
-        'base'      =>  'base-uri',
-        'connect'   =>  'connect-src',
-        'form'      =>  'form-action',
-        'object'    =>  'object-src',
-        'report'    =>  'report-uri',
-        'reporting' =>  'report-uri'
+        'default'           =>  'default-src',
+        'script'            =>  'script-src',
+        'style'             =>  'style-src',
+        'image'             =>  'img-src',
+        'img'               =>  'img-src',
+        'font'              =>  'font-src',
+        'child'             =>  'child-src',
+        'base'              =>  'base-uri',
+        'connect'           =>  'connect-src',
+        'form'              =>  'form-action',
+        'object'            =>  'object-src',
+        'report'            =>  'report-uri',
+        'reporting'         =>  'report-uri'
     );
 
     private $csp_source_shortcuts = array(
-        'self'              => "'self'",
-        'none'              => "'none'",
-        'unsafe-inline'     => "'unsafe-inline'",
-        'unsafe-eval'       => "'unsafe-eval'",
-        'strict-dynamic'    => "'strict-dynamic'",
+        'self'              =>  "'self'",
+        'none'              =>  "'none'",
+        'unsafe-inline'     =>  "'unsafe-inline'",
+        'unsafe-eval'       =>  "'unsafe-eval'",
+        'strict-dynamic'    =>  "'strict-dynamic'"
     );
 
     private $csp_sensitive_directives = array(
