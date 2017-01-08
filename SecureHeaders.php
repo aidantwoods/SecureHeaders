@@ -172,7 +172,7 @@ class SecureHeaders{
 
         $stringTypes = array();
 
-        if (($mode & self::COOKIENAME) === self::COOKIENAME)
+        if (($mode & self::COOKIE_NAME) === self::COOKIE_NAME)
             $stringTypes[] = 'names';
 
         if (($mode & self::COOKIE_SUBSTR) === self::COOKIE_SUBSTR)
@@ -2298,9 +2298,9 @@ class SecureHeaders{
 
         # cookie upgrades
 
-        const COOKIENAME           =  1; # 0b0001
+        const COOKIE_NAME           =  1; # 0b0001
         const COOKIE_SUBSTR         =  2; # 0b0010
-        const COOKIE_ALL            =  3; # COOKIENAME | COOKIE_SUBSTR
+        const COOKIE_ALL            =  3; # COOKIE_NAME | COOKIE_SUBSTR
         const COOKIE_REMOVE         =  4; # 0b0100
         const COOKIE_DEFAULT        =  2; # ~COOKIE_REMOVE & COOKIE_SUBSTR
 }

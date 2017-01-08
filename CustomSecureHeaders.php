@@ -1,47 +1,42 @@
 <?php
 class CustomSecureHeaders extends SecureHeaders{
-    public $style_nonce;
-    public $script_nonce;
-
     public function __construct()
     {
         # implicitly call $this->done() on first byte of output
-        $this->done_on_output();
-
-        // $this->stop_done_on_output();
+        $this->doneOnOutput();
 
         # content headers
         $this->header('Content-type', 'text/html; charset=utf-8');
 
+        # Custom function added in this extenstion: 
         # redirect to www subdomain if not on localhost
         $this->www_if_not_localhost();
 
         # add a csp policy, as specified in $base, defined below
         $this->csp($this->base);
 
-        # generate nonces for script-src and style-src directives, and
-        # store the nonces in public variables for use in script
-        $this->style_nonce = $this->csp_nonce('style');
-        $this->script_nonce = $this->csp_nonce('script');
+        $this->cspNonce('style');
+        $this->cspNonce('script');
 
         # whitelist a css snippet in the style-src directive
         $style = 'body {background: black;}';
-        $this->csp_hash('style', $style);
+        $this->cspHash('style', $style);
 
         # add csp reporting
-        $this->csp('report', 'https://report-uri.example.com/csp');
-
-        $this->csp('script', 'http://my.cdn.org');
+        $this->csp(
+            'report', 'https://report-uri.example.com/csp',
+            'script', 'http://my.cdn.org'
+        );
 
         # add some cookies
         setcookie('auth1', 'not a secret');
         setcookie('sId', 'secret');
-        $this->remove_protected_cookie_substring('auth');
+        $this->protectedCookie('auth', self::COOKIE_SUBSTR | self::CCOOKIE_REMOVE);
 
         setcookie('sess1', 'secret');
         setcookie('notasessioncookie', 'not a secret');
-        $this->remove_protected_cookie_substring('sess');
-        $this->add_protected_cookie_name('sess1');
+        $this->protectedCookie('sess', self::COOKIE_SUBSTR | self::CCOOKIE_REMOVE);
+        $this->protectedCookie('sess1', self::COOKIE_NAME);
 
         setcookie('preference', 'not a secret');
         setcookie('another-preference', 'not a secret', 10, '/', null, true, false);
@@ -63,10 +58,10 @@ class CustomSecureHeaders extends SecureHeaders{
 
         # enable safe-mode, which should auto-modify the above header
         # safe-mode will generate an error of level E_USER_NOTICE if it has to modify any headers
-        $this->safe_mode();
+        $this->safeMode();
 
         # uncomment the next line to allow HSTS in safe mode
-        // $this->safe_mode_exception('Strict-Transport-Security');
+        // $this->safeModeException('Strict-Transport-Security');
 
     }
 
@@ -74,8 +69,8 @@ class CustomSecureHeaders extends SecureHeaders{
     {
         if ($_SERVER['SERVER_NAME'] !== 'localhost' and substr($_SERVER['HTTP_HOST'], 0, 4) !== 'www.')
         {
-            $this->add_header('HTTP/1.1 301 Moved Permanently');
-            $this->add_header('Location', 'https://www.'.$_SERVER['SERVER_NAME'].$_SERVER['REQUEST_URI']);
+            $this->header('HTTP/1.1 301 Moved Permanently');
+            $this->header('Location', 'https://www.'.$_SERVER['SERVER_NAME'].$_SERVER['REQUEST_URI']);
         }
     }
 
