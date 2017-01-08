@@ -1,5 +1,5 @@
 {
-    "name": "aidantwoods/SecureHeaders",
+    "name": "aidantwoods/secureheaders",
     "description": "A PHP class aiming to make the use of browser security features more accessible.",
     "keywords": ["secure", "headers", "csp", "content-security-policy", "hsts", "cookie"],
     "homepage": "https://github.com/aidantwoods/SecureHeaders/wiki",
