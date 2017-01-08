@@ -31,6 +31,12 @@
 #
 
 class SecureHeaders{
+
+    # ~~
+    # Version
+
+    const version = '1.0.0';
+
     # ~~
     # protected variables: settings
 
@@ -208,7 +214,7 @@ class SecureHeaders{
             and preg_match('/([^:]+)/', $name, $match)
         ) {
             $name = $match[1];
-            
+
             $capitalisedName = preg_replace_callback(
                 '/(?<=[-\s]|^)[^-\s]/',
                 function ($match){
@@ -1288,7 +1294,7 @@ class SecureHeaders{
 
     private function longSource($friendlySource)
     {
-        # takes source A and returns the corresponding long source, if the 
+        # takes source A and returns the corresponding long source, if the
         # source A is friendly source. Otherwise, source A will be returned
 
         $this->assertTypes(array('string' => array($friendlySource)));
@@ -2151,7 +2157,7 @@ class SecureHeaders{
 
     private $csp                = array();
     private $cspro              = array();
-    
+
     private $cspNonces         = array(
         'enforced'      =>  array(),
         'reportOnly'    =>  array()
