@@ -119,14 +119,14 @@ accidentally enable that.*
 
 #### Safe Mode
 
-Okay, SecureHeaders has got you covered – use `$headers->safe_mode();` to
+Okay, SecureHeaders has got you covered – use `$headers->safeMode();` to
 prevent headers being sent that will cause lasting effects.
 
 So for example, if the following code was run (safe mode can be called at any
 point before `->done()` to be effective)
 ```php
 $headers->hsts();
-$headers->safe_mode();
+$headers->safeMode();
 ```
 HSTS would still be enabled (as asked), but would be limited to lasting 24
 hours.
@@ -151,7 +151,7 @@ browsers, and then (before or after setting that header) enable safe-mode...
 
 ```php
 header('Strict-Transport-Security: max-age=31536000; includeSubDomains; preload');
-$headers->safe_mode();
+$headers->safeMode();
 ```
 
 The same above notice will be generated, max-age will be modified to 1 day, and
@@ -186,7 +186,7 @@ In order to apply anything added through SecureHeaders, you'll need to call
 `->done()`. By design, SecureHeaders doesn't have a construct function – so
 everything up until `->done()` is called is just configuration. However, if you
 don't want to have to remember to call this function, you can call
-`->done_on_output()` instead, at any time. This will utilise PHP's `ob_start()`
+`->doneOnOutput()` instead, at any time. This will utilise PHP's `ob_start()`
 function to start output buffering. This lets SecureHeaders attatch itself to
 the first instance of any piece of code that generates output – and prior to
 actually sending that output to the user, make sure all headers are sent, by
@@ -198,7 +198,7 @@ implement your own, via a simple class extension, e.g.
 class CustomSecureHeaders extends SecureHeaders{
     public function __construct()
     {
-        $this->done_on_output();
+        $this->doneOnOutput();
         $this->hsts();
         $this->csp('default', 'self');
         $this->csp('script', 'https://my.cdn.org');
@@ -434,7 +434,7 @@ $headers->csp(
 #### Behaviour when a CSP header has already been set
 ```php
 header("Content-Security-Policy: default-src 'self'; script-src http://insecure.cdn.org 'self'");
-$headers->add_header(
+$headers->addHeader(
     'Content-Security-Policy',
     "block-all-mixed-content; img-src 'self' https://cdn.net"
 );
@@ -450,7 +450,7 @@ script-src https://another.domain.example.com http://insecure.cdn.org 'self';
 default-src 'self';
 ```
 
-This merge capability is fully supported by `->add_header` (so that if two
+This merge capability is fully supported by `->addHeader` (so that if two
 calls to add header are made – the CSPs will be extracted and merged).
 
 However, because `header` is part of PHP, this will continue to behave as
