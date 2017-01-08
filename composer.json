@@ -1,0 +1,21 @@
+{
+    "name": "aidantwoods/SecureHeaders",
+    "description": "A PHP class aiming to make the use of browser security features more accessible.",
+    "keywords": ["secure", "headers", "csp", "content-security-policy", "hsts", "cookie"],
+    "homepage": "https://github.com/aidantwoods/SecureHeaders/wiki",
+    "type": "library",
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "Aidan Woods",
+            "email": "aidantwoods@gmail.com",
+            "homepage": "https://aidanwoods.com"
+        }
+    ],
+    "require": {
+        "php": ">=5.3.0"
+    },
+    "autoload": {
+        "psr-0": {"SecureHeaders": ""}
+    }
+}
