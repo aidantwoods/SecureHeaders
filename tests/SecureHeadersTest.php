@@ -1,8 +1,10 @@
 <?php
 
-include('SecureHeaders.php');
+namespace Tests;
 
-class Test extends PHPUnit_Framework_TestCase
+use Aidantwoods\SecureHeaders\SecureHeaders;
+
+class SecureHeadersTest extends \PHPUnit_Framework_TestCase
 {
     private $assertions = array(
         'Contains',

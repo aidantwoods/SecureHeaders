@@ -1,4 +1,7 @@
 <?php
+
+namespace Aidantwoods\SecureHeaders;
+
 #
 # SecureHeaders
 # https://github.com/aidantwoods/SecureHeaders
@@ -2304,23 +2307,3 @@ class SecureHeaders{
         const COOKIE_REMOVE         =  4; # 0b0100
         const COOKIE_DEFAULT        =  2; # ~COOKIE_REMOVE & COOKIE_SUBSTR
 }
-
-class SecureHeadersTypeError extends Exception{
-    private $headers;
-
-    public function passHeaders(SecureHeaders $headers)
-    {
-        $this->headers = $headers;
-    }
-
-    public function __toString()
-    {
-        header($_SERVER['SERVER_PROTOCOL'].' 500 Internal Server Error');
-
-        $this->headers->returnBuffer();
-
-        return  'exception ' .__CLASS__. " '{$this->message}'\n"
-                . "{$this->getTraceAsString()}";
-    }
-}
-?>

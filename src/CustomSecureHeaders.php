@@ -1,4 +1,7 @@
 <?php
+
+namespace Aidantwoods\SecureHeaders;
+
 class CustomSecureHeaders extends SecureHeaders{
     public function __construct()
     {
@@ -114,4 +117,3 @@ class CustomSecureHeaders extends SecureHeaders{
         'block-all-mixed-content' => [null]
     );
 }
-?>
