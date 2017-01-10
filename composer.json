@@ -1,8 +1,19 @@
 {
     "name": "aidantwoods/secureheaders",
     "description": "A PHP class aiming to make the use of browser security features more accessible.",
-    "keywords": ["secure", "headers", "csp", "content-security-policy", "hsts", "cookie"],
+    "keywords": [
+        "content-security-policy",
+        "cookie",
+        "csp",
+        "headers",
+        "hsts",
+        "secure"
+    ],
     "homepage": "https://github.com/aidantwoods/SecureHeaders/wiki",
+    "support": {
+        "issues": "https://github.com/aidantwoods/secureheaders/issues",
+        "source": "https://github.com/aidantwoods/secureheaders"
+    },
     "type": "library",
     "license": "MIT",
     "authors": [
@@ -27,5 +38,8 @@
         "psr-4": {
             "Tests\\": "tests/"
         }
+    },
+    "config": {
+        "sort-packages": true
     }
 }
