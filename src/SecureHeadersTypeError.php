@@ -2,7 +2,9 @@
 
 namespace Aidantwoods\SecureHeaders;
 
-class SecureHeadersTypeError extends \Exception
+use Exception;
+
+class SecureHeadersTypeError extends Exception
 {
     private $headers;
 
