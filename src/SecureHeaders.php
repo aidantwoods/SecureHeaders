@@ -73,6 +73,166 @@ class SecureHeaders{
             'persistent'
         )
     );
+    # ~~
+    # private variables: (non settings)
+
+    private $headers            = array();
+    private $removedHeaders     = array();
+
+    private $cookies            = array();
+    private $removedCookies     = array();
+
+    private $errors             = array();
+    private $errorString;
+
+    private $csp                = array();
+    private $cspro              = array();
+
+    private $cspNonces         = array(
+        'enforced'      =>  array(),
+        'reportOnly'    =>  array()
+    );
+
+    private $hsts               = array();
+
+    private $hpkp               = array();
+    private $hpkpro             = array();
+
+    private $allowImports       = true;
+    private $proposeHeaders     = false;
+
+    private $isBufferReturned   = false;
+
+    private $headersString;
+    private $headersAsString    = false;
+
+    private $doneOnOutput       = false;
+
+    # private variables: (pre-defined static structures)
+
+    private $cspDirectiveShortcuts = array(
+        'default'           =>  'default-src',
+        'script'            =>  'script-src',
+        'style'             =>  'style-src',
+        'image'             =>  'img-src',
+        'img'               =>  'img-src',
+        'font'              =>  'font-src',
+        'child'             =>  'child-src',
+        'base'              =>  'base-uri',
+        'connect'           =>  'connect-src',
+        'form'              =>  'form-action',
+        'object'            =>  'object-src',
+        'report'            =>  'report-uri',
+        'reporting'         =>  'report-uri'
+    );
+
+    private $cspSourceShortcuts = array(
+        'self'              =>  "'self'",
+        'none'              =>  "'none'",
+        'unsafe-inline'     =>  "'unsafe-inline'",
+        'unsafe-eval'       =>  "'unsafe-eval'",
+        'strict-dynamic'    =>  "'strict-dynamic'"
+    );
+
+    private $cspSensitiveDirectives = array(
+        'default-src',
+        'script-src',
+        'style-src',
+        'object-src'
+    );
+
+    protected $csproBlacklist = array(
+        'block-all-mixed-content',
+        'upgrade-insecure-requests'
+    );
+
+    private $allowedCSPHashAlgs = array(
+        'sha256',
+        'sha384',
+        'sha512'
+    );
+
+    private $allowedHPKPAlgs = array(
+        'sha256'
+    );
+
+    private $safeModeUnsafeHeaders = array(
+        'strict-transport-security' => array(
+            'max-age' => 86400,
+            'includesubdomains' => false,
+            'preload' => false,
+
+            'HSTS settings were overridden because Safe-Mode is enabled.
+            <a href="
+            https://scotthelme.co.uk/death-by-copy-paste/#hstsandpreloading">
+            Read about</a> some common mistakes when setting HSTS via
+            copy/paste, and ensure you
+            <a href="
+            https://www.owasp.org/index.php/
+            HTTP_Strict_Transport_Security_Cheat_Sheet">
+            understand the details</a> and possible side effects of this
+            security feature before using it.'
+        ),
+        'public-key-pins' => array(
+            'max-age' => 10,
+            'includesubdomains' => false,
+            'Some HPKP settings were overridden because Safe-Mode is enabled.'
+        )
+    );
+
+    private $reportMissingHeaders = array(
+        'Strict-Transport-Security',
+        'Content-Security-Policy',
+        'X-XSS-Protection',
+        'X-Content-Type-Options',
+        'X-Frame-Options'
+    );
+
+    private $cspSourceWildcardRe
+        =   '/(?:[ ]|^)\K
+            (?:
+            # catch open protocol wildcards
+                [^:.\/ ]+?
+                [:]
+                (?:[\/]{2})?
+                [*]?
+            |
+            # catch domain based wildcards
+                (?: # optional protocol
+                    [^:. ]+?
+                    [:]
+                    [\/]{2}
+                )?
+                # optionally match domain text before *
+                [^\/:* ]*?
+                [*]
+                (?: # optionally match TLDs after *
+                    (?:[^. ]*?[.])?
+                    (?:[^. ]{1,3}[.])?
+                    [^. ]*
+                )?
+            )
+            # assert that match covers the entire value
+            (?=[ ;]|$)/ix';
+
+        # ~
+        # Constants
+
+        # auto-headers
+
+        const AUTO_ADD              =  1; # 0b0001
+        const AUTO_REMOVE           =  2; # 0b0010
+        const AUTO_COOKIE_SECURE    =  4; # 0b0100
+        const AUTO_COOKIE_HTTPONLY  =  8; # 0b1000
+        const AUTO_ALL              = 15; # 0b1111
+
+        # cookie upgrades
+
+        const COOKIE_NAME           =  1; # 0b0001
+        const COOKIE_SUBSTR         =  2; # 0b0010
+        const COOKIE_ALL            =  3; # COOKIE_NAME | COOKIE_SUBSTR
+        const COOKIE_REMOVE         =  4; # 0b0100
+        const COOKIE_DEFAULT        =  2; # ~COOKIE_REMOVE & COOKIE_SUBSTR
 
     # ~~
     # Public Functions
@@ -2146,164 +2306,4 @@ class SecureHeaders{
         }
     }
 
-    # ~~
-    # private variables: (non settings)
-
-    private $headers            = array();
-    private $removedHeaders     = array();
-
-    private $cookies            = array();
-    private $removedCookies     = array();
-
-    private $errors             = array();
-    private $errorString;
-
-    private $csp                = array();
-    private $cspro              = array();
-
-    private $cspNonces         = array(
-        'enforced'      =>  array(),
-        'reportOnly'    =>  array()
-    );
-
-    private $hsts               = array();
-
-    private $hpkp               = array();
-    private $hpkpro             = array();
-
-    private $allowImports       = true;
-    private $proposeHeaders     = false;
-
-    private $isBufferReturned   = false;
-
-    private $headersString;
-    private $headersAsString    = false;
-
-    private $doneOnOutput       = false;
-
-    # private variables: (pre-defined static structures)
-
-    private $cspDirectiveShortcuts = array(
-        'default'           =>  'default-src',
-        'script'            =>  'script-src',
-        'style'             =>  'style-src',
-        'image'             =>  'img-src',
-        'img'               =>  'img-src',
-        'font'              =>  'font-src',
-        'child'             =>  'child-src',
-        'base'              =>  'base-uri',
-        'connect'           =>  'connect-src',
-        'form'              =>  'form-action',
-        'object'            =>  'object-src',
-        'report'            =>  'report-uri',
-        'reporting'         =>  'report-uri'
-    );
-
-    private $cspSourceShortcuts = array(
-        'self'              =>  "'self'",
-        'none'              =>  "'none'",
-        'unsafe-inline'     =>  "'unsafe-inline'",
-        'unsafe-eval'       =>  "'unsafe-eval'",
-        'strict-dynamic'    =>  "'strict-dynamic'"
-    );
-
-    private $cspSensitiveDirectives = array(
-        'default-src',
-        'script-src',
-        'style-src',
-        'object-src'
-    );
-
-    protected $csproBlacklist = array(
-        'block-all-mixed-content',
-        'upgrade-insecure-requests'
-    );
-
-    private $allowedCSPHashAlgs = array(
-        'sha256',
-        'sha384',
-        'sha512'
-    );
-
-    private $allowedHPKPAlgs = array(
-        'sha256'
-    );
-
-    private $safeModeUnsafeHeaders = array(
-        'strict-transport-security' => array(
-            'max-age' => 86400,
-            'includesubdomains' => false,
-            'preload' => false,
-
-            'HSTS settings were overridden because Safe-Mode is enabled.
-            <a href="
-            https://scotthelme.co.uk/death-by-copy-paste/#hstsandpreloading">
-            Read about</a> some common mistakes when setting HSTS via
-            copy/paste, and ensure you
-            <a href="
-            https://www.owasp.org/index.php/
-            HTTP_Strict_Transport_Security_Cheat_Sheet">
-            understand the details</a> and possible side effects of this
-            security feature before using it.'
-        ),
-        'public-key-pins' => array(
-            'max-age' => 10,
-            'includesubdomains' => false,
-            'Some HPKP settings were overridden because Safe-Mode is enabled.'
-        )
-    );
-
-    private $reportMissingHeaders = array(
-        'Strict-Transport-Security',
-        'Content-Security-Policy',
-        'X-XSS-Protection',
-        'X-Content-Type-Options',
-        'X-Frame-Options'
-    );
-
-    private $cspSourceWildcardRe
-        =   '/(?:[ ]|^)\K
-            (?:
-            # catch open protocol wildcards
-                [^:.\/ ]+?
-                [:]
-                (?:[\/]{2})?
-                [*]?
-            |
-            # catch domain based wildcards
-                (?: # optional protocol
-                    [^:. ]+?
-                    [:]
-                    [\/]{2}
-                )?
-                # optionally match domain text before *
-                [^\/:* ]*?
-                [*]
-                (?: # optionally match TLDs after *
-                    (?:[^. ]*?[.])?
-                    (?:[^. ]{1,3}[.])?
-                    [^. ]*
-                )?
-            )
-            # assert that match covers the entire value
-            (?=[ ;]|$)/ix';
-
-        # ~
-        # Constants
-
-        # auto-headers
-
-        const AUTO_ADD              =  1; # 0b0001
-        const AUTO_REMOVE           =  2; # 0b0010
-        const AUTO_COOKIE_SECURE    =  4; # 0b0100
-        const AUTO_COOKIE_HTTPONLY  =  8; # 0b1000
-        const AUTO_ALL              = 15; # 0b1111
-
-        # cookie upgrades
-
-        const COOKIE_NAME           =  1; # 0b0001
-        const COOKIE_SUBSTR         =  2; # 0b0010
-        const COOKIE_ALL            =  3; # COOKIE_NAME | COOKIE_SUBSTR
-        const COOKIE_REMOVE         =  4; # 0b0100
-        const COOKIE_DEFAULT        =  2; # ~COOKIE_REMOVE & COOKIE_SUBSTR
 }
