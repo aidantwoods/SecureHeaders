@@ -2,7 +2,7 @@
 
 include('SecureHeaders.php');
 
-class Test extends PHPUnit_Framework_TestCase
+class test extends PHPUnit_Framework_TestCase
 {
     private $assertions = array(
         'Contains',
@@ -12,12 +12,12 @@ class Test extends PHPUnit_Framework_TestCase
         'NotRegExp'
     );
 
-    function dataSafeMode()
+    public function dataSafeMode()
     {
         return array(
             array(
-                'test' => 
-                    function(&$headers){
+                'test' =>
+                    function (&$headers) {
                         $headers->header(
                             'Strict-Transport-Security',
                             'max-age=31536000; includeSubDomains; preload'
@@ -29,8 +29,8 @@ class Test extends PHPUnit_Framework_TestCase
                 )
             ),
             array(
-                'test' => 
-                    function(&$headers){
+                'test' =>
+                    function (&$headers) {
                         $headers->safeMode();
                         $headers->header(
                             'Strict-Transport-Security',
@@ -45,8 +45,8 @@ class Test extends PHPUnit_Framework_TestCase
                 )
             ),
             array(
-                'test' => 
-                    function(&$headers){
+                'test' =>
+                    function (&$headers) {
                         $headers->safeMode();
                         $headers->strictMode();
                     },
@@ -58,8 +58,8 @@ class Test extends PHPUnit_Framework_TestCase
                 )
             ),
             array(
-                'test' => 
-                    function(&$headers){
+                'test' =>
+                    function (&$headers) {
                         $headers->safeMode();
                         $headers->header(
                             'Public-Key-Pins',
@@ -89,16 +89,12 @@ class Test extends PHPUnit_Framework_TestCase
 
         $headersString = $headers->getHeadersAsString();
 
-        foreach ($this->assertions as $assertion)
-        {
-            if (isset($assertions[$assertion]))
-            {
-                if ( ! is_array($assertions[$assertion]))
-                {
+        foreach ($this->assertions as $assertion) {
+            if (isset($assertions[$assertion])) {
+                if (! is_array($assertions[$assertion])) {
                     $assertions[$assertion] = array($assertions[$assertion]);
                 }
-                foreach ($assertions[$assertion] as $assertionString)
-                {
+                foreach ($assertions[$assertion] as $assertionString) {
                     $this->{'assert'.$assertion}(
                         $assertionString,
                         $headersString
@@ -106,15 +102,15 @@ class Test extends PHPUnit_Framework_TestCase
                 }
             }
         }
-      }
+    }
 
 
-    function dataStrictMode()
+    public function dataStrictMode()
     {
         return array(
             array(
-                'test' => 
-                    function(&$headers){
+                'test' =>
+                    function (&$headers) {
                         $headers->strictMode();
                     },
                 'assertions' => array(
@@ -123,8 +119,8 @@ class Test extends PHPUnit_Framework_TestCase
                 )
             ),
             array(
-                'test' => 
-                    function(&$headers){
+                'test' =>
+                    function (&$headers) {
                         $headers->strictMode();
                         $headers->cspNonce('script');
                     },
@@ -134,8 +130,8 @@ class Test extends PHPUnit_Framework_TestCase
                 )
             ),
             array(
-                'test' => 
-                    function(&$headers){
+                'test' =>
+                    function (&$headers) {
                         $headers->strictMode();
                         $headers->cspNonce('default');
                     },
@@ -145,8 +141,8 @@ class Test extends PHPUnit_Framework_TestCase
                 )
             ),
             array(
-                'test' => 
-                    function(&$headers){
+                'test' =>
+                    function (&$headers) {
                         $headers->strictMode();
                         $headers->cspNonce('default');
                         $headers->cspNonce('script');
@@ -159,8 +155,8 @@ class Test extends PHPUnit_Framework_TestCase
                 )
             ),
             array(
-                'test' => 
-                    function(&$headers){
+                'test' =>
+                    function (&$headers) {
                         $headers->strictMode();
                         $headers->cspHash('default', 'abcd');
                     },
@@ -170,8 +166,8 @@ class Test extends PHPUnit_Framework_TestCase
                 )
             ),
             array(
-                'test' => 
-                    function(&$headers){
+                'test' =>
+                    function (&$headers) {
                         $headers->strictMode();
                         $headers->cspHash('script', 'abcd');
                     },
@@ -181,8 +177,8 @@ class Test extends PHPUnit_Framework_TestCase
                 )
             ),
             array(
-                'test' => 
-                    function(&$headers){
+                'test' =>
+                    function (&$headers) {
                         $headers->strictMode();
                         $headers->cspHash('default', 'abcd');
                         $headers->cspHash('script', 'abcd');
@@ -195,8 +191,8 @@ class Test extends PHPUnit_Framework_TestCase
                 )
             ),
             array(
-                'test' => 
-                    function(&$headers){
+                'test' =>
+                    function (&$headers) {
                         $headers->strictMode();
                         $headers->csp('default', 'http://some-cdn.org');
                         $headers->csp('script', 'http://other-cdn.net');
@@ -222,16 +218,12 @@ class Test extends PHPUnit_Framework_TestCase
 
         $headersString = $headers->getHeadersAsString();
 
-        foreach ($this->assertions as $assertion)
-        {
-            if (isset($assertions[$assertion]))
-            {
-                if ( ! is_array($assertions[$assertion]))
-                {
+        foreach ($this->assertions as $assertion) {
+            if (isset($assertions[$assertion])) {
+                if (! is_array($assertions[$assertion])) {
                     $assertions[$assertion] = array($assertions[$assertion]);
                 }
-                foreach ($assertions[$assertion] as $assertionString)
-                {
+                foreach ($assertions[$assertion] as $assertionString) {
                     $this->{'assert'.$assertion}(
                         $assertionString,
                         $headersString
@@ -239,6 +231,5 @@ class Test extends PHPUnit_Framework_TestCase
                 }
             }
         }
-      }
-}   
-?>
+    }
+}
