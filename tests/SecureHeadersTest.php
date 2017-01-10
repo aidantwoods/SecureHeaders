@@ -1,6 +1,8 @@
 <?php
 
-include('SecureHeaders.php');
+namespace Tests;
+
+use SecureHeaders\SecureHeaders;
 
 class SecureHeadersTest extends \PHPUnit_Framework_TestCase
 {
