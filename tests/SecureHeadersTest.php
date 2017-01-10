@@ -2,7 +2,7 @@
 
 namespace Tests;
 
-use SecureHeaders\SecureHeaders;
+use Aidantwoods\SecureHeaders\SecureHeaders;
 
 class SecureHeadersTest extends \PHPUnit_Framework_TestCase
 {

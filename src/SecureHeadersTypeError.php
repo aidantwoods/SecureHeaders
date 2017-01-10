@@ -1,6 +1,6 @@
 <?php
 
-namespace SecureHeaders;
+namespace Aidantwoods\SecureHeaders;
 
 class SecureHeadersTypeError extends \Exception
 {

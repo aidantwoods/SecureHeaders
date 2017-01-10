@@ -1,6 +1,6 @@
 <?php
 
-namespace SecureHeaders;
+namespace Aidantwoods\SecureHeaders;
 
 class CustomSecureHeaders extends SecureHeaders{
     public function __construct()
