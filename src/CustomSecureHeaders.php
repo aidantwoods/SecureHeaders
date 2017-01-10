@@ -34,11 +34,11 @@ class CustomSecureHeaders extends SecureHeaders{
         # add some cookies
         setcookie('auth1', 'not a secret');
         setcookie('sId', 'secret');
-        $this->protectedCookie('auth', self::COOKIE_SUBSTR | self::CCOOKIE_REMOVE);
+        $this->protectedCookie('auth', self::COOKIE_SUBSTR | self::COOKIE_REMOVE);
 
         setcookie('sess1', 'secret');
         setcookie('notasessioncookie', 'not a secret');
-        $this->protectedCookie('sess', self::COOKIE_SUBSTR | self::CCOOKIE_REMOVE);
+        $this->protectedCookie('sess', self::COOKIE_SUBSTR | self::COOKIE_REMOVE);
         $this->protectedCookie('sess1', self::COOKIE_NAME);
 
         setcookie('preference', 'not a secret');
