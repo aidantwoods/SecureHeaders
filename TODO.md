@@ -1,5 +1,8 @@
 # TODO
 ## pending
+* Cookies: SameSite, __Host-*
+* Write tests for cookie upgrades
+* Look into populating internal header list with values set by server
 * Greater granularity in safe-mode (allow user set defaults + user set 'unsafe' header additions)
 
 ## done
@@ -13,3 +16,4 @@
 
 ## long term goals
 * Validate more header values
+
