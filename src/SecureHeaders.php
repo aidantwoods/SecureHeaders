@@ -41,6 +41,11 @@ class SecureHeaders{
     const version = '2.0.0';
 
     # ~~
+    # injected attributes
+
+    protected $httpAdapter;
+
+    # ~~
     # protected variables: settings
 
     protected $errorReporting = true;
@@ -236,6 +241,11 @@ class SecureHeaders{
 
     # ~~
     # Public Functions
+
+    public function __construct(HttpAdapterInterface $httpAdapter)
+    {
+        $this->httpAdapter = $httpAdapter;
+    }
 
     public function doneOnOutput($mode = true)
     {
@@ -972,7 +982,7 @@ class SecureHeaders{
         );
 
         # delete them (we'll set them again later)
-        header_remove();
+        $this->httpAdapter->removeAllHeaders();
 
         # if any, add these to our internal header list
         foreach ($headers as $header)
@@ -1081,7 +1091,7 @@ class SecureHeaders{
 
         foreach ($this->removedHeaders as $name => $value)
         {
-            header_remove($name);
+            $this->httpAdapter->removeHeader($name);
         }
     }
 
@@ -1101,7 +1111,7 @@ class SecureHeaders{
             }
             else
             {
-                header($headerString);
+                $this->httpAdapter->replaceHeader($header['name'], $header['value']);
             }
         }
 
@@ -1145,8 +1155,7 @@ class SecureHeaders{
 
             # format: https://tools.ietf.org/html/rfc6265#section-4.1.1
 
-            $headerString = 'Set-Cookie: '
-                . $name . '=' . $cookie[0].'; '
+            $headerString = $name . '=' . $cookie[0].'; '
                 . (isset($cookie['expires']) ?
                     'Expires='.$cookie['expires'].'; ' : '')
                 . (isset($cookie['max-age']) ?
@@ -1165,14 +1174,15 @@ class SecureHeaders{
 
             if ($this->headersAsString)
             {
-                $compiledHeaders[] = $headerString;
+                $compiledHeaders[] = 'Set-Cookie: ' . $headerString;
             }
             else
             {
-                header($headerString, false);
+                $this->httpAdapter->sendHeader('Set-Cookie', $headerString);
             }
         }
 
+        // This can probably be done via adapter as well
         if ($this->headersAsString)
         {
             $this->headersString = implode("\n", $compiledHeaders);
@@ -2306,4 +2316,37 @@ class SecureHeaders{
         }
     }
 
+}
+
+interface HttpAdapterInterface
+{
+    public function sendHeader($name, $value = '');
+    public function replaceHeader($name, $value = '');
+    public function removeHeader($name);
+    public function removeAllHeaders();
+}
+
+class GlobalHttpAdapter implements HttpAdapterInterface
+{
+    public function sendHeader($name, $value = '')
+    {
+        $headerString = $name . ($value === '' ? '' : ': ' . $value);
+        header($headerString, false);
+    }
+
+    public function replaceHeader($name, $value = '')
+    {
+        $headerString = $name . ($value === '' ? '' : ': ' . $value);
+        header($headerString, true);
+    }
+
+    public function removeHeader($name)
+    {
+        header_remove($name);
+    }
+
+    public function removeAllHeaders()
+    {
+        header_remove();
+    }
 }
