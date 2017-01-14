@@ -281,14 +281,7 @@ class SecureHeaders{
 
     public function safeMode($mode = true)
     {
-        if ($mode == false or strtolower($mode) === 'off')
-        {
-            $this->safeMode = false;
-        }
-        else
-        {
-            $this->safeMode = true;
-        }
+        $this->safeMode = ($mode == true and strtolower($mode) !== 'off');
     }
 
     # if operating in safe mode, use this to manually allow a specific header
@@ -302,14 +295,7 @@ class SecureHeaders{
 
     public function strictMode($mode = true)
     {
-        if ($mode == false or strtolower($mode) === 'off')
-        {
-            $this->strictMode = false;
-        }
-        else
-        {
-            $this->strictMode = true;
-        }
+        $this->strictMode = ($mode == true and strtolower($mode) !== 'off');
     }
 
     public function returnExistingNonce($mode = true)
