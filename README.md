@@ -37,6 +37,17 @@ inform the programmer about either misconfigurations or lack of configuration.
 In addition to error reporting, SecureHeaders will make some **safe** proactive
 changes to certain headers, or even add new ones if they're missing.
 
+## Installation
+### Via Composer
+```
+composer require aidantwoods/secureheaders
+```
+### Other
+Download `SecureHeaders.php`, then
+```php
+include('SecureHeaders.php');
+```
+
 ## Sounds good, but let's see some of the code...
 Here is a good implementation example
 ```php
