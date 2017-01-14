@@ -33,6 +33,9 @@ namespace Aidantwoods\SecureHeaders;
 #
 #
 
+use Aidantwoods\SecureHeaders\Http\GlobalHttpAdapter;
+use Aidantwoods\SecureHeaders\Http\HttpAdapter;
+
 class SecureHeaders{
 
     # ~~
@@ -80,6 +83,8 @@ class SecureHeaders{
     );
     # ~~
     # private variables: (non settings)
+
+    private $headerBag;
 
     private $headers            = array();
     private $removedHeaders     = array();
@@ -242,9 +247,15 @@ class SecureHeaders{
     # ~~
     # Public Functions
 
-    public function __construct(HttpAdapterInterface $httpAdapter)
+    public function __construct(HttpAdapter $httpAdapter = null)
     {
+        if (is_null($httpAdapter))
+        {
+            $httpAdapter = new GlobalHttpAdapter();
+        }
+
         $this->httpAdapter = $httpAdapter;
+        $this->headerBag = new HeaderBag;
     }
 
     public function doneOnOutput($mode = true)
@@ -973,21 +984,12 @@ class SecureHeaders{
             return;
         }
 
-        # first grab any headers out of already set PHP headers_list
-        $headers = $this->pregMatchArray(
-            '/^([^:]+)[:][ ](.*)$/i',
-            headers_list(),
-            1,
-            2
-        );
+        # grab any headers that were already set and, if any, add these to our internal header list
+        $this->headerBag = $this->httpAdapter->getHeaders();
 
-        # delete them (we'll set them again later)
-        $this->httpAdapter->removeAllHeaders();
-
-        # if any, add these to our internal header list
-        foreach ($headers as $header)
+        foreach ($this->headerBag->get() as $name => $value)
         {
-            $this->addHeader($header[0], $header[1]);
+            $this->addHeader($name, $value);
         }
 
         $this->allowImports = false;
@@ -1091,7 +1093,7 @@ class SecureHeaders{
 
         foreach ($this->removedHeaders as $name => $value)
         {
-            $this->httpAdapter->removeHeader($name);
+            $this->headerBag->remove($name);
         }
     }
 
@@ -1111,7 +1113,7 @@ class SecureHeaders{
             }
             else
             {
-                $this->httpAdapter->replaceHeader($header['name'], $header['value']);
+                $this->headerBag->replace($header['name'], $header['value']);
             }
         }
 
@@ -1178,14 +1180,18 @@ class SecureHeaders{
             }
             else
             {
-                $this->httpAdapter->sendHeader('Set-Cookie', $headerString);
+                $this->headerBag->add('Set-Cookie', $headerString);
             }
         }
 
-        // This can probably be done via adapter as well
         if ($this->headersAsString)
         {
             $this->headersString = implode("\n", $compiledHeaders);
+        }
+        else
+        {
+            // And finally, send all headers through whatever adapter we are using
+            $this->httpAdapter->sendHeaders($this->headerBag);
         }
     }
 
@@ -2316,37 +2322,4 @@ class SecureHeaders{
         }
     }
 
-}
-
-interface HttpAdapterInterface
-{
-    public function sendHeader($name, $value = '');
-    public function replaceHeader($name, $value = '');
-    public function removeHeader($name);
-    public function removeAllHeaders();
-}
-
-class GlobalHttpAdapter implements HttpAdapterInterface
-{
-    public function sendHeader($name, $value = '')
-    {
-        $headerString = $name . ($value === '' ? '' : ': ' . $value);
-        header($headerString, false);
-    }
-
-    public function replaceHeader($name, $value = '')
-    {
-        $headerString = $name . ($value === '' ? '' : ': ' . $value);
-        header($headerString, true);
-    }
-
-    public function removeHeader($name)
-    {
-        header_remove($name);
-    }
-
-    public function removeAllHeaders()
-    {
-        header_remove();
-    }
 }
