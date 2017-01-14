@@ -2,6 +2,7 @@
 
 namespace Tests;
 
+use Aidantwoods\SecureHeaders\Http\StringHttpAdapter;
 use Aidantwoods\SecureHeaders\SecureHeaders;
 use PHPUnit_Framework_TestCase;
 
@@ -28,7 +29,7 @@ class SecureHeadersTest extends PHPUnit_Framework_TestCase
                     },
                 'assertions' => array(
                     'Contains' =>
-                        'Strict-Transport-Security: max-age=31536000; includeSubDomains; preload'
+                        'strict-transport-security: max-age=31536000; includeSubDomains; preload'
                 )
             ),
             array(
@@ -42,9 +43,9 @@ class SecureHeadersTest extends PHPUnit_Framework_TestCase
                     },
                 'assertions' => array(
                     'NotContains' =>
-                        'Strict-Transport-Security: max-age=31536000; includeSubDomains; preload',
+                        'strict-transport-security: max-age=31536000; includeSubDomains; preload',
                     'Contains' =>
-                        'Strict-Transport-Security: max-age=86400'
+                        'strict-transport-security: max-age=86400'
                 )
             ),
             array(
@@ -55,9 +56,9 @@ class SecureHeadersTest extends PHPUnit_Framework_TestCase
                     },
                 'assertions' => array(
                     'NotContains' =>
-                        'Strict-Transport-Security: max-age=31536000; includeSubDomains; preload',
+                        'strict-transport-security: max-age=31536000; includeSubDomains; preload',
                     'Contains' =>
-                        'Strict-Transport-Security: max-age=86400'
+                        'strict-transport-security: max-age=86400'
                 )
             ),
             array(
@@ -73,7 +74,7 @@ class SecureHeadersTest extends PHPUnit_Framework_TestCase
                     'NotContains' =>
                         'max-age=31536000; pin-sha256="abcd"; includeSubDomains',
                     'Contains' =>
-                        'Public-Key-Pins: max-age=10; pin-sha256="abcd"'
+                        'public-key-pins: max-age=10; pin-sha256="abcd"'
                 )
             )
         );
@@ -86,11 +87,12 @@ class SecureHeadersTest extends PHPUnit_Framework_TestCase
      */
     public function testSafeMode($test, $assertions)
     {
-        $headers = new SecureHeaders;
-        $headers->headersAsString(true);
+        $headers = new SecureHeaders($headerStrings = new StringHttpAdapter);
+        $headers->errorReporting(false);
         $test($headers);
+        $headers->done();
 
-        $headersString = $headers->getHeadersAsString();
+        $headersString = $headerStrings->getHeadersAsString();
 
         foreach ($this->assertions as $assertion)
         {
@@ -122,7 +124,7 @@ class SecureHeadersTest extends PHPUnit_Framework_TestCase
                     },
                 'assertions' => array(
                     'Contains' =>
-                        'Strict-Transport-Security: max-age=31536000; includeSubDomains; preload'
+                        'strict-transport-security: max-age=31536000; includeSubDomains; preload'
                 )
             ),
             array(
@@ -133,7 +135,7 @@ class SecureHeadersTest extends PHPUnit_Framework_TestCase
                     },
                 'assertions' => array(
                     'Regexp' =>
-                        "/Content-Security-Policy: script-src 'nonce-[^']+' 'strict-dynamic'/"
+                        "/content-security-policy: script-src 'nonce-[^']+' 'strict-dynamic'/"
                 )
             ),
             array(
@@ -144,7 +146,7 @@ class SecureHeadersTest extends PHPUnit_Framework_TestCase
                     },
                 'assertions' => array(
                     'Regexp' =>
-                        "/Content-Security-Policy: default-src 'nonce-[^']+' 'strict-dynamic'/"
+                        "/content-security-policy: default-src 'nonce-[^']+' 'strict-dynamic'/"
                 )
             ),
             array(
@@ -169,7 +171,7 @@ class SecureHeadersTest extends PHPUnit_Framework_TestCase
                     },
                 'assertions' => array(
                     'Regexp' =>
-                        "/Content-Security-Policy: default-src 'sha[^']+' 'strict-dynamic'/"
+                        "/content-security-policy: default-src 'sha[^']+' 'strict-dynamic'/"
                 )
             ),
             array(
@@ -180,7 +182,7 @@ class SecureHeadersTest extends PHPUnit_Framework_TestCase
                     },
                 'assertions' => array(
                     'Regexp' =>
-                        "/Content-Security-Policy: script-src 'sha[^']+' 'strict-dynamic'/"
+                        "/content-security-policy: script-src 'sha[^']+' 'strict-dynamic'/"
                 )
             ),
             array(
@@ -219,11 +221,12 @@ class SecureHeadersTest extends PHPUnit_Framework_TestCase
      */
     public function testStrictMode($test, $assertions)
     {
-        $headers = new SecureHeaders;
-        $headers->headersAsString(true);
+        $headers = new SecureHeaders($headerStrings = new StringHttpAdapter);
+        $headers->errorReporting(false);
         $test($headers);
+        $headers->done();
 
-        $headersString = $headers->getHeadersAsString();
+        $headersString = $headerStrings->getHeadersAsString();
 
         foreach ($this->assertions as $assertion)
         {
@@ -244,4 +247,3 @@ class SecureHeadersTest extends PHPUnit_Framework_TestCase
         }
       }
 }   
-?>

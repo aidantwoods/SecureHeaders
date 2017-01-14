@@ -113,9 +113,6 @@ class SecureHeaders{
 
     private $isBufferReturned   = false;
 
-    private $headersString;
-    private $headersAsString    = false;
-
     private $doneOnOutput       = false;
 
     # private variables: (pre-defined static structures)
@@ -952,24 +949,6 @@ class SecureHeaders{
         return $buffer;
     }
 
-    public function headersAsString($mode = true)
-    {
-        $this->headersAsString = ($mode == true);
-    }
-
-    public function getHeadersAsString()
-    {
-        if ( ! $this->headersAsString) return;
-
-        $reportingState = $this->errorReporting;
-        $this->errorReporting = false;
-
-        $this->done();
-        $this->errorReporting = $reportingState;
-
-        return $this->headersString;
-    }
-
     # ~~
     # Private Functions
 
@@ -978,12 +957,6 @@ class SecureHeaders{
 
     private function importHeaders()
     {
-        if ($this->headersAsString)
-        {
-            $this->allowImports = false;
-            return;
-        }
-
         # grab any headers that were already set and, if any, add these to our internal header list
         $this->headerBag = $this->httpAdapter->getHeaders();
 
@@ -1089,8 +1062,6 @@ class SecureHeaders{
 
     private function removeHeaders()
     {
-        if ($this->headersAsString) return;
-
         foreach ($this->removedHeaders as $name => $value)
         {
             $this->headerBag->remove($name);
@@ -1099,22 +1070,9 @@ class SecureHeaders{
 
     private function sendHeaders()
     {
-        $compiledHeaders = array();
-
         foreach ($this->headers as $key => $header)
         {
-            $headerString
-                =   $header['name']
-                    . ($header['value'] === '' ? '' : ': ' . $header['value']);
-
-            if ($this->headersAsString)
-            {
-                $compiledHeaders[] = $headerString;
-            }
-            else
-            {
-                $this->headerBag->replace($header['name'], $header['value']);
-            }
+            $this->headerBag->replace($header['name'], $header['value']);
         }
 
         foreach ($this->cookies as $name => $cookie)
@@ -1174,25 +1132,11 @@ class SecureHeaders{
             # remove final '; '
             $headerString = substr($headerString, 0, -2);
 
-            if ($this->headersAsString)
-            {
-                $compiledHeaders[] = 'Set-Cookie: ' . $headerString;
-            }
-            else
-            {
-                $this->headerBag->add('Set-Cookie', $headerString);
-            }
+            $this->headerBag->add('Set-Cookie', $headerString);
         }
 
-        if ($this->headersAsString)
-        {
-            $this->headersString = implode("\n", $compiledHeaders);
-        }
-        else
-        {
-            // And finally, send all headers through whatever adapter we are using
-            $this->httpAdapter->sendHeaders($this->headerBag);
-        }
+        // And finally, send all headers through whatever adapter we are using
+        $this->httpAdapter->sendHeaders($this->headerBag);
     }
 
     private function deconstructHeaderValue(
