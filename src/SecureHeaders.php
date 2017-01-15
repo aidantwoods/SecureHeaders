@@ -386,7 +386,7 @@ class SecureHeaders{
 
             $capitalisedName = preg_replace_callback(
                 '/(?<=[-\s]|^)[^-\s]/',
-                function ($match){
+                function ($match) {
                     return strtoupper($match[0]);
                 },
                 $name
@@ -403,7 +403,7 @@ class SecureHeaders{
             $this->proposeHeaders
             and (
                 isset($this->removedHeaders[$name])
-                or isset($this->headers[$name])
+                or $this->headerBag->has($name)
             )
         ) {
             # a proposal header will only be added if the intented header:
@@ -444,15 +444,13 @@ class SecureHeaders{
         # add the header, and disect its value
         else
         {
-            $this->headers[$name] = array(
-                'name' =>
-                    $capitalisedName,
-                'value' =>
-                    $value,
-                'attributes' =>
-                    $this->deconstructHeaderValue($value, $name),
-                'attributePositions' =>
-                    $this->deconstructHeaderValue($value, $name, true)
+            $this->headerBag->replace(
+                $capitalisedName,
+                $value,
+                array(
+                    'attributes' => $this->deconstructHeaderValue($value, $name),
+                    'attributePositions' => $this->deconstructHeaderValue($value, $name, true)
+                )
             );
         }
 
@@ -1060,11 +1058,6 @@ class SecureHeaders{
 
     private function sendHeaders()
     {
-        foreach ($this->headers as $key => $header)
-        {
-            $this->headerBag->replace($header['name'], $header['value']);
-        }
-
         foreach ($this->cookies as $name => $cookie)
         {
             if (isset($this->removedCookies[strtolower($name)]))
@@ -1197,18 +1190,20 @@ class SecureHeaders{
 
     private function validateHeaders()
     {
-        foreach ($this->headers as $header => $data)
+        foreach ($this->headerBag->get() as $header)
         {
-            $friendlyHeader = str_replace('-', ' ', $header);
+            $data = $header->getProps();
+
+            $friendlyHeader = str_replace('-', ' ', $header->getName());
             $friendlyHeader = ucwords($friendlyHeader);
 
             if (
-                $header === 'content-security-policy'
-                or $header === 'content-security-policy-report-only'
+                $header->is('content-security-policy')
+                or $header->is('content-security-policy-report-only')
             ) {
 
                 if (
-                    $header === 'content-security-policy-report-only'
+                    $header->is('content-security-policy-report-only')
                     and (
                         ! isset($data['attributes']['report-uri'])
                         or  ! preg_match(
@@ -2135,7 +2130,7 @@ class SecureHeaders{
     {
         foreach ($this->reportMissingHeaders as $header)
         {
-            if (empty($this->headers[strtolower($header)]))
+            if (!$this->headerBag->has($header))
             {
                 $this->addError(
                     'Missing security header: ' . "'" . $header . "'",
