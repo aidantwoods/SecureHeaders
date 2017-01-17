@@ -35,6 +35,7 @@ namespace Aidantwoods\SecureHeaders;
 
 use Aidantwoods\SecureHeaders\Http\GlobalHttpAdapter;
 use Aidantwoods\SecureHeaders\Http\HttpAdapter;
+use Aidantwoods\SecureHeaders\Util\Types;
 
 class SecureHeaders{
 
@@ -293,7 +294,7 @@ class SecureHeaders{
 
     public function safeModeException($name)
     {
-        $this->assertTypes(array('string' => array($name)));
+        Types::assert(array('string' => array($name)));
 
         $this->safeModeExceptions[strtolower($name)] = true;
     }
@@ -317,7 +318,7 @@ class SecureHeaders{
 
     public function auto($mode = self::AUTO_ALL)
     {
-        $this->assertTypes(array('int' => array($mode)));
+        Types::assert(array('int' => array($mode)));
 
         $this->automaticHeaders = $mode;
     }
@@ -331,7 +332,7 @@ class SecureHeaders{
         $name,
         $mode = self::COOKIE_DEFAULT
     ) {
-        $this->assertTypes(
+        Types::assert(
             array(
                 'string|array' => array($name),
                 'int' => array($mode)
@@ -388,7 +389,7 @@ class SecureHeaders{
         $name,
         $value = null
     ) {
-        $this->assertTypes(array('string' => array($name, $value)));
+        Types::assert(array('string' => array($name, $value)));
 
         if (
             $this->correctHeaderName
@@ -475,14 +476,14 @@ class SecureHeaders{
         $name,
         $value = null
     ) {
-        $this->assertTypes(array('string' => array($name, $value)));
+        Types::assert(array('string' => array($name, $value)));
 
         $this->addHeader($name, $value);
     }
 
     public function removeHeader($name)
     {
-        $this->assertTypes(array('string' => array($name)));
+        Types::assert(array('string' => array($name)));
 
         $name = strtolower($name);
         $headers = $this->getHeaderAliases($name);
@@ -507,7 +508,7 @@ class SecureHeaders{
 
     public function removeCookie($name)
     {
-        $this->assertTypes(array('string' => array($name)));
+        Types::assert(array('string' => array($name)));
 
         unset($this->cookies[$name]);
 
@@ -610,7 +611,7 @@ class SecureHeaders{
 
     public function removeCSPSource($directive, $source, $reportOnly = null)
     {
-        $this->assertTypes(array('string' => array($directive, $source)));
+        Types::assert(array('string' => array($directive, $source)));
 
         $csp = &$this->getCSPObject($reportOnly);
 
@@ -629,7 +630,7 @@ class SecureHeaders{
 
     public function removeCSPDirective($directive, $reportOnly = null)
     {
-        $this->assertTypes(array('string' => array($directive)));
+        Types::assert(array('string' => array($directive)));
 
         $csp = &$this->getCSPObject($reportOnly);
 
@@ -661,7 +662,7 @@ class SecureHeaders{
         $isFile = null,
         $reportOnly = null
     ) {
-        $this->assertTypes(
+        Types::assert(
             array('string' => array($friendlyDirective, $string, $algo))
         );
 
@@ -690,7 +691,7 @@ class SecureHeaders{
         $algo = null,
         $isFile = null
     ) {
-        $this->assertTypes(
+        Types::assert(
             array('string' => array($friendlyDirective, $string, $algo))
         );
 
@@ -709,7 +710,7 @@ class SecureHeaders{
         $algo = null,
         $reportOnly = null
     ) {
-        $this->assertTypes(
+        Types::assert(
             array('string' => array($friendlyDirective, $string, $algo))
         );
 
@@ -724,7 +725,7 @@ class SecureHeaders{
 
     public function csproHashFile($friendlyDirective, $string, $algo = null)
     {
-        $this->assertTypes(
+        Types::assert(
             array('string' => array($friendlyDirective, $string, $algo))
         );
 
@@ -735,7 +736,7 @@ class SecureHeaders{
 
     public function cspNonce($friendlyDirective, $reportOnly = null)
     {
-        $this->assertTypes(array('string' => array($friendlyDirective)));
+        Types::assert(array('string' => array($friendlyDirective)));
 
         $reportOnly = ($reportOnly == true);
 
@@ -763,7 +764,7 @@ class SecureHeaders{
 
     public function csproNonce($friendlyDirective)
     {
-        $this->assertTypes(array('string' => array($friendlyDirective)));
+        Types::assert(array('string' => array($friendlyDirective)));
 
         return $this->cspNonce($friendlyDirective, true);
     }
@@ -776,7 +777,7 @@ class SecureHeaders{
         $subdomains = false,
         $preload = false
     ) {
-        $this->assertTypes(array('int|string' => array($maxAge)));
+        Types::assert(array('int|string' => array($maxAge)));
 
         $this->hsts['max-age']      = $maxAge;
         $this->hsts['subdomains']   = ($subdomains == true);
@@ -803,7 +804,7 @@ class SecureHeaders{
         $reportUri = null,
         $reportOnly = null
     ) {
-        $this->assertTypes(
+        Types::assert(
             array(
                 'string|array' => array($pins),
                 'int|string' => array($maxAge),
@@ -871,7 +872,7 @@ class SecureHeaders{
         $subdomains = null,
         $reportUri = null
     ) {
-        $this->assertTypes(
+        Types::assert(
             array(
                 'string|array' => array($pins),
                 'int|string' => array($maxAge),
@@ -970,7 +971,7 @@ class SecureHeaders{
 
     private function importCSP($headerValue, $reportOnly)
     {
-        $this->assertTypes(
+        Types::assert(
             array(
                 'string' => array($headerValue),
                 'bool' => array($reportOnly)
@@ -1003,7 +1004,7 @@ class SecureHeaders{
 
     private function importHSTS($headerValue)
     {
-        $this->assertTypes(array('string' => array($headerValue)));
+        Types::assert(array('string' => array($headerValue)));
 
         $hsts = $this->deconstructHeaderValue($headerValue);
 
@@ -1027,7 +1028,7 @@ class SecureHeaders{
 
     private function importHPKP($headerValue, $reportOnly = null)
     {
-        $this->assertTypes(
+        Types::assert(
             array(
                 'string' => array($headerValue),
                 'bool' => array($reportOnly)
@@ -1144,7 +1145,7 @@ class SecureHeaders{
         $name = null,
         $getPosition = null
     ) {
-        $this->assertTypes(
+        Types::assert(
             array(
                 'string' => array($header, $name),
                 'bool' => array($getPosition)
@@ -1325,7 +1326,7 @@ class SecureHeaders{
 
     private function addCookie($name, $value = null, $extractCookie = null)
     {
-        $this->assertTypes(array('string' => array($name, $value)));
+        Types::assert(array('string' => array($name, $value)));
 
         # if extractCookie loosely compares to true, the value will be
         # extracted from the cookie name e.g. the from the form
@@ -1382,7 +1383,7 @@ class SecureHeaders{
         $friendlySource = null,
         $reportOnly = null
     ) {
-        $this->assertTypes(
+        Types::assert(
             array('string' => array($friendlyDirective, $friendlySource))
         );
 
@@ -1399,7 +1400,7 @@ class SecureHeaders{
         # directive A is friendly directive. Otherwise, directive A will be
         # returned
 
-        $this->assertTypes(array('string' => array($friendlyDirective)));
+        Types::assert(array('string' => array($friendlyDirective)));
 
         $friendlyDirective = strtolower($friendlyDirective);
 
@@ -1420,7 +1421,7 @@ class SecureHeaders{
         # takes source A and returns the corresponding long source, if the
         # source A is friendly source. Otherwise, source A will be returned
 
-        $this->assertTypes(array('string' => array($friendlySource)));
+        Types::assert(array('string' => array($friendlySource)));
 
         $lowerFriendlySource = strtolower($friendlySource);
 
@@ -1441,7 +1442,7 @@ class SecureHeaders{
         $source = null,
         $reportOnly = null
     ) {
-        $this->assertTypes(array('string' => array($directive, $source)));
+        Types::assert(array('string' => array($directive, $source)));
 
         $csp = &$this->getCSPObject($reportOnly);
 
@@ -1585,7 +1586,7 @@ class SecureHeaders{
         $isFlag = null,
         $reportOnly = null
     ) {
-        $this->assertTypes(array('string' => array($directive)));
+        Types::assert(array('string' => array($directive)));
 
         if ( ! isset($isFlag)) $isFlag = false;
 
@@ -1607,7 +1608,7 @@ class SecureHeaders{
         $algo = null,
         $isFile = null
     ) {
-        $this->assertTypes(array('string' => array($string, $algo)));
+        Types::assert(array('string' => array($string, $algo)));
 
         if ( ! isset($algo)) $algo = 'sha256';
 
@@ -1754,7 +1755,7 @@ class SecureHeaders{
 
     private function modifyCookie($substr, $flag, $fullMatch = null)
     {
-        $this->assertTypes(array('string' => array($substr, $flag)));
+        Types::assert(array('string' => array($substr, $flag)));
 
         if ( ! isset($fullMatch)) $fullMatch = false;
 
@@ -1840,7 +1841,7 @@ class SecureHeaders{
 
     private function modifyHeaderValue($header, $attribute, $newValue)
     {
-        $this->assertTypes(array('string' => array($header, $attribute)));
+        Types::assert(array('string' => array($header, $attribute)));
 
         # if the attribute doesn't exist, dangerous to guess insersion method
         if ( ! isset($this->headers[$header]['attributes'][$attribute]))
@@ -1925,7 +1926,7 @@ class SecureHeaders{
 
     private function addError($message, $error = E_USER_NOTICE)
     {
-        $this->assertTypes(
+        Types::assert(
             array('string' => array($message), 'int' => array($error))
         );
 
@@ -1958,7 +1959,7 @@ class SecureHeaders{
         $valueCaptureGroup = null,
         $pairValueCaptureGroup = null
     ) {
-        $this->assertTypes(
+        Types::assert(
             array(
                 'string' => array($pattern),
                 'int' => array($valueCaptureGroup, $pairValueCaptureGroup)
@@ -1995,7 +1996,7 @@ class SecureHeaders{
 
     private function isUnsafeHeader($name)
     {
-        $this->assertTypes(array('string' => array($name)));
+        Types::assert(array('string' => array($name)));
 
         return (
             $this->safeMode
@@ -2143,7 +2144,7 @@ class SecureHeaders{
 
     private function errorHandler($level, $message)
     {
-        $this->assertTypes(
+        Types::assert(
             array('int' => array($level), 'string' => array($message))
         );
 
@@ -2170,68 +2171,9 @@ class SecureHeaders{
         return false;
     }
 
-    private function assertTypes(array $typeList, array $argNums = null)
-    {
-        $i = 0;
-        $n = count($typeList);
-
-        foreach ($typeList as $type => $vars)
-        {
-            if (is_array($vars)) $n += count($vars) - 1;
-        }
-
-        if ( ! isset($argNums)) $argNums = range(1, $n);
-
-        $backtrace = debug_backtrace();
-        $caller = $backtrace[1];
-
-        foreach ($typeList as $type => $vars)
-        {
-            $type = strtolower($type);
-
-            $type = preg_replace(
-                array(
-                    '/bool(?=$|[\|])/',
-                    '/int(?=$|[\|])/'
-                ),
-                array(
-                    'boolean',
-                    'integer'
-                ),
-                $type
-            );
-
-
-            foreach ($vars as $var)
-            {
-                $allowedTypes = array_merge(
-                    array('NULL'),
-                    explode('|', $type)
-                );
-
-                if ( ! in_array(($varType = gettype($var)), $allowedTypes))
-                {
-                    $typeError
-                        = new SecureHeadersTypeError(
-                            'Argument '.$argNums[$i].' passed to '
-                            .__CLASS__."::${caller['function']}() must be of"
-                            ." the type $type, $varType given in "
-                            ."${caller['file']} on line ${caller['line']}"
-                        );
-
-                    $typeError->passHeaders($this);
-
-                    throw $typeError;
-                }
-
-                $i++;
-            }
-        }
-    }
-
     private function getHeaderAliases($name)
     {
-        $this->assertTypes(array('string' => array($name)));
+        Types::assert(array('string' => array($name)));
 
         $headers = array_merge(
             $this->pregMatchArray(
