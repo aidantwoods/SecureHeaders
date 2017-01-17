@@ -16,10 +16,10 @@ class GlobalHttpAdapter implements HttpAdapter
     {
         header_remove();
 
-        foreach ($headers->get() as $name => $value)
+        foreach ($headers->get() as $header)
         {
             header(
-                $name . ($value === '' ? '' : ': ' . $value)
+                (string) $header
             );
         }
     }

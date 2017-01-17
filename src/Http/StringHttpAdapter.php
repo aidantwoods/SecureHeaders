@@ -33,9 +33,9 @@ class StringHttpAdapter implements HttpAdapter
     {
         $compiledHeaders = array();
 
-        foreach ($this->headers as $name => $value)
+        foreach ($this->headers as $header)
         {
-            $compiledHeaders[] = $name . ($value === '' ? '' : ': ' . $value);
+            $compiledHeaders[] = (string) $header;
         }
 
         return implode("\n", $compiledHeaders);

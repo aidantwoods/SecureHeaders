@@ -29,7 +29,7 @@ class SecureHeadersTest extends PHPUnit_Framework_TestCase
                     },
                 'assertions' => array(
                     'Contains' =>
-                        'strict-transport-security: max-age=31536000; includeSubDomains; preload'
+                        'Strict-Transport-Security: max-age=31536000; includeSubDomains; preload'
                 )
             ),
             array(
@@ -43,9 +43,9 @@ class SecureHeadersTest extends PHPUnit_Framework_TestCase
                     },
                 'assertions' => array(
                     'NotContains' =>
-                        'strict-transport-security: max-age=31536000; includeSubDomains; preload',
+                        'Strict-Transport-Security: max-age=31536000; includeSubDomains; preload',
                     'Contains' =>
-                        'strict-transport-security: max-age=86400'
+                        'Strict-Transport-Security: max-age=86400'
                 )
             ),
             array(
@@ -56,9 +56,9 @@ class SecureHeadersTest extends PHPUnit_Framework_TestCase
                     },
                 'assertions' => array(
                     'NotContains' =>
-                        'strict-transport-security: max-age=31536000; includeSubDomains; preload',
+                        'Strict-Transport-Security: max-age=31536000; includeSubDomains; preload',
                     'Contains' =>
-                        'strict-transport-security: max-age=86400'
+                        'Strict-Transport-Security: max-age=86400'
                 )
             ),
             array(
@@ -74,7 +74,7 @@ class SecureHeadersTest extends PHPUnit_Framework_TestCase
                     'NotContains' =>
                         'max-age=31536000; pin-sha256="abcd"; includeSubDomains',
                     'Contains' =>
-                        'public-key-pins: max-age=10; pin-sha256="abcd"'
+                        'Public-Key-Pins: max-age=10; pin-sha256="abcd"'
                 )
             )
         );
@@ -124,7 +124,7 @@ class SecureHeadersTest extends PHPUnit_Framework_TestCase
                     },
                 'assertions' => array(
                     'Contains' =>
-                        'strict-transport-security: max-age=31536000; includeSubDomains; preload'
+                        'Strict-Transport-Security: max-age=31536000; includeSubDomains; preload'
                 )
             ),
             array(
@@ -135,7 +135,7 @@ class SecureHeadersTest extends PHPUnit_Framework_TestCase
                     },
                 'assertions' => array(
                     'Regexp' =>
-                        "/content-security-policy: script-src 'nonce-[^']+' 'strict-dynamic'/"
+                        "/Content-Security-Policy: script-src 'nonce-[^']+' 'strict-dynamic'/"
                 )
             ),
             array(
@@ -146,7 +146,7 @@ class SecureHeadersTest extends PHPUnit_Framework_TestCase
                     },
                 'assertions' => array(
                     'Regexp' =>
-                        "/content-security-policy: default-src 'nonce-[^']+' 'strict-dynamic'/"
+                        "/Content-Security-Policy: default-src 'nonce-[^']+' 'strict-dynamic'/"
                 )
             ),
             array(
@@ -171,7 +171,7 @@ class SecureHeadersTest extends PHPUnit_Framework_TestCase
                     },
                 'assertions' => array(
                     'Regexp' =>
-                        "/content-security-policy: default-src 'sha[^']+' 'strict-dynamic'/"
+                        "/Content-Security-Policy: default-src 'sha[^']+' 'strict-dynamic'/"
                 )
             ),
             array(
@@ -182,7 +182,7 @@ class SecureHeadersTest extends PHPUnit_Framework_TestCase
                     },
                 'assertions' => array(
                     'Regexp' =>
-                        "/content-security-policy: script-src 'sha[^']+' 'strict-dynamic'/"
+                        "/Content-Security-Policy: script-src 'sha[^']+' 'strict-dynamic'/"
                 )
             ),
             array(
