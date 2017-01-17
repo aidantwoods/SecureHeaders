@@ -2,6 +2,8 @@
 
 namespace Aidantwoods\SecureHeaders;
 
+use Aidantwoods\SecureHeaders\Util\Types;
+
 class HeaderBag
 {
     protected $headers = array();
@@ -31,6 +33,8 @@ class HeaderBag
 
     public function has($name)
     {
+        Types::assert(array('string' => array($name)));
+
         return array_key_exists(strtolower($name), $this->headers);
     }
 
@@ -46,11 +50,15 @@ class HeaderBag
 
     public function replace($name, $value = '')
     {
+        Types::assert(array('string' => array($name, $value)));
+
         $this->headers[strtolower($name)] = $value;
     }
 
     public function remove($name)
     {
+        Types::assert(array('string' => array($name)));
+
         unset($this->headers[strtolower($name)]);
     }
 
