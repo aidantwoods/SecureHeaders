@@ -109,6 +109,7 @@ class SecureHeaders{
     private $hpkp               = array();
     private $hpkpro             = array();
 
+    private $importStarted      = false;
     private $allowImports       = true;
     private $proposeHeaders     = false;
 
@@ -469,7 +470,10 @@ class SecureHeaders{
             );
         }
 
-        unset($this->removedHeaders[$name]);
+        if ( ! $this->importStarted)
+        {
+            unset($this->removedHeaders[$name]);
+        }
     }
 
     public function header(
@@ -486,21 +490,13 @@ class SecureHeaders{
         Types::assert(array('string' => array($name)));
 
         $name = strtolower($name);
-        $headers = $this->getHeaderAliases($name);
 
-        if ( ! empty($headers))
-        {
-            foreach ($headers as $header)
-            {
-                unset($this->headers[$header]);
-            }
+        $result = $this->headerExists($name);
 
-            return true;
-        }
-
+        unset($this->headers[$name]);
         $this->removedHeaders[$name] = true;
 
-        return false;
+        return $result;
     }
 
     # ~~
@@ -958,13 +954,18 @@ class SecureHeaders{
 
     private function importHeaders()
     {
-        # grab any headers that were already set and, if any, add these to our internal header list
+        $this->importStarted = true;
+        # grab any headers that were already set and, if any,
+        # add these to our internal header list
         $this->headerBag = $this->httpAdapter->getHeaders();
 
         foreach ($this->headerBag->get() as $header)
         {
             $this->addHeader($header->getName(), $header->getValue());
         }
+
+        # delete them (we'll set them again later)
+        $this->headerBag->removeAll();
 
         $this->allowImports = false;
     }
@@ -1066,6 +1067,8 @@ class SecureHeaders{
         foreach ($this->removedHeaders as $name => $value)
         {
             $this->headerBag->remove($name);
+
+            unset($this->headers[$name]);
         }
     }
 
@@ -1152,7 +1155,7 @@ class SecureHeaders{
             )
         );
 
-        if ( ! isset($header)) return array();
+        if ( empty($header)) return array();
 
         if ( ! isset($getPosition)) $n = 0;
         else $n = 1;
@@ -2172,6 +2175,7 @@ class SecureHeaders{
     }
 
     private function getHeaderAliases($name)
+    private function headerExists($name)
     {
         Types::assert(array('string' => array($name)));
 
@@ -2190,8 +2194,12 @@ class SecureHeaders{
         {
             return $headers;
         }
+        $name = strtolower($name);
 
-        return null;
+        return (
+            isset($this->headers[$name])
+            or $this->httpAdapter->getHeaders()->has($name)
+        );
     }
 
     private function reportMissingHeaders()
