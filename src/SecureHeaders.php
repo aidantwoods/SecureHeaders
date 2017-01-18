@@ -1956,47 +1956,6 @@ class SecureHeaders{
         restore_error_handler();
     }
 
-    private function pregMatchArray(
-        $pattern,
-        array $subjects,
-        $valueCaptureGroup = null,
-        $pairValueCaptureGroup = null
-    ) {
-        Types::assert(
-            array(
-                'string' => array($pattern),
-                'int' => array($valueCaptureGroup, $pairValueCaptureGroup)
-            ),
-            array(1, 3, 4)
-        );
-
-        if ( ! isset($valueCaptureGroup)) $valueCaptureGroup = 0;
-
-        $matches = array();
-
-        foreach ($subjects as $subject)
-        {
-            if (
-                preg_match($pattern, $subject, $match)
-                and isset($match[$valueCaptureGroup])
-            ) {
-                if ( ! isset($pairValueCaptureGroup))
-                {
-                    $matches[] = $match[$valueCaptureGroup];
-                }
-                else
-                {
-                    $matches[] = array(
-                        $match[$valueCaptureGroup],
-                        $match[$pairValueCaptureGroup]
-                    );
-                }
-            }
-        }
-
-        return $matches;
-    }
-
     private function isUnsafeHeader($name)
     {
         Types::assert(array('string' => array($name)));
@@ -2174,26 +2133,10 @@ class SecureHeaders{
         return false;
     }
 
-    private function getHeaderAliases($name)
     private function headerExists($name)
     {
         Types::assert(array('string' => array($name)));
 
-        $headers = array_merge(
-            $this->pregMatchArray(
-                '/^'.preg_quote($name).'$/i',
-                array_keys($this->headers)
-            ),
-            $this->pregMatchArray(
-                '/^'.preg_quote($name).'(?=[:])/i',
-                headers_list()
-            )
-        );
-
-        if ( ! empty($headers))
-        {
-            return $headers;
-        }
         $name = strtolower($name);
 
         return (
