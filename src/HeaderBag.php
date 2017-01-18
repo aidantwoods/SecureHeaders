@@ -23,7 +23,10 @@ class HeaderBag
 
         foreach ($lines as $line)
         {
-            list($name, $value) = explode(': ', $line, 2);
+            preg_match('/^([^:]++)(?|(?:[:][ ]?+)(.*+)|())/', $line, $matches);
+            array_shift($matches);
+
+            list($name, $value) = $matches;
 
             $bag->add($name, $value);
         }
@@ -103,6 +106,6 @@ class Header
 
     public function __toString()
     {
-        return $this->name . ($this->value === '' ? '' : ': ' . $this->value);
+        return $this->name . ':' .(empty($this->value) ? '' : ' ' . $this->value);
     }
 }
