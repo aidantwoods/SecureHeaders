@@ -2,6 +2,7 @@
 
 namespace Tests;
 
+use Aidantwoods\SecureHeaders\Http\StringHttpAdapter;
 use Aidantwoods\SecureHeaders\SecureHeaders;
 use PHPUnit_Framework_TestCase;
 
@@ -86,11 +87,12 @@ class SecureHeadersTest extends PHPUnit_Framework_TestCase
      */
     public function testSafeMode($test, $assertions)
     {
-        $headers = new SecureHeaders;
-        $headers->headersAsString(true);
+        $headers = new SecureHeaders($headerStrings = new StringHttpAdapter);
+        $headers->errorReporting(false);
         $test($headers);
+        $headers->done();
 
-        $headersString = $headers->getHeadersAsString();
+        $headersString = $headerStrings->getHeadersAsString();
 
         foreach ($this->assertions as $assertion)
         {
@@ -219,11 +221,12 @@ class SecureHeadersTest extends PHPUnit_Framework_TestCase
      */
     public function testStrictMode($test, $assertions)
     {
-        $headers = new SecureHeaders;
-        $headers->headersAsString(true);
+        $headers = new SecureHeaders($headerStrings = new StringHttpAdapter);
+        $headers->errorReporting(false);
         $test($headers);
+        $headers->done();
 
-        $headersString = $headers->getHeadersAsString();
+        $headersString = $headerStrings->getHeadersAsString();
 
         foreach ($this->assertions as $assertion)
         {
@@ -244,4 +247,3 @@ class SecureHeadersTest extends PHPUnit_Framework_TestCase
         }
       }
 }   
-?>
