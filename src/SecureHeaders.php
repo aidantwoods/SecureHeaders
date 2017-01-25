@@ -85,9 +85,8 @@ class SecureHeaders{
     # ~~
     # private variables: (non settings)
 
-    private $headerBag;
+    private $headers;
 
-    private $headers            = array();
     private $removedHeaders     = array();
 
     private $cookies            = array();
@@ -254,7 +253,7 @@ class SecureHeaders{
         }
 
         $this->httpAdapter = $httpAdapter;
-        $this->headerBag = new HeaderBag;
+        $this->headers = new HeaderBag;
     }
 
     public function doneOnOutput($mode = true)
@@ -403,7 +402,7 @@ class SecureHeaders{
             $this->proposeHeaders
             and (
                 isset($this->removedHeaders[$name])
-                or $this->headerBag->has($name)
+                or $this->headers->has($name)
             )
         ) {
             # a proposal header will only be added if the intented header:
@@ -444,7 +443,7 @@ class SecureHeaders{
         # add the header, and disect its value
         else
         {
-            $this->headerBag->replace(
+            $this->headers->replace(
                 $capitalisedName,
                 $value,
                 array(
@@ -477,7 +476,7 @@ class SecureHeaders{
 
         $result = $this->headerExists($name);
 
-        unset($this->headers[$name]);
+        $this->headers->remove($name);
         $this->removedHeaders[$name] = true;
 
         return $result;
@@ -941,15 +940,15 @@ class SecureHeaders{
         $this->importStarted = true;
         # grab any headers that were already set and, if any,
         # add these to our internal header list
-        $this->headerBag = $this->httpAdapter->getHeaders();
+        $this->headers = $this->httpAdapter->getHeaders();
 
-        foreach ($this->headerBag->get() as $header)
+        foreach ($this->headers->get() as $header)
         {
             $this->addHeader($header->getName(), $header->getValue());
         }
 
         # delete them (we'll set them again later)
-        $this->headerBag->removeAll();
+        $this->headers->removeAll();
 
         $this->allowImports = false;
     }
@@ -1050,9 +1049,7 @@ class SecureHeaders{
     {
         foreach ($this->removedHeaders as $name => $value)
         {
-            $this->headerBag->remove($name);
-
-            unset($this->headers[$name]);
+            $this->headers->remove($name);
         }
     }
 
@@ -1115,11 +1112,11 @@ class SecureHeaders{
             # remove final '; '
             $headerString = substr($headerString, 0, -2);
 
-            $this->headerBag->add('Set-Cookie', $headerString);
+            $this->headers->add('Set-Cookie', $headerString);
         }
 
         // And finally, send all headers through whatever adapter we are using
-        $this->httpAdapter->sendHeaders($this->headerBag);
+        $this->httpAdapter->sendHeaders($this->headers);
     }
 
     private function deconstructHeaderValue(
@@ -1190,7 +1187,7 @@ class SecureHeaders{
 
     private function validateHeaders()
     {
-        foreach ($this->headerBag->get() as $header)
+        foreach ($this->headers->get() as $header)
         {
             $data = $header->getProps();
 
@@ -1764,16 +1761,19 @@ class SecureHeaders{
     {
         if ( ! $this->safeMode) return;
 
-        foreach ($this->headers as $header => $data)
+        foreach ($this->headers->get() as $header)
         {
+            $data = $header->getProps();
+            $headerName = $header->getName();
+
             if (
-                isset($this->safeModeUnsafeHeaders[$header])
-                and empty($this->safeModeExceptions[$header])
+                isset($this->safeModeUnsafeHeaders[$headerName])
+                and empty($this->safeModeExceptions[$headerName])
             ) {
                 $changed = false;
 
                 foreach (
-                    $this->safeModeUnsafeHeaders[$header]
+                    $this->safeModeUnsafeHeaders[$headerName]
                     as $attribute => $default
                 ) {
                     # if the attribute is also set
@@ -1812,10 +1812,10 @@ class SecureHeaders{
                 # if we changed something, throw a notice to let user know
                 if (
                     $changed
-                    and isset($this->safeModeUnsafeHeaders[$header][0])
+                    and isset($this->safeModeUnsafeHeaders[$headerName][0])
                 ) {
                     $this->addError(
-                        $this->safeModeUnsafeHeaders[$header][0],
+                        $this->safeModeUnsafeHeaders[$headerName][0],
                         E_USER_NOTICE
                     );
                 }
@@ -1823,19 +1823,20 @@ class SecureHeaders{
         }
     }
 
-    private function modifyHeaderValue($header, $attribute, $newValue)
+    private function modifyHeaderValue(Header $header, $attribute, $newValue)
     {
-        Types::assert(array('string' => array($header, $attribute)));
+        Types::assert(array('string' => array($attribute)), array(2));
+
+        $props = $header->getProps();
 
         # if the attribute doesn't exist, dangerous to guess insersion method
-        if ( ! isset($this->headers[$header]['attributes'][$attribute]))
+        if ( ! isset($props['attributes'][$attribute]))
         {
             return;
         }
 
-        $currentValue = $this->headers[$header]['attributes'][$attribute];
-        $currentOffset
-            = $this->headers[$header]['attributePositions'][$attribute];
+        $currentValue = $props['attributes'][$attribute];
+        $currentOffset = $props['attributePositions'][$attribute];
 
         # if the new value is a a flag, we want to replace the flag (attribute
         # text) otherwise, we're replacing the value of the attribute
@@ -1852,13 +1853,14 @@ class SecureHeaders{
         $newLength = strlen($newValue);
 
         # perform the replacement
-        $this->headers[$header]['value']
-            =   substr_replace(
-                    $this->headers[$header]['value'],
-                    $newValue,
-                    $currentOffset,
-                    $currentLength
-                );
+        $header->setValue(
+            substr_replace(
+                $header->getValue(),
+                $newValue,
+                $currentOffset,
+                $currentLength
+            )
+        );
 
         # in the case that a flag was removed, we may need to strip out a
         # delimiter too
@@ -1867,7 +1869,7 @@ class SecureHeaders{
             and preg_match(
                 '/^;[ ]?/',
                 substr(
-                    $this->headers[$header]['value'],
+                    $header->getValue(),
                     $currentOffset + $newLength,
                     2
                 ),
@@ -1876,13 +1878,15 @@ class SecureHeaders{
         ) {
             $tailLength = strlen($match[0]);
 
-            $this->headers[$header]['value']
-                =   substr_replace(
-                        $this->headers[$header]['value'],
-                        '',
-                        $currentOffset + $newLength,
-                        $tailLength
-                    );
+            $header->setValue(
+                substr_replace(
+                    $header->getValue(),
+                    '',
+                    $currentOffset + $newLength,
+                    $tailLength
+                )
+            );
+            $header->setProps($props);
 
             $newLength -= $tailLength;
         }
@@ -1893,14 +1897,14 @@ class SecureHeaders{
         # length of string)
 
         foreach (
-            $this->headers[$header]['attributePositions'] as $i => $position
+            $props['attributePositions'] as $i => $position
         ) {
             if ( ! is_int($position)) continue;
 
             if ($position > $currentOffset)
             {
-                $this->headers[$header]['attributePositions'][$i]
-                    += $lengthDiff;
+                $props['attributePositions'][$i] += $lengthDiff;
+                $header->setProps($props);
             }
         }
     }
@@ -2121,7 +2125,7 @@ class SecureHeaders{
         $name = strtolower($name);
 
         return (
-            isset($this->headers[$name])
+            $this->headers->has($name)
             or $this->httpAdapter->getHeaders()->has($name)
         );
     }
@@ -2130,7 +2134,7 @@ class SecureHeaders{
     {
         foreach ($this->reportMissingHeaders as $header)
         {
-            if (!$this->headerBag->has($header))
+            if (!$this->headers->has($header))
             {
                 $this->addError(
                     'Missing security header: ' . "'" . $header . "'",

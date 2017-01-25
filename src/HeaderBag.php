@@ -98,7 +98,7 @@ class Header
 
     public function getName()
     {
-        return $this->name;
+        return strtolower($this->name);
     }
 
     public function is($name)
@@ -111,9 +111,19 @@ class Header
         return $this->value;
     }
 
+    public function setValue($newValue)
+    {
+        $this->value = $newValue;
+    }
+
     public function getProps()
     {
         return $this->props;
+    }
+
+    public function setProps(array $newProps)
+    {
+        $this->props = $newProps;
     }
 
     public function __toString()
