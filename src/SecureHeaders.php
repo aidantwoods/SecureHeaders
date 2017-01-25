@@ -1766,61 +1766,63 @@ class SecureHeaders{
             $data = $header->getProps();
             $headerName = $header->getName();
 
-            if (
-                isset($this->safeModeUnsafeHeaders[$headerName])
-                and empty($this->safeModeExceptions[$headerName])
+            if ($this->isFineInSafeMode($headerName)) continue;
+
+            $changed = false;
+
+            foreach (
+                $this->safeModeUnsafeHeaders[$headerName]
+                as $attribute => $default
             ) {
-                $changed = false;
+                # if the attribute is also set
+                if (isset($data['attributes'][$attribute]))
+                {
+                    $value = $data['attributes'][$attribute];
 
-                foreach (
-                    $this->safeModeUnsafeHeaders[$headerName]
-                    as $attribute => $default
-                ) {
-                    # if the attribute is also set
-                    if (isset($data['attributes'][$attribute]))
-                    {
-                        $value = $data['attributes'][$attribute];
-
-                        # if the user-set value is a number, check to see if
-                        # it's greater than safe mode's preference. If boolean
-                        # or string check to see if the value differs
-                        if (
-                            (is_bool($default) or is_string($default))
-                            and $default !== $value
-                            or is_int($default) and intval($value) > $default
-                        ) {
-                            # if the default is a flag and true, we want the
-                            # attribute name to be the default value
-                            if (is_bool($default) and $default === true)
-                            {
-                                $default = $attribute;
-                            }
-
-                            $this->modifyHeaderValue(
-                                $header,
-                                $attribute,
-                                $default,
-                                true
-                            );
-
-                            # make note that we changed something
-                            $changed = true;
+                    # if the user-set value is a number, check to see if
+                    # it's greater than safe mode's preference. If boolean
+                    # or string check to see if the value differs
+                    if (
+                        (is_bool($default) or is_string($default))
+                        and $default !== $value
+                        or is_int($default) and intval($value) > $default
+                    ) {
+                        # if the default is a flag and true, we want the
+                        # attribute name to be the default value
+                        if (is_bool($default) and $default === true)
+                        {
+                            $default = $attribute;
                         }
+
+                        $this->modifyHeaderValue(
+                            $header,
+                            $attribute,
+                            $default,
+                            true
+                        );
+
+                        # make note that we changed something
+                        $changed = true;
                     }
                 }
+            }
 
-                # if we changed something, throw a notice to let user know
-                if (
-                    $changed
-                    and isset($this->safeModeUnsafeHeaders[$headerName][0])
-                ) {
-                    $this->addError(
-                        $this->safeModeUnsafeHeaders[$headerName][0],
-                        E_USER_NOTICE
-                    );
-                }
+            # if we changed something, throw a notice to let user know
+            if (
+                $changed
+                and isset($this->safeModeUnsafeHeaders[$headerName][0])
+            ) {
+                $this->addError(
+                    $this->safeModeUnsafeHeaders[$headerName][0],
+                    E_USER_NOTICE
+                );
             }
         }
+    }
+
+    private function isFineInSafeMode($headerName)
+    {
+        return !isset($this->safeModeUnsafeHeaders[$headerName]) or !empty($this->safeModeExceptions[$headerName]);
     }
 
     private function modifyHeaderValue(Header $header, $attribute, $newValue)
