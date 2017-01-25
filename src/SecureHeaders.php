@@ -459,10 +459,8 @@ class SecureHeaders{
         }
     }
 
-    public function header(
-        $name,
-        $value = null
-    ) {
+    public function header($name, $value = null)
+    {
         Types::assert(array('string' => array($name, $value)));
 
         $this->addHeader($name, $value);
@@ -1770,10 +1768,8 @@ class SecureHeaders{
 
             $changed = false;
 
-            foreach (
-                $this->safeModeUnsafeHeaders[$headerName]
-                as $attribute => $default
-            ) {
+            foreach ($this->safeModeUnsafeHeaders[$headerName] as $attribute => $default)
+            {
                 # if the attribute is also set
                 if (isset($data['attributes'][$attribute]))
                 {
@@ -2058,9 +2054,8 @@ class SecureHeaders{
             === self::AUTO_COOKIE_SECURE
         ) {
             # add a secure flag to cookies that look like they hold session data
-            foreach (
-                $this->protectedCookies['substrings'] as $substr
-            ) {
+            foreach ($this->protectedCookies['substrings'] as $substr)
+            {
                 $this->modifyCookie($substr, 'secure');
             }
 
@@ -2076,9 +2071,8 @@ class SecureHeaders{
         ) {
             # add a httpOnly flag to cookies that look like they hold
             # session data
-            foreach (
-                $this->protectedCookies['substrings'] as $substr
-            ) {
+            foreach ($this->protectedCookies['substrings'] as $substr)
+            {
                 $this->modifyCookie($substr, 'httpOnly');
             }
 
