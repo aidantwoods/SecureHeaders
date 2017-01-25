@@ -945,9 +945,6 @@ class SecureHeaders{
             $this->addHeader($header->getName(), $header->getValue());
         }
 
-        # delete them (we'll set them again later)
-        $this->headers->removeAll();
-
         $this->allowImports = false;
     }
 
