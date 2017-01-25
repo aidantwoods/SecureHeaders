@@ -7,6 +7,12 @@ use Aidantwoods\SecureHeaders\HeaderBag;
 class StringHttpAdapter implements HttpAdapter
 {
     private $headers = array();
+    private $initialHeaders;
+
+    public function __construct(array $initialHeaders = array())
+    {
+        $this->initialHeaders = $initialHeaders;
+    }
 
     /**
      * Send the given headers, overwriting all previously send headers
@@ -26,10 +32,10 @@ class StringHttpAdapter implements HttpAdapter
      */
     public function getHeaders()
     {
-        return new HeaderBag();
+        return HeaderBag::fromHeaderLines($this->initialHeaders);
     }
 
-    public function getHeadersAsString()
+    public function getSentHeaders()
     {
         $compiledHeaders = array();
 

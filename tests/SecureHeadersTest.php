@@ -16,6 +16,21 @@ class SecureHeadersTest extends PHPUnit_Framework_TestCase
         'NotRegExp'
     );
 
+    public function testExistingHeadersAreSent()
+    {
+        $headerStrings = new StringHttpAdapter(array(
+            'X-Foo: Bar',
+        ));
+
+        $headers = new SecureHeaders($headerStrings);
+        $headers->errorReporting(false);
+        $headers->done();
+
+        $headersString = $headerStrings->getSentHeaders();
+
+        $this->assertContains('X-Foo: Bar', $headersString);
+    }
+
     function dataSafeMode()
     {
         return array(
@@ -92,7 +107,7 @@ class SecureHeadersTest extends PHPUnit_Framework_TestCase
         $test($headers);
         $headers->done();
 
-        $headersString = $headerStrings->getHeadersAsString();
+        $headersString = $headerStrings->getSentHeaders();
 
         foreach ($this->assertions as $assertion)
         {
@@ -111,7 +126,7 @@ class SecureHeadersTest extends PHPUnit_Framework_TestCase
                 }
             }
         }
-      }
+    }
 
 
     function dataStrictMode()
@@ -226,7 +241,7 @@ class SecureHeadersTest extends PHPUnit_Framework_TestCase
         $test($headers);
         $headers->done();
 
-        $headersString = $headerStrings->getHeadersAsString();
+        $headersString = $headerStrings->getSentHeaders();
 
         foreach ($this->assertions as $assertion)
         {
