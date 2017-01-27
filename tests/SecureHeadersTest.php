@@ -47,6 +47,65 @@ class SecureHeadersTest extends PHPUnit_Framework_TestCase
         $this->assertContains('X-Foo: Bar', $headersString);
     }
 
+    public function testCookies()
+    {
+        $headerStrings = new StringHttpAdapter(array(
+            'Set-Cookie: normalcookie=value1',
+            'Set-Cookie: authcookie=value2',
+        ));
+
+        $headers = new SecureHeaders($headerStrings);
+        $headers->errorReporting(false);
+
+        $headers->done();
+
+        $headersString = $headerStrings->getSentHeaders();
+
+        $this->assertContains('Set-Cookie: normalcookie=value1', $headersString);
+        $this->assertContains('Set-Cookie: authcookie=value2; Secure; HttpOnly', $headersString);
+    }
+
+    public function testMultipleHeaders()
+    {
+        $headerStrings = new StringHttpAdapter(array(
+            'X-Bar: Foo1',
+            'X-Bar: Foo2',
+        ));
+
+        $headers = new SecureHeaders($headerStrings);
+        $headers->errorReporting(false);
+
+        $headers->addHeader('X-Foo', 'Bar1', false);
+        $headers->addHeader('X-Foo', 'Bar2', false);
+
+        $headers->done();
+
+        $headersString = $headerStrings->getSentHeaders();
+
+        $this->assertContains('X-Foo: Bar1', $headersString);
+        $this->assertContains('X-Foo: Bar2', $headersString);
+        $this->assertContains('X-Bar: Foo1', $headersString);
+        $this->assertContains('X-Bar: Foo2', $headersString);
+    }
+
+    public function testHeadersAreReplaced()
+    {
+        $headerStrings = new StringHttpAdapter;
+
+        $headers = new SecureHeaders($headerStrings);
+        $headers->errorReporting(false);
+
+        $headers->addHeader('X-Foo', 'Bar1');
+        $headers->addHeader('X-Foo', 'Bar2');
+
+        $headers->done();
+
+        $headersString = $headerStrings->getSentHeaders();
+
+        $this->assertNotContains('X-Foo: Bar1', $headersString);
+        $this->assertContains('X-Foo: Bar2', $headersString);
+    }
+
     public function testThreeDefaultHeadersAreAdded()
     {
         $headerStrings = new StringHttpAdapter;
