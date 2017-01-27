@@ -52,21 +52,21 @@ class SecureHeaders{
     # ~~
     # protected variables: settings
 
-    protected $errorReporting = true;
+    protected $errorReporting       = true;
 
-    protected $cspLegacy = false;
-    protected $returnExistingNonce = true;
+    protected $cspLegacy            = false;
+    protected $returnExistingNonce  = true;
 
-    protected $strictMode = false;
+    protected $strictMode           = false;
 
-    protected $safeMode = false;
-    protected $safeModeExceptions = array();
+    protected $safeMode             = false;
+    protected $safeModeExceptions   = array();
 
-    protected $automaticHeaders = self::AUTO_ALL;
+    protected $automaticHeaders     = self::AUTO_ALL;
 
-    protected $correctHeaderName = true;
+    protected $correctHeaderName    = true;
 
-    protected $protectedCookies = array(
+    protected $protectedCookies     = array(
         'substrings' => array(
             'sess',
             'auth',
@@ -98,7 +98,7 @@ class SecureHeaders{
     private $csp                = array();
     private $cspro              = array();
 
-    private $cspNonces         = array(
+    private $cspNonces          = array(
         'enforced'      =>  array(),
         'reportOnly'    =>  array()
     );
@@ -108,8 +108,9 @@ class SecureHeaders{
     private $hpkp               = array();
     private $hpkpro             = array();
 
-    private $importStarted      = false;
     private $allowImports       = true;
+    private $importStarted      = false;
+
     private $proposeHeaders     = false;
 
     private $isBufferReturned   = false;
@@ -118,7 +119,7 @@ class SecureHeaders{
 
     # private variables: (pre-defined static structures)
 
-    private $cspDirectiveShortcuts = array(
+    private $cspDirectiveShortcuts  = array(
         'default'           =>  'default-src',
         'script'            =>  'script-src',
         'style'             =>  'style-src',
@@ -134,7 +135,7 @@ class SecureHeaders{
         'reporting'         =>  'report-uri'
     );
 
-    private $cspSourceShortcuts = array(
+    private $cspSourceShortcuts     = array(
         'self'              =>  "'self'",
         'none'              =>  "'none'",
         'unsafe-inline'     =>  "'unsafe-inline'",
@@ -149,22 +150,22 @@ class SecureHeaders{
         'object-src'
     );
 
-    protected $csproBlacklist = array(
+    protected $csproBlacklist       = array(
         'block-all-mixed-content',
         'upgrade-insecure-requests'
     );
 
-    private $allowedCSPHashAlgs = array(
+    private $allowedCSPHashAlgs     = array(
         'sha256',
         'sha384',
         'sha512'
     );
 
-    private $allowedHPKPAlgs = array(
+    private $allowedHPKPAlgs        = array(
         'sha256'
     );
 
-    private $safeModeUnsafeHeaders = array(
+    private $safeModeUnsafeHeaders  = array(
         'strict-transport-security' => array(
             'max-age' => 86400,
             'includesubdomains' => false,
@@ -188,7 +189,7 @@ class SecureHeaders{
         )
     );
 
-    private $reportMissingHeaders = array(
+    private $reportMissingHeaders   = array(
         'Strict-Transport-Security',
         'Content-Security-Policy',
         'X-XSS-Protection',
@@ -223,24 +224,24 @@ class SecureHeaders{
             # assert that match covers the entire value
             (?=[ ;]|$)/ix';
 
-        # ~
-        # Constants
+    # ~
+    # Constants
 
-        # auto-headers
+    # auto-headers
 
-        const AUTO_ADD              =  1; # 0b0001
-        const AUTO_REMOVE           =  2; # 0b0010
-        const AUTO_COOKIE_SECURE    =  4; # 0b0100
-        const AUTO_COOKIE_HTTPONLY  =  8; # 0b1000
-        const AUTO_ALL              = 15; # 0b1111
+    const AUTO_ADD              =  1; # 0b0001
+    const AUTO_REMOVE           =  2; # 0b0010
+    const AUTO_COOKIE_SECURE    =  4; # 0b0100
+    const AUTO_COOKIE_HTTPONLY  =  8; # 0b1000
+    const AUTO_ALL              = 15; # 0b1111
 
-        # cookie upgrades
+    # cookie upgrades
 
-        const COOKIE_NAME           =  1; # 0b0001
-        const COOKIE_SUBSTR         =  2; # 0b0010
-        const COOKIE_ALL            =  3; # COOKIE_NAME | COOKIE_SUBSTR
-        const COOKIE_REMOVE         =  4; # 0b0100
-        const COOKIE_DEFAULT        =  2; # ~COOKIE_REMOVE & COOKIE_SUBSTR
+    const COOKIE_NAME           =  1; # 0b0001
+    const COOKIE_SUBSTR         =  2; # 0b0010
+    const COOKIE_ALL            =  3; # COOKIE_NAME | COOKIE_SUBSTR
+    const COOKIE_REMOVE         =  4; # 0b0100
+    const COOKIE_DEFAULT        =  2; # ~COOKIE_REMOVE & COOKIE_SUBSTR
 
     # ~~
     # Public Functions
@@ -371,10 +372,8 @@ class SecureHeaders{
     # ~~
     # public functions: raw headers
 
-    public function addHeader(
-        $name,
-        $value = null
-    ) {
+    public function addHeader($name, $value = null)
+    {
         Types::assert(array('string' => array($name, $value)));
 
         if (
@@ -447,8 +446,10 @@ class SecureHeaders{
                 $capitalisedName,
                 $value,
                 array(
-                    'attributes' => $this->deconstructHeaderValue($value, $name),
-                    'attributePositions' => $this->deconstructHeaderValue($value, $name, true)
+                    'attributes' =>
+                        $this->deconstructHeaderValue($value, $name),
+                    'attributePositions' =>
+                        $this->deconstructHeaderValue($value, $name, true)
                 )
             );
         }
@@ -1815,7 +1816,7 @@ class SecureHeaders{
 
     private function isFineInSafeMode($headerName)
     {
-        return !isset($this->safeModeUnsafeHeaders[$headerName]) or !empty($this->safeModeExceptions[$headerName]);
+        return ! isset($this->safeModeUnsafeHeaders[$headerName]) or ! empty($this->safeModeExceptions[$headerName]);
     }
 
     private function modifyHeaderValue(Header $header, $attribute, $newValue)
@@ -1891,9 +1892,8 @@ class SecureHeaders{
         # correct the positions of other attributes (replace may have varied
         # length of string)
 
-        foreach (
-            $props['attributePositions'] as $i => $position
-        ) {
+        foreach ($props['attributePositions'] as $i => $position)
+        {
             if ( ! is_int($position)) continue;
 
             if ($position > $currentOffset)
