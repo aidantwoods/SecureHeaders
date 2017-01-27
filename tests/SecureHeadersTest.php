@@ -31,6 +31,22 @@ class SecureHeadersTest extends PHPUnit_Framework_TestCase
         $this->assertContains('X-Foo: Bar', $headersString);
     }
 
+    public function testRegularHeaderNotLost()
+    {
+        $headerStrings = new StringHttpAdapter;
+
+        $headers = new SecureHeaders($headerStrings);
+        $headers->errorReporting(false);
+
+        $headers->addHeader('X-Foo', 'Bar');
+
+        $headers->done();
+
+        $headersString = $headerStrings->getSentHeaders();
+
+        $this->assertContains('X-Foo: Bar', $headersString);
+    }
+
     public function testThreeDefaultHeadersAreAdded()
     {
         $headerStrings = new StringHttpAdapter;
