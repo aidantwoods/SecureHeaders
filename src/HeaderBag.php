@@ -10,7 +10,8 @@ class HeaderBag
 
     public function __construct(array $headers = array())
     {
-        // Send all headers through `add` to make sure they are properly lower-cased
+        # Send all headers through `add` to make sure they are properly
+        # lower-cased
         foreach ($headers as $name => $value)
         {
             $this->add($name, $value);
@@ -41,21 +42,21 @@ class HeaderBag
         return array_key_exists(strtolower($name), $this->headers);
     }
 
-    public function add($name, $value = '')
+    public function add($name, $value = '', $props = array())
     {
         Types::assert(array('string' => array($name, $value)));
 
         $key = strtolower($name);
         if ( ! array_key_exists($key, $this->headers)) $this->headers[$key] = array();
 
-        $this->headers[$key][] = new Header($name, $value);
+        $this->headers[$key][] = new Header($name, $value, $props);
     }
 
-    public function replace($name, $value = '')
+    public function replace($name, $value = '', $props = array())
     {
         Types::assert(array('string' => array($name, $value)));
 
-        $header = new Header($name, $value);
+        $header = new Header($name, $value, $props);
         $this->headers[strtolower($name)] = array($header);
     }
 
@@ -87,21 +88,43 @@ class Header
 {
     private $name;
     private $value;
+    private $props;
 
-    public function __construct($name, $value = '')
+    public function __construct($name, $value = '', array $props = array())
     {
         $this->name = $name;
         $this->value = $value;
+        $this->props = $props;
     }
 
     public function getName()
     {
-        return $this->name;
+        return strtolower($this->name);
+    }
+
+    public function is($name)
+    {
+        return strtolower($name) === strtolower($this->name);
     }
 
     public function getValue()
     {
         return $this->value;
+    }
+
+    public function setValue($newValue)
+    {
+        $this->value = $newValue;
+    }
+
+    public function getProps()
+    {
+        return $this->props;
+    }
+
+    public function setProps(array $newProps)
+    {
+        $this->props = $newProps;
     }
 
     public function __toString()

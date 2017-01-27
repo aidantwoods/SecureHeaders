@@ -19,7 +19,8 @@ class GlobalHttpAdapter implements HttpAdapter
         foreach ($headers->get() as $header)
         {
             header(
-                (string) $header
+                (string) $header,
+                false
             );
         }
     }

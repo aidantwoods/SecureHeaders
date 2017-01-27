@@ -16,6 +16,16 @@ class HeaderBagTest extends PHPUnit_Framework_TestCase
 
         $this->assertTrue($headers->has('Content-Type'));
         $this->assertTrue($headers->has('Content-Length'));
+
+        $export = array_map(function ($header) { return (string) $header; }, $headers->get());
+
+        $this->assertEquals(
+            array(
+                'Content-Type: text/html',
+                'Content-Length: 123',
+            ),
+            $export
+        );
     }
 
     public function testInstantiationFromHeaderLines()
@@ -27,6 +37,16 @@ class HeaderBagTest extends PHPUnit_Framework_TestCase
 
         $this->assertTrue($headers->has('Content-Type'));
         $this->assertTrue($headers->has('Content-Length'));
+
+        $export = array_map(function ($header) { return (string) $header; }, $headers->get());
+
+        $this->assertEquals(
+            array(
+                'Content-Type: text/html',
+                'Content-Length: 123',
+            ),
+            $export
+        );
     }
 
     public function testCaseIsPreserved()

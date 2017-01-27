@@ -52,21 +52,21 @@ class SecureHeaders{
     # ~~
     # protected variables: settings
 
-    protected $errorReporting = true;
+    protected $errorReporting       = true;
 
-    protected $cspLegacy = false;
-    protected $returnExistingNonce = true;
+    protected $cspLegacy            = false;
+    protected $returnExistingNonce  = true;
 
-    protected $strictMode = false;
+    protected $strictMode           = false;
 
-    protected $safeMode = false;
-    protected $safeModeExceptions = array();
+    protected $safeMode             = false;
+    protected $safeModeExceptions   = array();
 
-    protected $automaticHeaders = self::AUTO_ALL;
+    protected $automaticHeaders     = self::AUTO_ALL;
 
-    protected $correctHeaderName = true;
+    protected $correctHeaderName    = true;
 
-    protected $protectedCookies = array(
+    protected $protectedCookies     = array(
         'substrings' => array(
             'sess',
             'auth',
@@ -85,9 +85,8 @@ class SecureHeaders{
     # ~~
     # private variables: (non settings)
 
-    private $headerBag;
+    private $headers;
 
-    private $headers            = array();
     private $removedHeaders     = array();
 
     private $cookies            = array();
@@ -99,7 +98,7 @@ class SecureHeaders{
     private $csp                = array();
     private $cspro              = array();
 
-    private $cspNonces         = array(
+    private $cspNonces          = array(
         'enforced'      =>  array(),
         'reportOnly'    =>  array()
     );
@@ -109,8 +108,9 @@ class SecureHeaders{
     private $hpkp               = array();
     private $hpkpro             = array();
 
-    private $importStarted      = false;
     private $allowImports       = true;
+    private $importStarted      = false;
+
     private $proposeHeaders     = false;
 
     private $isBufferReturned   = false;
@@ -119,7 +119,7 @@ class SecureHeaders{
 
     # private variables: (pre-defined static structures)
 
-    private $cspDirectiveShortcuts = array(
+    private $cspDirectiveShortcuts  = array(
         'default'           =>  'default-src',
         'script'            =>  'script-src',
         'style'             =>  'style-src',
@@ -135,7 +135,7 @@ class SecureHeaders{
         'reporting'         =>  'report-uri'
     );
 
-    private $cspSourceShortcuts = array(
+    private $cspSourceShortcuts     = array(
         'self'              =>  "'self'",
         'none'              =>  "'none'",
         'unsafe-inline'     =>  "'unsafe-inline'",
@@ -150,22 +150,22 @@ class SecureHeaders{
         'object-src'
     );
 
-    protected $csproBlacklist = array(
+    protected $csproBlacklist       = array(
         'block-all-mixed-content',
         'upgrade-insecure-requests'
     );
 
-    private $allowedCSPHashAlgs = array(
+    private $allowedCSPHashAlgs     = array(
         'sha256',
         'sha384',
         'sha512'
     );
 
-    private $allowedHPKPAlgs = array(
+    private $allowedHPKPAlgs        = array(
         'sha256'
     );
 
-    private $safeModeUnsafeHeaders = array(
+    private $safeModeUnsafeHeaders  = array(
         'strict-transport-security' => array(
             'max-age' => 86400,
             'includesubdomains' => false,
@@ -189,7 +189,7 @@ class SecureHeaders{
         )
     );
 
-    private $reportMissingHeaders = array(
+    private $reportMissingHeaders   = array(
         'Strict-Transport-Security',
         'Content-Security-Policy',
         'X-XSS-Protection',
@@ -224,24 +224,24 @@ class SecureHeaders{
             # assert that match covers the entire value
             (?=[ ;]|$)/ix';
 
-        # ~
-        # Constants
+    # ~
+    # Constants
 
-        # auto-headers
+    # auto-headers
 
-        const AUTO_ADD              =  1; # 0b0001
-        const AUTO_REMOVE           =  2; # 0b0010
-        const AUTO_COOKIE_SECURE    =  4; # 0b0100
-        const AUTO_COOKIE_HTTPONLY  =  8; # 0b1000
-        const AUTO_ALL              = 15; # 0b1111
+    const AUTO_ADD              =  1; # 0b0001
+    const AUTO_REMOVE           =  2; # 0b0010
+    const AUTO_COOKIE_SECURE    =  4; # 0b0100
+    const AUTO_COOKIE_HTTPONLY  =  8; # 0b1000
+    const AUTO_ALL              = 15; # 0b1111
 
-        # cookie upgrades
+    # cookie upgrades
 
-        const COOKIE_NAME           =  1; # 0b0001
-        const COOKIE_SUBSTR         =  2; # 0b0010
-        const COOKIE_ALL            =  3; # COOKIE_NAME | COOKIE_SUBSTR
-        const COOKIE_REMOVE         =  4; # 0b0100
-        const COOKIE_DEFAULT        =  2; # ~COOKIE_REMOVE & COOKIE_SUBSTR
+    const COOKIE_NAME           =  1; # 0b0001
+    const COOKIE_SUBSTR         =  2; # 0b0010
+    const COOKIE_ALL            =  3; # COOKIE_NAME | COOKIE_SUBSTR
+    const COOKIE_REMOVE         =  4; # 0b0100
+    const COOKIE_DEFAULT        =  2; # ~COOKIE_REMOVE & COOKIE_SUBSTR
 
     # ~~
     # Public Functions
@@ -254,7 +254,7 @@ class SecureHeaders{
         }
 
         $this->httpAdapter = $httpAdapter;
-        $this->headerBag = new HeaderBag;
+        $this->headers = new HeaderBag;
     }
 
     public function doneOnOutput($mode = true)
@@ -281,14 +281,7 @@ class SecureHeaders{
 
     public function safeMode($mode = true)
     {
-        if ($mode == false or strtolower($mode) === 'off')
-        {
-            $this->safeMode = false;
-        }
-        else
-        {
-            $this->safeMode = true;
-        }
+        $this->safeMode = ($mode == true and strtolower($mode) !== 'off');
     }
 
     # if operating in safe mode, use this to manually allow a specific header
@@ -302,14 +295,7 @@ class SecureHeaders{
 
     public function strictMode($mode = true)
     {
-        if ($mode == false or strtolower($mode) === 'off')
-        {
-            $this->strictMode = false;
-        }
-        else
-        {
-            $this->strictMode = true;
-        }
+        $this->strictMode = ($mode == true and strtolower($mode) !== 'off');
     }
 
     public function returnExistingNonce($mode = true)
@@ -386,11 +372,11 @@ class SecureHeaders{
     # ~~
     # public functions: raw headers
 
-    public function addHeader(
-        $name,
-        $value = null
-    ) {
+    public function addHeader($name, $value = null, $replace = null)
+    {
         Types::assert(array('string' => array($name, $value)));
+
+        if ( ! isset($replace)) $replace = true;
 
         if (
             $this->correctHeaderName
@@ -400,7 +386,7 @@ class SecureHeaders{
 
             $capitalisedName = preg_replace_callback(
                 '/(?<=[-\s]|^)[^-\s]/',
-                function ($match){
+                function ($match) {
                     return strtoupper($match[0]);
                 },
                 $name
@@ -417,7 +403,7 @@ class SecureHeaders{
             $this->proposeHeaders
             and (
                 isset($this->removedHeaders[$name])
-                or isset($this->headers[$name])
+                or $this->headers->has($name)
             )
         ) {
             # a proposal header will only be added if the intented header:
@@ -458,15 +444,15 @@ class SecureHeaders{
         # add the header, and disect its value
         else
         {
-            $this->headers[$name] = array(
-                'name' =>
-                    $capitalisedName,
-                'value' =>
-                    $value,
-                'attributes' =>
-                    $this->deconstructHeaderValue($value, $name),
-                'attributePositions' =>
-                    $this->deconstructHeaderValue($value, $name, true)
+            $this->headers->{$replace ? 'replace' : 'add'}(
+                $capitalisedName,
+                $value,
+                array(
+                    'attributes' =>
+                        $this->deconstructHeaderValue($value, $name),
+                    'attributePositions' =>
+                        $this->deconstructHeaderValue($value, $name, true)
+                )
             );
         }
 
@@ -476,13 +462,11 @@ class SecureHeaders{
         }
     }
 
-    public function header(
-        $name,
-        $value = null
-    ) {
+    public function header($name, $value = null, $replace = null)
+    {
         Types::assert(array('string' => array($name, $value)));
 
-        $this->addHeader($name, $value);
+        $this->addHeader($name, $value, $replace);
     }
 
     public function removeHeader($name)
@@ -493,7 +477,7 @@ class SecureHeaders{
 
         $result = $this->headerExists($name);
 
-        unset($this->headers[$name]);
+        $this->headers->remove($name);
         $this->removedHeaders[$name] = true;
 
         return $result;
@@ -957,15 +941,12 @@ class SecureHeaders{
         $this->importStarted = true;
         # grab any headers that were already set and, if any,
         # add these to our internal header list
-        $this->headerBag = $this->httpAdapter->getHeaders();
+        $importedHeaders = $this->httpAdapter->getHeaders();
 
-        foreach ($this->headerBag->get() as $header)
+        foreach ($importedHeaders->get() as $header)
         {
-            $this->addHeader($header->getName(), $header->getValue());
+            $this->addHeader($header->getName(), $header->getValue(), false);
         }
-
-        # delete them (we'll set them again later)
-        $this->headerBag->removeAll();
 
         $this->allowImports = false;
     }
@@ -1066,19 +1047,12 @@ class SecureHeaders{
     {
         foreach ($this->removedHeaders as $name => $value)
         {
-            $this->headerBag->remove($name);
-
-            unset($this->headers[$name]);
+            $this->headers->remove($name);
         }
     }
 
     private function sendHeaders()
     {
-        foreach ($this->headers as $key => $header)
-        {
-            $this->headerBag->replace($header['name'], $header['value']);
-        }
-
         foreach ($this->cookies as $name => $cookie)
         {
             if (isset($this->removedCookies[strtolower($name)]))
@@ -1136,11 +1110,11 @@ class SecureHeaders{
             # remove final '; '
             $headerString = substr($headerString, 0, -2);
 
-            $this->headerBag->add('Set-Cookie', $headerString);
+            $this->headers->add('Set-Cookie', $headerString);
         }
 
-        // And finally, send all headers through whatever adapter we are using
-        $this->httpAdapter->sendHeaders($this->headerBag);
+        # And finally, send all headers through whatever adapter we are using
+        $this->httpAdapter->sendHeaders($this->headers);
     }
 
     private function deconstructHeaderValue(
@@ -1211,18 +1185,20 @@ class SecureHeaders{
 
     private function validateHeaders()
     {
-        foreach ($this->headers as $header => $data)
+        foreach ($this->headers->get() as $header)
         {
-            $friendlyHeader = str_replace('-', ' ', $header);
+            $data = $header->getProps();
+
+            $friendlyHeader = str_replace('-', ' ', $header->getName());
             $friendlyHeader = ucwords($friendlyHeader);
 
             if (
-                $header === 'content-security-policy'
-                or $header === 'content-security-policy-report-only'
+                $header->is('content-security-policy')
+                or $header->is('content-security-policy-report-only')
             ) {
 
                 if (
-                    $header === 'content-security-policy-report-only'
+                    $header->is('content-security-policy-report-only')
                     and (
                         ! isset($data['attributes']['report-uri'])
                         or  ! preg_match(
@@ -1783,78 +1759,82 @@ class SecureHeaders{
     {
         if ( ! $this->safeMode) return;
 
-        foreach ($this->headers as $header => $data)
+        foreach ($this->headers->get() as $header)
         {
-            if (
-                isset($this->safeModeUnsafeHeaders[$header])
-                and empty($this->safeModeExceptions[$header])
-            ) {
-                $changed = false;
+            $data = $header->getProps();
+            $headerName = $header->getName();
 
-                foreach (
-                    $this->safeModeUnsafeHeaders[$header]
-                    as $attribute => $default
-                ) {
-                    # if the attribute is also set
-                    if (isset($data['attributes'][$attribute]))
-                    {
-                        $value = $data['attributes'][$attribute];
+            if ($this->isFineInSafeMode($headerName)) continue;
 
-                        # if the user-set value is a number, check to see if
-                        # it's greater than safe mode's preference. If boolean
-                        # or string check to see if the value differs
-                        if (
-                            (is_bool($default) or is_string($default))
-                            and $default !== $value
-                            or is_int($default) and intval($value) > $default
-                        ) {
-                            # if the default is a flag and true, we want the
-                            # attribute name to be the default value
-                            if (is_bool($default) and $default === true)
-                            {
-                                $default = $attribute;
-                            }
+            $changed = false;
 
-                            $this->modifyHeaderValue(
-                                $header,
-                                $attribute,
-                                $default,
-                                true
-                            );
+            foreach ($this->safeModeUnsafeHeaders[$headerName] as $attribute => $default)
+            {
+                # if the attribute is also set
+                if (isset($data['attributes'][$attribute]))
+                {
+                    $value = $data['attributes'][$attribute];
 
-                            # make note that we changed something
-                            $changed = true;
+                    # if the user-set value is a number, check to see if
+                    # it's greater than safe mode's preference. If boolean
+                    # or string check to see if the value differs
+                    if (
+                        (is_bool($default) or is_string($default))
+                        and $default !== $value
+                        or is_int($default) and intval($value) > $default
+                    ) {
+                        # if the default is a flag and true, we want the
+                        # attribute name to be the default value
+                        if (is_bool($default) and $default === true)
+                        {
+                            $default = $attribute;
                         }
+
+                        $this->modifyHeaderValue(
+                            $header,
+                            $attribute,
+                            $default,
+                            true
+                        );
+
+                        # make note that we changed something
+                        $changed = true;
                     }
                 }
+            }
 
-                # if we changed something, throw a notice to let user know
-                if (
-                    $changed
-                    and isset($this->safeModeUnsafeHeaders[$header][0])
-                ) {
-                    $this->addError(
-                        $this->safeModeUnsafeHeaders[$header][0],
-                        E_USER_NOTICE
-                    );
-                }
+            # if we changed something, throw a notice to let user know
+            if (
+                $changed
+                and isset($this->safeModeUnsafeHeaders[$headerName][0])
+            ) {
+                $this->addError(
+                    $this->safeModeUnsafeHeaders[$headerName][0],
+                    E_USER_NOTICE
+                );
             }
         }
     }
 
-    private function modifyHeaderValue($header, $attribute, $newValue)
+    private function isFineInSafeMode($headerName)
     {
-        Types::assert(array('string' => array($header, $attribute)));
+        return ! isset($this->safeModeUnsafeHeaders[$headerName]) or ! empty($this->safeModeExceptions[$headerName]);
+    }
+
+    private function modifyHeaderValue(Header $header, $attribute, $newValue)
+    {
+        Types::assert(array('string' => array($attribute)), array(2));
+
+        $props = $header->getProps();
 
         # if the attribute doesn't exist, dangerous to guess insersion method
-        if ( ! isset($this->headers[$header]['attributes'][$attribute]))
+        if ( ! isset($props['attributes'][$attribute]))
         {
             return;
         }
 
-        $currentValue = $this->headers[$header]['attributes'][$attribute];
-        $currentOffset
-            = $this->headers[$header]['attributePositions'][$attribute];
+        $currentValue = $props['attributes'][$attribute];
+        $currentOffset = $props['attributePositions'][$attribute];
 
         # if the new value is a a flag, we want to replace the flag (attribute
         # text) otherwise, we're replacing the value of the attribute
@@ -1871,13 +1851,14 @@ class SecureHeaders{
         $newLength = strlen($newValue);
 
         # perform the replacement
-        $this->headers[$header]['value']
-            =   substr_replace(
-                    $this->headers[$header]['value'],
-                    $newValue,
-                    $currentOffset,
-                    $currentLength
-                );
+        $header->setValue(
+            substr_replace(
+                $header->getValue(),
+                $newValue,
+                $currentOffset,
+                $currentLength
+            )
+        );
 
         # in the case that a flag was removed, we may need to strip out a
         # delimiter too
@@ -1886,7 +1867,7 @@ class SecureHeaders{
             and preg_match(
                 '/^;[ ]?/',
                 substr(
-                    $this->headers[$header]['value'],
+                    $header->getValue(),
                     $currentOffset + $newLength,
                     2
                 ),
@@ -1895,13 +1876,15 @@ class SecureHeaders{
         ) {
             $tailLength = strlen($match[0]);
 
-            $this->headers[$header]['value']
-                =   substr_replace(
-                        $this->headers[$header]['value'],
-                        '',
-                        $currentOffset + $newLength,
-                        $tailLength
-                    );
+            $header->setValue(
+                substr_replace(
+                    $header->getValue(),
+                    '',
+                    $currentOffset + $newLength,
+                    $tailLength
+                )
+            );
+            $header->setProps($props);
 
             $newLength -= $tailLength;
         }
@@ -1911,15 +1894,14 @@ class SecureHeaders{
         # correct the positions of other attributes (replace may have varied
         # length of string)
 
-        foreach (
-            $this->headers[$header]['attributePositions'] as $i => $position
-        ) {
+        foreach ($props['attributePositions'] as $i => $position)
+        {
             if ( ! is_int($position)) continue;
 
             if ($position > $currentOffset)
             {
-                $this->headers[$header]['attributePositions'][$i]
-                    += $lengthDiff;
+                $props['attributePositions'][$i] += $lengthDiff;
+                $header->setProps($props);
             }
         }
     }
@@ -2071,9 +2053,8 @@ class SecureHeaders{
             === self::AUTO_COOKIE_SECURE
         ) {
             # add a secure flag to cookies that look like they hold session data
-            foreach (
-                $this->protectedCookies['substrings'] as $substr
-            ) {
+            foreach ($this->protectedCookies['substrings'] as $substr)
+            {
                 $this->modifyCookie($substr, 'secure');
             }
 
@@ -2089,9 +2070,8 @@ class SecureHeaders{
         ) {
             # add a httpOnly flag to cookies that look like they hold
             # session data
-            foreach (
-                $this->protectedCookies['substrings'] as $substr
-            ) {
+            foreach ($this->protectedCookies['substrings'] as $substr)
+            {
                 $this->modifyCookie($substr, 'httpOnly');
             }
 
@@ -2140,7 +2120,7 @@ class SecureHeaders{
         $name = strtolower($name);
 
         return (
-            isset($this->headers[$name])
+            $this->headers->has($name)
             or $this->httpAdapter->getHeaders()->has($name)
         );
     }
@@ -2149,7 +2129,7 @@ class SecureHeaders{
     {
         foreach ($this->reportMissingHeaders as $header)
         {
-            if (empty($this->headers[strtolower($header)]))
+            if (!$this->headers->has($header))
             {
                 $this->addError(
                     'Missing security header: ' . "'" . $header . "'",
