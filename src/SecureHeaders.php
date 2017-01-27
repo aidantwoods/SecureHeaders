@@ -372,9 +372,11 @@ class SecureHeaders{
     # ~~
     # public functions: raw headers
 
-    public function addHeader($name, $value = null)
+    public function addHeader($name, $value = null, $replace = null)
     {
         Types::assert(array('string' => array($name, $value)));
+
+        if ( ! isset($replace)) $replace = true;
 
         if (
             $this->correctHeaderName
@@ -442,7 +444,7 @@ class SecureHeaders{
         # add the header, and disect its value
         else
         {
-            $this->headers->replace(
+            $this->headers->{$replace ? 'replace' : 'add'}(
                 $capitalisedName,
                 $value,
                 array(
@@ -460,11 +462,11 @@ class SecureHeaders{
         }
     }
 
-    public function header($name, $value = null)
+    public function header($name, $value = null, $replace = null)
     {
         Types::assert(array('string' => array($name, $value)));
 
-        $this->addHeader($name, $value);
+        $this->addHeader($name, $value, $replace);
     }
 
     public function removeHeader($name)
@@ -943,7 +945,7 @@ class SecureHeaders{
 
         foreach ($importedHeaders->get() as $header)
         {
-            $this->addHeader($header->getName(), $header->getValue());
+            $this->addHeader($header->getName(), $header->getValue(), false);
         }
 
         $this->allowImports = false;
