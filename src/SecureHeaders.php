@@ -1113,7 +1113,7 @@ class SecureHeaders{
             $this->headers->add('Set-Cookie', $headerString);
         }
 
-        // And finally, send all headers through whatever adapter we are using
+        # And finally, send all headers through whatever adapter we are using
         $this->httpAdapter->sendHeaders($this->headers);
     }
 

@@ -10,7 +10,8 @@ class HeaderBag
 
     public function __construct(array $headers = array())
     {
-        // Send all headers through `add` to make sure they are properly lower-cased
+        # Send all headers through `add` to make sure they are properly
+        # lower-cased
         foreach ($headers as $name => $value)
         {
             $this->add($name, $value);
