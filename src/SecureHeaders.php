@@ -938,9 +938,9 @@ class SecureHeaders{
         $this->importStarted = true;
         # grab any headers that were already set and, if any,
         # add these to our internal header list
-        $this->headers = $this->httpAdapter->getHeaders();
+        $importedHeaders = $this->httpAdapter->getHeaders();
 
-        foreach ($this->headers->get() as $header)
+        foreach ($importedHeaders->get() as $header)
         {
             $this->addHeader($header->getName(), $header->getValue());
         }
