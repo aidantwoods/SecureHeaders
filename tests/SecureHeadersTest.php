@@ -62,7 +62,118 @@ class SecureHeadersTest extends PHPUnit_Framework_TestCase
         $headersString = $headerStrings->getSentHeaders();
 
         $this->assertContains('Set-Cookie: normalcookie=value1', $headersString);
-        $this->assertContains('Set-Cookie: authcookie=value2; Secure; HttpOnly', $headersString);
+        $this->assertContains('Set-Cookie: authcookie=value2; Secure; HttpOnly; SameSite=Lax', $headersString);
+    }
+
+    public function testSameSiteCookiesNoSameSite()
+    {
+        $headerStrings = new StringHttpAdapter(array(
+            'Set-Cookie: authcookie=value'
+        ));
+
+        $headers = new SecureHeaders($headerStrings);
+        $headers->errorReporting(false);
+
+        $headers->auto(SecureHeaders::AUTO_ALL & ~SecureHeaders::AUTO_COOKIE_SAMESITE);
+
+        $headers->done();
+
+        $headersString = $headerStrings->getSentHeaders();
+
+        $this->assertNotContains('SameSite', $headersString);
+    }
+
+    public function testSameSiteCookiesStrictModeNoSameSite()
+    {
+        $headerStrings = new StringHttpAdapter(array(
+            'Set-Cookie: authcookie=value'
+        ));
+
+        $headers = new SecureHeaders($headerStrings);
+        $headers->errorReporting(false);
+
+        $headers->auto(SecureHeaders::AUTO_ALL & ~SecureHeaders::AUTO_COOKIE_SAMESITE);
+
+        $headers->strictMode();
+
+        $headers->done();
+
+        $headersString = $headerStrings->getSentHeaders();
+
+        $this->assertNotContains('SameSite', $headersString);
+    }
+
+    public function testSameSiteCookiesStrictMode()
+    {
+        $headerStrings = new StringHttpAdapter(array(
+            'Set-Cookie: authcookie=value'
+        ));
+
+        $headers = new SecureHeaders($headerStrings);
+        $headers->errorReporting(false);
+
+        $headers->strictMode();
+
+        $headers->done();
+
+        $headersString = $headerStrings->getSentHeaders();
+
+        $this->assertContains('Set-Cookie: authcookie=value; Secure; HttpOnly; SameSite=Strict', $headersString);
+    }
+
+    public function testSameSiteCookiesStrictModeExplicitLax()
+    {
+        $headerStrings = new StringHttpAdapter(array(
+            'Set-Cookie: authcookie=value'
+        ));
+
+        $headers = new SecureHeaders($headerStrings);
+        $headers->errorReporting(false);
+
+        $headers->sameSiteCookies('lax');
+        $headers->strictMode();
+
+        $headers->done();
+
+        $headersString = $headerStrings->getSentHeaders();
+
+        $this->assertContains('Set-Cookie: authcookie=value; Secure; HttpOnly; SameSite=Lax', $headersString);
+    }
+
+    public function testSameSiteCookiesExplicitLax()
+    {
+        $headerStrings = new StringHttpAdapter(array(
+            'Set-Cookie: authcookie=value'
+        ));
+
+        $headers = new SecureHeaders($headerStrings);
+        $headers->errorReporting(false);
+
+        $headers->sameSiteCookies('lax');
+
+        $headers->done();
+
+        $headersString = $headerStrings->getSentHeaders();
+
+        $this->assertContains('Set-Cookie: authcookie=value; Secure; HttpOnly; SameSite=Lax', $headersString);
+    }
+
+    public function testSameSiteCookiesExplicitStrict()
+    {
+        $headerStrings = new StringHttpAdapter(array(
+            'Set-Cookie: authcookie=value'
+        ));
+
+        $headers = new SecureHeaders($headerStrings);
+        $headers->errorReporting(false);
+
+        $headers->sameSiteCookies('strict');
+
+        $headers->done();
+
+        $headersString = $headerStrings->getSentHeaders();
+
+        $this->assertContains('Set-Cookie: authcookie=value; Secure; HttpOnly; SameSite=Strict', $headersString);
     }
 
     public function testMultipleHeaders()
@@ -106,7 +217,7 @@ class SecureHeadersTest extends PHPUnit_Framework_TestCase
         $this->assertContains('X-Foo: Bar2', $headersString);
     }
 
-    public function testThreeDefaultHeadersAreAdded()
+    public function testFourDefaultHeadersAreAdded()
     {
         $headerStrings = new StringHttpAdapter;
 
@@ -116,6 +227,7 @@ class SecureHeadersTest extends PHPUnit_Framework_TestCase
 
         $headersString = $headerStrings->getSentHeaders();
 
+        $this->assertContains('X-Permitted-Cross-Domain-Policies: none', $headersString);
         $this->assertContains('X-XSS-Protection: 1; mode=block', $headersString);
         $this->assertContains('X-Content-Type-Options: nosniff', $headersString);
         $this->assertContains('X-Frame-Options: Deny', $headersString);
