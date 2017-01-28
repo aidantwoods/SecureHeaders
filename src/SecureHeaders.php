@@ -52,23 +52,25 @@ class SecureHeaders{
     # ~~
     # protected variables: settings
 
-    protected $errorReporting       = true;
+    protected $errorReporting           = true;
 
-    protected $cspLegacy            = false;
-    protected $returnExistingNonce  = true;
+    protected $cspLegacy                = false;
+    protected $returnExistingNonce      = true;
 
-    protected $strictMode           = false;
+    protected $strictMode               = false;
 
-    protected $safeMode             = false;
-    protected $safeModeExceptions   = array();
+    protected $safeMode                 = false;
+    protected $safeModeExceptions       = array();
 
-    protected $automaticHeaders     = self::AUTO_ALL;
+    protected $automaticHeaders         = self::AUTO_ALL;
 
-    protected $sameSiteCookies      = null;
+    protected $sameSiteCookies          = null;
 
-    protected $correctHeaderName    = true;
+    protected $correctHeaderName        = true;
 
-    protected $protectedCookies     = array(
+    protected $reportMissingExceptions  = array();
+
+    protected $protectedCookies         = array(
         'substrings' => array(
             'sess',
             'auth',
@@ -84,6 +86,7 @@ class SecureHeaders{
             'persistent'
         )
     );
+
     # ~~
     # private variables: (non settings)
 
@@ -294,6 +297,15 @@ class SecureHeaders{
         Types::assert(array('string' => array($name)));
 
         $this->safeModeExceptions[strtolower($name)] = true;
+    }
+
+    # use this to manually disable missing reports on a specific header
+
+    public function reportMissingException($name)
+    {
+        Types::assert(array('string' => array($name)));
+
+        $this->reportMissingExceptions[strtolower($name)] = true;
     }
 
     public function strictMode($mode = true)
@@ -2194,8 +2206,10 @@ class SecureHeaders{
     {
         foreach ($this->reportMissingHeaders as $header)
         {
-            if (!$this->headers->has($header))
-            {
+            if (
+                ! $this->headers->has($header)
+                and empty($this->reportMissingExceptions[strtolower($header)])
+            ) {
                 $this->addError(
                     'Missing security header: ' . "'" . $header . "'",
                     E_USER_WARNING
