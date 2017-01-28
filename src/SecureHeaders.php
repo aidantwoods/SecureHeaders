@@ -2034,6 +2034,7 @@ class SecureHeaders{
         if (($this->automaticHeaders & self::AUTO_ADD) === self::AUTO_ADD)
         {
             # security headers for all (HTTP and HTTPS) connections
+            $this->addHeader('X-Permitted-Cross-Domain-Policies', 'none');
             $this->addHeader('X-XSS-Protection', '1; mode=block');
             $this->addHeader('X-Content-Type-Options', 'nosniff');
             $this->addHeader('X-Frame-Options', 'Deny');
