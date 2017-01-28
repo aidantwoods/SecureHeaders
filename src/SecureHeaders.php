@@ -1762,6 +1762,14 @@ class SecureHeaders{
 
         if ( ! isset($fullMatch)) $fullMatch = false;
 
+        $parts = explode('=', $flag, 2);
+        $value = true;
+
+        if (isset($parts[1]))
+        {
+            list($flag, $value) = $parts;
+        }
+
         foreach ($this->cookies as $cookieName => $cookie)
         {
             if (
@@ -1771,7 +1779,7 @@ class SecureHeaders{
                     and strpos(strtolower($cookieName), $substr) !== false
                 )
             ) {
-                $this->cookies[$cookieName][strtolower($flag)] = true;
+                $this->cookies[$cookieName][strtolower($flag)] = $value;
             }
         }
     }
