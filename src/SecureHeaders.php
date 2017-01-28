@@ -171,27 +171,30 @@ class SecureHeaders{
     );
 
     private $safeModeUnsafeHeaders  = array(
-        'strict-transport-security' => array(
-            'max-age' => 86400,
-            'includesubdomains' => false,
-            'preload' => false,
+        'strict-transport-security'
+            => array(
+                'max-age'           => 86400,
+                'includesubdomains' => false,
+                'preload'           => false,
 
-            'HSTS settings were overridden because Safe-Mode is enabled.
-            <a href="
-            https://scotthelme.co.uk/death-by-copy-paste/#hstsandpreloading">
-            Read about</a> some common mistakes when setting HSTS via
-            copy/paste, and ensure you
-            <a href="
-            https://www.owasp.org/index.php/
-            HTTP_Strict_Transport_Security_Cheat_Sheet">
-            understand the details</a> and possible side effects of this
-            security feature before using it.'
-        ),
-        'public-key-pins' => array(
-            'max-age' => 10,
-            'includesubdomains' => false,
-            'Some HPKP settings were overridden because Safe-Mode is enabled.'
-        )
+                'HSTS settings were overridden because Safe-Mode is enabled.
+                <a href="https://scotthelme.co.uk/death-by-copy-paste/\
+                #hstsandpreloading">Read about</a> some common mistakes when
+                setting HSTS viacopy/paste, and ensure you
+                <a href="https://www.owasp.org/index.php/\
+                HTTP_Strict_Transport_Security_Cheat_Sheet">
+                understand the details</a> and possible side effects of this
+                security feature before using it.'
+            ),
+
+        'public-key-pins'
+            => array(
+                'max-age'           => 10,
+                'includesubdomains' => false,
+
+                'Some HPKP settings were overridden because Safe-Mode is
+                enabled.'
+            )
     );
 
     private $reportMissingHeaders   = array(
@@ -282,6 +285,9 @@ class SecureHeaders{
     # ~~
     # public functions: settings
 
+    # ~~
+    # Settings: Safe Mode
+
     # safe-mode enforces settings that shouldn't cause too much accidental
     # down-time safe-mode intentionally overwrites user specified settings
 
@@ -299,6 +305,22 @@ class SecureHeaders{
         $this->safeModeExceptions[strtolower($name)] = true;
     }
 
+    # ~~
+    # Settings: Strict Mode
+
+    public function strictMode($mode = true)
+    {
+        $this->strictMode = ($mode == true and strtolower($mode) !== 'off');
+    }
+
+    # ~~
+    # Settings: Error Reporting
+
+    public function errorReporting($mode)
+    {
+        $this->errorReporting = ($mode == true);
+    }
+
     # use this to manually disable missing reports on a specific header
 
     public function reportMissingException($name)
@@ -308,15 +330,8 @@ class SecureHeaders{
         $this->reportMissingExceptions[strtolower($name)] = true;
     }
 
-    public function strictMode($mode = true)
-    {
-        $this->strictMode = ($mode == true and strtolower($mode) !== 'off');
-    }
-
-    public function returnExistingNonce($mode = true)
-    {
-        $this->returnExistingNonce = ($mode == true);
-    }
+    # ~~
+    # Settings: Automatic Behaviour
 
     public function auto($mode = self::AUTO_ALL)
     {
@@ -324,6 +339,25 @@ class SecureHeaders{
 
         $this->automaticHeaders = $mode;
     }
+
+    # ~~
+    # Settings: Headers
+
+    public function correctHeaderName($mode = true)
+    {
+        $this->correctHeaderName = (true == $mode);
+    }
+
+    # ~~
+    # Settings: Nonces
+
+    public function returnExistingNonce($mode = true)
+    {
+        $this->returnExistingNonce = ($mode == true);
+    }
+
+    # ~~
+    # Settings: Cookies
 
     public function sameSiteCookies($mode = null)
     {
@@ -341,65 +375,6 @@ class SecureHeaders{
         elseif ( ! isset($mode))
         {
             $this->sameSiteCookies = null;
-        }
-    }
-
-    public function correctHeaderName($mode = true)
-    {
-        $this->correctHeaderName = (true == $mode);
-    }
-
-    public function protectedCookie(
-        $name,
-        $mode = self::COOKIE_DEFAULT
-    ) {
-        Types::assert(
-            array(
-                'string|array' => array($name),
-                'int' => array($mode)
-            )
-        );
-
-        if (is_string($name))
-        {
-            $name = strtolower($name);
-        }
-        elseif (is_array($name))
-        {
-            foreach ($name as $cookie)
-            {
-                $this->protectedCookie($cookie, $mode);
-            }
-            return;
-        }
-
-        $stringTypes = array();
-
-        if (($mode & self::COOKIE_NAME) === self::COOKIE_NAME)
-            $stringTypes[] = 'names';
-
-        if (($mode & self::COOKIE_SUBSTR) === self::COOKIE_SUBSTR)
-            $stringTypes[] = 'substrings';
-
-        foreach ($stringTypes as $type)
-        {
-            if (
-                ($mode & self::COOKIE_REMOVE) !== self::COOKIE_REMOVE
-            and ! in_array($name, $this->protectedCookies[$type])
-            ) {
-                $this->protectedCookies[$type][] = $name;
-            }
-            elseif (
-                ($mode & self::COOKIE_REMOVE) === self::COOKIE_REMOVE
-                and (
-                    $key = array_search(
-                        $name,
-                        $this->protectedCookies[$type]
-                    )
-                ) !== false
-            ) {
-                unset($this->protectedCookies[$type][$key]);
-            }
         }
     }
 
@@ -519,6 +494,60 @@ class SecureHeaders{
 
     # ~~
     # public functions: cookies
+
+    public function protectedCookie(
+        $name,
+        $mode = self::COOKIE_DEFAULT
+    ) {
+        Types::assert(
+            array(
+                'string|array' => array($name),
+                'int' => array($mode)
+            )
+        );
+
+        if (is_string($name))
+        {
+            $name = strtolower($name);
+        }
+        elseif (is_array($name))
+        {
+            foreach ($name as $cookie)
+            {
+                $this->protectedCookie($cookie, $mode);
+            }
+            return;
+        }
+
+        $stringTypes = array();
+
+        if (($mode & self::COOKIE_NAME) === self::COOKIE_NAME)
+            $stringTypes[] = 'names';
+
+        if (($mode & self::COOKIE_SUBSTR) === self::COOKIE_SUBSTR)
+            $stringTypes[] = 'substrings';
+
+        foreach ($stringTypes as $type)
+        {
+            if (
+                ($mode & self::COOKIE_REMOVE) !== self::COOKIE_REMOVE
+            and ! in_array($name, $this->protectedCookies[$type])
+            ) {
+                $this->protectedCookies[$type][] = $name;
+            }
+            elseif (
+                ($mode & self::COOKIE_REMOVE) === self::COOKIE_REMOVE
+                and (
+                    $key = array_search(
+                        $name,
+                        $this->protectedCookies[$type]
+                    )
+                ) !== false
+            ) {
+                unset($this->protectedCookies[$type][$key]);
+            }
+        }
+    }
 
     public function removeCookie($name)
     {
@@ -931,11 +960,6 @@ class SecureHeaders{
         $this->reportMissingHeaders();
         $this->validateHeaders();
         $this->reportErrors();
-    }
-
-    public function errorReporting($mode)
-    {
-        $this->errorReporting = ($mode == true);
     }
 
     # ~~
@@ -1655,7 +1679,9 @@ class SecureHeaders{
 
     private function cspGenerateNonce()
     {
-        $nonce = base64_encode(openssl_random_pseudo_bytes(30, $isCryptoStrong));
+        $nonce = base64_encode(
+            openssl_random_pseudo_bytes(30, $isCryptoStrong)
+        );
 
         if ( ! $isCryptoStrong)
         {
@@ -1862,7 +1888,10 @@ class SecureHeaders{
 
     private function isFineInSafeMode($headerName)
     {
-        return ! isset($this->safeModeUnsafeHeaders[$headerName]) or ! empty($this->safeModeExceptions[$headerName]);
+        return (
+            ! isset($this->safeModeUnsafeHeaders[$headerName]) 
+            or ! empty($this->safeModeExceptions[$headerName])
+        );
     }
 
     private function modifyHeaderValue(Header $header, $attribute, $newValue)
@@ -1958,6 +1987,8 @@ class SecureHeaders{
         Types::assert(
             array('string' => array($message), 'int' => array($error))
         );
+
+        $message = preg_replace('/[\\\]\n\s*/', '', $message);
 
         $message = preg_replace('/\s+/', ' ', $message);
 
@@ -2097,7 +2128,8 @@ class SecureHeaders{
             ($this->automaticHeaders & self::AUTO_COOKIE_SECURE)
             === self::AUTO_COOKIE_SECURE
         ) {
-            # add a secure flag to cookies that look like they hold session data
+            # add a secure flag to cookies that look like they hold 
+            # session data
             foreach ($this->protectedCookies['substrings'] as $substr)
             {
                 $this->modifyCookie($substr, 'secure');
@@ -2147,14 +2179,16 @@ class SecureHeaders{
                 $this->sameSiteCookies = 'Lax';
             }
 
+            $injectedAttribute = 'SameSite='.$this->sameSiteCookies;
+
             foreach ($this->protectedCookies['substrings'] as $substr)
             {
-                $this->modifyCookie($substr, 'SameSite='.$this->sameSiteCookies);
+                $this->modifyCookie($substr, $injectedAttribute);
             }
 
             foreach ($this->protectedCookies['names'] as $name)
             {
-                $this->modifyCookie($name, 'SameSite='.$this->sameSiteCookies, true);
+                $this->modifyCookie($name, $injectedAttribute, true);
             }
         }
 
