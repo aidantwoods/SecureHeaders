@@ -42,21 +42,21 @@ class HeaderBag
         return array_key_exists(strtolower($name), $this->headers);
     }
 
-    public function add($name, $value = '', $props = array())
+    public function add($name, $value = '')
     {
         Types::assert(array('string' => array($name, $value)));
 
         $key = strtolower($name);
         if ( ! array_key_exists($key, $this->headers)) $this->headers[$key] = array();
 
-        $this->headers[$key][] = new Header($name, $value, $props);
+        $this->headers[$key][] = new Header($name, $value);
     }
 
-    public function replace($name, $value = '', $props = array())
+    public function replace($name, $value = '')
     {
         Types::assert(array('string' => array($name, $value)));
 
-        $header = new Header($name, $value, $props);
+        $header = new Header($name, $value);
         $this->headers[strtolower($name)] = array($header);
     }
 
@@ -72,6 +72,9 @@ class HeaderBag
         $this->headers = array();
     }
 
+    /**
+     * @return Header[]
+     */
     public function get()
     {
         return array_reduce(
@@ -88,13 +91,11 @@ class Header
 {
     private $name;
     private $value;
-    private $props;
 
-    public function __construct($name, $value = '', array $props = array())
+    public function __construct($name, $value = '')
     {
         $this->name = $name;
         $this->value = $value;
-        $this->props = $props;
     }
 
     public function getName()
@@ -112,19 +113,41 @@ class Header
         return $this->value;
     }
 
+    public function getValueAsAttributes()
+    {
+        $parts = explode('; ', $this->value);
+
+        $attributes = array();
+        foreach ($parts as $part) {
+            $attrParts = explode('=', $part, 2);
+
+            $attributes[$attrParts[0]] = isset($attrParts[1]) ? $attrParts[1] : true;
+        }
+
+        return $attributes;
+    }
+
     public function setValue($newValue)
     {
         $this->value = $newValue;
     }
 
-    public function getProps()
+    public function setValueFromAttributes(array $attributes)
     {
-        return $this->props;
-    }
+        $attributeStrings = array();
+        foreach ($attributes as $key => $value) {
+            if ($value === true) {
+                $string = $key;
+            } else if ($value === false) {
+                continue;
+            } else {
+                $string = "$key=$value";
+            }
 
-    public function setProps(array $newProps)
-    {
-        $this->props = $newProps;
+            $attributeStrings[] = $string;
+        }
+
+        $this->value = implode('; ', $attributeStrings);
     }
 
     public function __toString()
