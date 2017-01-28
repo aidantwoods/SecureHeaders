@@ -115,7 +115,6 @@ class SecureHeaders{
     private $hpkp               = array();
     private $hpkpro             = array();
 
-    private $allowImports       = true;
     private $importStarted      = false;
 
     private $proposeHeaders     = false;
@@ -424,28 +423,22 @@ class SecureHeaders{
             $this->addCookie($value, null, true);
         }
         # a few headers are better handled as an imported policy
-        elseif (
-            $this->allowImports
-            and preg_match(
-                '/^content-security-policy(-report-only)?$/',
-                $name,
-                $matches
-            )
-        ) {
+        elseif (preg_match(
+            '/^content-security-policy(-report-only)?$/',
+            $name,
+            $matches
+        )) {
             $this->importCSP($value, isset($matches[1]));
         }
-        elseif ($this->allowImports and $name === 'strict-transport-security')
+        elseif ($name === 'strict-transport-security')
         {
             $this->importHSTS($value);
         }
-        elseif (
-            $this->allowImports
-            and preg_match(
-                '/^public-key-pins(-report-only)?$/',
-                $name,
-                $matches
-            )
-        ) {
+        elseif (preg_match(
+            '/^public-key-pins(-report-only)?$/',
+            $name,
+            $matches
+        )) {
             $this->importHPKP($value, isset($matches[1]));
         }
         # add the header, and disect its value
