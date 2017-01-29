@@ -15,7 +15,7 @@ class ApplySafeMode implements Operation
 
     private $exceptions;
 
-    public function __construct(array $exceptions)
+    public function __construct(array $exceptions = array())
     {
         $this->exceptions = $exceptions;
     }
@@ -44,16 +44,14 @@ class ApplySafeMode implements Operation
 
     private function sanitizeSTS(Header $header)
     {
-        $origAttributes = $attributes = $header->getValueAsAttributes();
+        $origValue = $header->getValue();
 
         // Only do these when the attribute exists!
-        $attributes = $this->ensureAttributeIsMax($attributes, 'max-age', 86400);
-        $attributes = $this->ensureAttributeEquals($attributes, 'includesubdomains', false);
-        $attributes = $this->ensureAttributeEquals($attributes, 'preload', false);
+        $header->ensureAttributeMaximum('max-age', 86400);
+        $header->removeAttribute('includeSubDomains');
+        $header->removeAttribute('preload');
 
-        if ($attributes !== $origAttributes) {
-            $header->setValueFromAttributes($attributes);
-
+        if ($header->getValue() !== $origValue) {
             /*$this->warn(
                 'HSTS settings were overridden because Safe-Mode is enabled.
                 <a href="
@@ -71,38 +69,16 @@ class ApplySafeMode implements Operation
 
     private function sanitizePKP(Header $header)
     {
-        $origAttributes = $attributes = $header->getValueAsAttributes();
+        $origValue = $header->getValue();
 
         // Only do these when the attributes exist
-        $attributes = $this->ensureAttributeIsMax($attributes, 'max-age', 10);
-        $attributes = $this->ensureAttributeEquals($attributes, 'includesubdomains', false);
+        $header->ensureAttributeMaximum('max-age', 10);
+        $header->removeAttribute('includeSubDomains');
 
-        if ($attributes !== $origAttributes) {
-            $header->setValueFromAttributes($attributes);
-
+        if ($header->getValue() !== $origValue) {
             /*$this->warn(
                 'Some HPKP settings were overridden because Safe-Mode is enabled.'
             );*/
         }
-    }
-
-    private function ensureAttributeIsMax($attributes, $key, $maxValue)
-    {
-        if (isset($attributes[$key])) {
-            if (intval($attributes[$key]) > $maxValue) {
-                $attributes[$key] = $maxValue;
-            }
-        }
-
-        return $attributes;
-    }
-
-    private function ensureAttributeEquals($attributes, $key, $value)
-    {
-        if (isset($attributes[$key])) {
-            $attributes[$key] = $value;
-        }
-
-        return $attributes;
     }
 }

@@ -940,7 +940,7 @@ class SecureHeaders{
 
         # Add a secure flag to cookies that look like they hold session data
         if ($this->automatic(self::AUTO_COOKIE_SECURE)) {
-            $operations[] = ModifyCookies::matchingSubstring(
+            $operations[] = ModifyCookies::matchingPartially(
                 $this->protectedCookies['substrings'],
                 'Secure'
             );
@@ -952,7 +952,7 @@ class SecureHeaders{
 
         # Add a httpOnly flag to cookies that look like they hold session data
         if ($this->automatic(self::AUTO_COOKIE_HTTPONLY)) {
-            $operations[] = ModifyCookies::matchingSubstring(
+            $operations[] = ModifyCookies::matchingPartially(
                 $this->protectedCookies['substrings'],
                 'HttpOnly'
             );

@@ -24,7 +24,7 @@ class ModifyCookies implements Operation
         return new static($blacklist, $field);
     }
 
-    public static function matchingSubstring(array $blacklist, $field)
+    public static function matchingPartially(array $blacklist, $field)
     {
         $instance = new static($blacklist, $field);
         $instance->matchSubstring = true;
@@ -41,15 +41,18 @@ class ModifyCookies implements Operation
     public function modify(HeaderBag $headers)
     {
         foreach ($this->extractCookies($headers) as $cookieHeader) {
-            $attributes = $cookieHeader->getValueAsAttributes();
-            $cookieName = key($attributes);
+            $cookieName = $cookieHeader->getFirstAttributeName();
 
             if ($this->matches($cookieName)) {
-                $this->setFlag($cookieHeader);
+                $cookieHeader->enableAttribute($this->field);
             }
         }
     }
 
+    /**
+     * @param HeaderBag $headers
+     * @return Header[]
+     */
     private function extractCookies(HeaderBag $headers)
     {
         return array_filter(
@@ -67,7 +70,6 @@ class ModifyCookies implements Operation
         } else {
             return $this->matchesFully($cookieName);
         }
-
     }
 
     private function matchesSubstring($cookieName)
@@ -86,14 +88,5 @@ class ModifyCookies implements Operation
             $this->blacklist,
             true
         );
-    }
-
-    private function setFlag(Header $cookieHeader)
-    {
-        $attributes = $cookieHeader->getValueAsAttributes();
-
-        $attributes[$this->field] = true;
-
-        $cookieHeader->setValueFromAttributes($attributes);
     }
 }
