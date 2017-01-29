@@ -468,13 +468,7 @@ class SecureHeaders{
         Types::assert(array('string' => array($name)));
 
         $name = strtolower($name);
-
-        $result = $this->headerExists($name);
-
-        $this->headers->remove($name);
         $this->removedHeaders[$name] = true;
-
-        return $result;
     }
 
     # ~~
@@ -1684,18 +1678,6 @@ class SecureHeaders{
             }
         }
         return false;
-    }
-
-    private function headerExists($name)
-    {
-        Types::assert(array('string' => array($name)));
-
-        $name = strtolower($name);
-
-        return (
-            $this->headers->has($name)
-            or $this->httpAdapter->getHeaders()->has($name)
-        );
     }
 
     private function reportMissingHeaders()
