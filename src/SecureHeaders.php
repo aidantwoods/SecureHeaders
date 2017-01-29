@@ -1165,7 +1165,10 @@ class SecureHeaders{
                 . ( ! empty($cookie['httponly']) ?
                     'HttpOnly; ' : '')
                 . (isset($cookie['samesite']) ?
-                    'SameSite='.$cookie['samesite'].'; ' : '');
+                    'SameSite'
+                    . (is_bool($cookie['samesite']) ?
+                        '' : '='.$cookie['samesite']) .'; '
+                    : '');
 
             # remove final '; '
             $headerString = substr($headerString, 0, -2);
@@ -1808,16 +1811,20 @@ class SecureHeaders{
             list($flag, $value) = $parts;
         }
 
+        $flag = strtolower($flag);
+
         foreach ($this->cookies as $cookieName => $cookie)
         {
             if (
-                $fullMatch and $substr === strtolower($cookieName)
-                or (
-                    ! $fullMatch
-                    and strpos(strtolower($cookieName), $substr) !== false
-                )
+                (
+                    $fullMatch and $substr === strtolower($cookieName)
+                    or (
+                        ! $fullMatch
+                        and strpos(strtolower($cookieName), $substr) !== false
+                    )
+                ) and ! isset($this->cookies[$cookieName][$flag])
             ) {
-                $this->cookies[$cookieName][strtolower($flag)] = $value;
+                $this->cookies[$cookieName][$flag] = $value;
             }
         }
     }
