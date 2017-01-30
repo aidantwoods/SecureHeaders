@@ -95,13 +95,7 @@ class HeaderBag
             return array();
         }
 
-        return array_reduce(
-            array($this->headers[$name]),
-            function ($all, $item) {
-                return array_merge($all, $item);
-            },
-            array()
-        );
+        return $this->headers[$name];
     }
 
     public function forEachNamed($type, $callback)
