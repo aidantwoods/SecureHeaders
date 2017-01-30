@@ -93,6 +93,14 @@ class SecureHeaders{
             'persistent'
         )
     );
+
+    protected $headerProposals          = array(
+        'X-Permitted-Cross-Domain-Policies' => 'none',
+        'X-XSS-Protection'                  => '1; mode=block',
+        'X-Content-Type-Options'            => 'nosniff',
+        'X-Frame-Options'                   => 'Deny'
+    );
+
     # ~~
     # private variables: (non settings)
 
@@ -897,11 +905,12 @@ class SecureHeaders{
         }
 
         # Apply security headers for all (HTTP and HTTPS) connections
-        if ($this->automatic(self::AUTO_ADD)) {
-            $operations[] = new AddHeader('X-Permitted-Cross-Domain-Policies', 'none');
-            $operations[] = new AddHeader('X-XSS-Protection', '1; mode=block');
-            $operations[] = new AddHeader('X-Content-Type-Options', 'nosniff');
-            $operations[] = new AddHeader('X-Frame-Options', 'Deny');
+        if ($this->automatic(self::AUTO_ADD))
+        {
+            foreach ($this->headerProposals as $header => $value)
+            {
+                $operations[] = new AddHeader($header, $value);
+            }
         }
 
         if ($this->automatic(self::AUTO_REMOVE)) {
