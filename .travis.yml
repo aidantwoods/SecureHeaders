@@ -17,6 +17,7 @@ cache:
 matrix:
   allow_failures:
     - php: nightly
+    - php: 5.3
 
 install:
   - travis_retry composer install --prefer-dist --no-interaction --no-suggest
