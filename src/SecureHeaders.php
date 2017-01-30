@@ -78,7 +78,7 @@ class SecureHeaders{
     protected $reportMissingExceptions  = array();
 
     protected $protectedCookies         = array(
-        'substrings' => array(
+        'substrings'    => array(
             'sess',
             'auth',
             'login',
@@ -87,7 +87,7 @@ class SecureHeaders{
             'token',
             'antiforgery'
         ),
-        'names' => array(
+        'names'         => array(
             'sid',
             's',
             'persistent'
@@ -180,27 +180,29 @@ class SecureHeaders{
     );
 
     private $safeModeUnsafeHeaders  = array(
-        'strict-transport-security' => array(
-            'max-age' => 86400,
-            'includesubdomains' => false,
-            'preload' => false,
+        'strict-transport-security' =>
+            array(
+                'max-age'           => 86400,
+                'includesubdomains' => false,
+                'preload'           => false,
 
-            'HSTS settings were overridden because Safe-Mode is enabled.
-            <a href="
-            https://scotthelme.co.uk/death-by-copy-paste/#hstsandpreloading">
-            Read about</a> some common mistakes when setting HSTS via
-            copy/paste, and ensure you
-            <a href="
-            https://www.owasp.org/index.php/
-            HTTP_Strict_Transport_Security_Cheat_Sheet">
-            understand the details</a> and possible side effects of this
-            security feature before using it.'
-        ),
-        'public-key-pins' => array(
-            'max-age' => 10,
-            'includesubdomains' => false,
-            'Some HPKP settings were overridden because Safe-Mode is enabled.'
-        )
+                'HSTS settings were overridden because Safe-Mode is enabled.
+                <a href="https://scotthelme.co.uk/death-by-copy-paste/\
+                #hstsandpreloading">Read about</a> some common mistakes when
+                setting HSTS via copy/paste, and ensure you
+                <a href="https://www.owasp.org/index.php/\
+                HTTP_Strict_Transport_Security_Cheat_Sheet">
+                understand the details</a> and possible side effects of this
+                security feature before using it.'
+            ),
+        'public-key-pins' =>
+            array(
+                'max-age'           => 10,
+                'includesubdomains' => false,
+
+                'Some HPKP settings were overridden because Safe-Mode is
+                 enabled.'
+            )
     );
 
     private $reportMissingHeaders   = array(
@@ -854,13 +856,16 @@ class SecureHeaders{
         {
             $directive = $this->canInjectStrictDynamic();
 
-            if (is_string($directive)) {
+            if (is_string($directive))
+            {
                 $this->csp($directive, 'strict-dynamic');
-            } else if ($directive !== -1) {
+            }
+            else if ($directive !== -1)
+            {
                 $this->addError(
                     "<b>Strict-Mode</b> is enabled, but <b>'strict-dynamic'</b>
-                        could not be added to the Content-Security-Policy because
-                        no hash or nonce was used.",
+                        could not be added to the Content-Security-Policy
+                        because no hash or nonce was used.",
                     E_USER_WARNING
                 );
             }
@@ -877,7 +882,8 @@ class SecureHeaders{
     {
         $headers = $http->getHeaders();
 
-        foreach ($this->pipeline() as $operation) {
+        foreach ($this->pipeline() as $operation)
+        {
             $operation->modify($headers);
         }
 
@@ -897,7 +903,8 @@ class SecureHeaders{
     {
         $operations = array();
 
-        if ($this->strictMode) {
+        if ($this->strictMode)
+        {
             $operations[] = new AddHeader(
                 'Strict-Transport-Security',
                 'max-age=31536000; includeSubDomains; preload'
@@ -913,14 +920,16 @@ class SecureHeaders{
             }
         }
 
-        if ($this->automatic(self::AUTO_REMOVE)) {
+        if ($this->automatic(self::AUTO_REMOVE))
+        {
             $operations[] = new RemoveHeaders(
                 array('Server', 'X-Powered-By')
             );
         }
 
         # Add a secure flag to cookies that look like they hold session data
-        if ($this->automatic(self::AUTO_COOKIE_SECURE)) {
+        if ($this->automatic(self::AUTO_COOKIE_SECURE))
+        {
             $operations[] = ModifyCookies::matchingPartially(
                 $this->protectedCookies['substrings'],
                 'Secure'
@@ -932,7 +941,8 @@ class SecureHeaders{
         }
 
         # Add a httpOnly flag to cookies that look like they hold session data
-        if ($this->automatic(self::AUTO_COOKIE_HTTPONLY)) {
+        if ($this->automatic(self::AUTO_COOKIE_HTTPONLY))
+        {
             $operations[] = ModifyCookies::matchingPartially(
                 $this->protectedCookies['substrings'],
                 'HttpOnly'
@@ -971,7 +981,8 @@ class SecureHeaders{
             $this->cspLegacy
         );
 
-        if ( ! empty($this->hsts)) {
+        if ( ! empty($this->hsts))
+        {
             $operations[] = new CompileHSTS($this->hsts);
         }
 
@@ -980,7 +991,8 @@ class SecureHeaders{
         # Remove all headers that were configured to be removed
         $operations[] = new RemoveHeaders(array_keys($this->removedHeaders));
 
-        if ($this->safeMode) {
+        if ($this->safeMode)
+        {
             $operations[] = new ApplySafeMode($this->safeModeExceptions);
         }
 
@@ -1181,7 +1193,8 @@ class SecureHeaders{
     {
         $headers->forEachNamed(
             'content-security-policy',
-            function (Header $header) {
+            function (Header $header)
+            {
                 $this->validateSrcAttribute($header, 'default-src');
                 $this->validateSrcAttribute($header, 'script-src');
 
@@ -1191,7 +1204,8 @@ class SecureHeaders{
 
         $headers->forEachNamed(
             'content-security-policy-report-only',
-            function (Header $header) {
+            function (Header $header)
+            {
                 if (
                     ! $header->hasAttribute('report-uri')
                     or  ! preg_match(
@@ -1474,7 +1488,9 @@ class SecureHeaders{
 
     private function cspGenerateNonce()
     {
-        $nonce = base64_encode(openssl_random_pseudo_bytes(30, $isCryptoStrong));
+        $nonce = base64_encode(
+            openssl_random_pseudo_bytes(30, $isCryptoStrong)
+        );
 
         if ( ! $isCryptoStrong)
         {
@@ -1515,6 +1531,8 @@ class SecureHeaders{
         Types::assert(
             array('string' => array($message), 'int' => array($error))
         );
+
+        $message = preg_replace('/[\\\]\n\s*/', '', $message);
 
         $message = preg_replace('/\s+/', ' ', $message);
 
@@ -1650,12 +1668,15 @@ class SecureHeaders{
 
     private function validateSrcAttribute(Header $header, $attributeName)
     {
-        if ($header->hasAttribute($attributeName)) {
+        if ($header->hasAttribute($attributeName))
+        {
             $value = $header->getAttributeValue($attributeName);
 
             $badFlags = array("'unsafe-inline'", "'unsafe-eval'");
-            foreach ($badFlags as $badFlag) {
-                if (strpos($value, $badFlag) !== false) {
+            foreach ($badFlags as $badFlag)
+            {
+                if (strpos($value, $badFlag) !== false)
+                {
                     $friendlyHeader = $header->getFriendlyName();
 
                     $this->addError(
@@ -1674,49 +1695,57 @@ class SecureHeaders{
 
     private function validateCSPAttributes(Header $header)
     {
-        $header->forEachAttribute(function ($name, $value) use ($header) {
-            if (preg_match_all($this->cspSourceWildcardRe, $value, $matches)) {
-                if ( ! in_array($name, $this->cspSensitiveDirectives)) {
-                    # if we're not looking at one of the above, we'll
-                    # be a little less strict with data:
-                    if (($key = array_search('data:', $matches[0])) !== false) {
-                        unset($matches[0][$key]);
+        $header->forEachAttribute(
+            function ($name, $value) use ($header)
+            {
+                if (preg_match_all($this->cspSourceWildcardRe, $value, $matches))
+                {
+                    if ( ! in_array($name, $this->cspSensitiveDirectives))
+                    {
+                        # if we're not looking at one of the above, we'll
+                        # be a little less strict with data:
+                        if (($key = array_search('data:', $matches[0])) !== false)
+                        {
+                            unset($matches[0][$key]);
+                        }
+                    }
+
+                    if ( ! empty($matches[0]))
+                    {
+                        $friendlyHeader = $header->getFriendlyName();
+
+                        $this->addError(
+                            $friendlyHeader . ' ' . (count($matches[0]) > 1 ?
+                                'contains the following wildcards '
+                                : 'contains a wildcard ')
+                            . '<b>' . implode(', ', $matches[0]) . '</b> as a
+                                source value in <b>' . $name . '</b>; this can
+                                allow anyone to insert elements covered by
+                                the <b>' . $name . '</b> directive into the
+                                page.',
+
+                            E_USER_WARNING
+                        );
                     }
                 }
 
-                if ( ! empty($matches[0])) {
+                if (preg_match_all('/(?:[ ]|^)\Khttp[:][^ ]*/', $value, $matches))
+                {
                     $friendlyHeader = $header->getFriendlyName();
 
                     $this->addError(
-                        $friendlyHeader . ' ' . (count($matches[0]) > 1 ?
-                            'contains the following wildcards '
-                            : 'contains a wildcard ')
-                        . '<b>' . implode(', ', $matches[0]) . '</b> as a
-                            source value in <b>' . $name . '</b>; this can
-                            allow anyone to insert elements covered by
-                            the <b>' . $name . '</b> directive into the
-                            page.',
+                        $friendlyHeader . ' contains the insecure protocol
+                            HTTP in ' . (count($matches[0]) > 1 ?
+                            'the following source values '
+                            : 'a source value ')
+                        . '<b>' . implode(', ', $matches[0]) . '</b>; this can
+                            allow anyone to insert elements covered by the
+                            <b>' . $name . '</b> directive into the page.',
 
                         E_USER_WARNING
                     );
                 }
             }
-
-            if (preg_match_all('/(?:[ ]|^)\Khttp[:][^ ]*/', $value, $matches)) {
-                $friendlyHeader = $header->getFriendlyName();
-
-                $this->addError(
-                    $friendlyHeader . ' contains the insecure protocol
-                        HTTP in ' . (count($matches[0]) > 1 ?
-                        'the following source values '
-                        : 'a source value ')
-                    . '<b>' . implode(', ', $matches[0]) . '</b>; this can
-                        allow anyone to insert elements covered by the
-                        <b>' . $name . '</b> directive into the page.',
-
-                    E_USER_WARNING
-                );
-            }
-        });
+        );
     }
 }
