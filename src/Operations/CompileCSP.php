@@ -126,11 +126,16 @@ class CompileCSP implements Operation
                 continue;
             }
 
-            if (isset($list[1]))
+            if (isset($list[1]) and trim($list[1]) !== '')
             {
                 $sourcesString = $list[1];
 
-                $sources = explode(' ', $sourcesString);
+                $sources = array_filter(
+                    explode(' ', $sourcesString),
+                    function($source) {
+                        return $source !== '';
+                    }
+                );
             }
             else
             {
