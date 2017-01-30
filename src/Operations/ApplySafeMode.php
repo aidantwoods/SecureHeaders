@@ -8,7 +8,7 @@ use Aidantwoods\SecureHeaders\Operation;
 
 class ApplySafeMode implements Operation
 {
-    const UNSAFE_HEADERS = array(
+    private static $unsafeHeaders = array(
         'strict-transport-security' => 'sanitizeSTS',
         'public-key-pins' => 'sanitizePKP',
     );
@@ -31,11 +31,11 @@ class ApplySafeMode implements Operation
         foreach ($headers->get() as $header) {
             $headerName = $header->getName();
 
-            $isUnsafe = array_key_exists($headerName, self::UNSAFE_HEADERS);
+            $isUnsafe = array_key_exists($headerName, self::$unsafeHeaders);
             $hasException = array_key_exists($headerName, $this->exceptions);
 
             if ($isUnsafe && !$hasException) {
-                $method = self::UNSAFE_HEADERS[$headerName];
+                $method = self::$unsafeHeaders[$headerName];
 
                 $this->$method($header);
             }
