@@ -3,6 +3,7 @@
 namespace Aidantwoods\SecureHeaders;
 
 use InvalidArgumentException;
+use Aidantwoods\SecureHeaders\Operations\CompileCSP;
 
 class Header
 {
@@ -128,21 +129,51 @@ class Header
 
     private function parseAttributes()
     {
+        if (strpos(strtolower($this->name), 'content-security-policy') !== false)
+        {
+            $this->parseCSPAttributes();
+
+            return;
+        }
+
         $parts = explode('; ', $this->value);
 
         $this->attributes = array();
-        foreach ($parts as $part) {
+
+        foreach ($parts as $part)
+        {
             $attrParts = explode('=', $part, 2);
 
             $type = strtolower($attrParts[0]);
 
-            if ( ! isset($this->attributes[$type])) {
+            if ( ! isset($this->attributes[$type]))
+            {
                 $this->attributes[$type] = array();
             }
 
             $this->attributes[$type][] = array(
                 'name' => $attrParts[0],
                 'value' => isset($attrParts[1]) ? $attrParts[1] : true
+            );
+        }
+    }
+
+    private function parseCSPAttributes()
+    {
+        $this->attributes = array();
+
+        $policy = CompileCSP::deconstructCSP($this->value);
+
+        foreach ($policy as $directive => $sources)
+        {
+            if ( ! isset($this->attributes[$directive]))
+            {
+                $this->attributes[$directive] = array();
+            }
+
+            $this->attributes[$directive][] = array(
+                'name' => $directive,
+                'value' => $sources === true ?: implode(' ', $sources)
             );
         }
     }

@@ -52,7 +52,7 @@ class CompileCSP implements Operation
                 foreach ($otherPolicyHeaders as $otherPolicy)
                 {
                     $policies[]
-                        = $this->deconstructCSP($otherPolicy->getValue());
+                        = self::deconstructCSP($otherPolicy->getValue());
                 }
 
                 $this->{$type.'Config'} = $this->mergeCSPList($policies);
@@ -76,7 +76,7 @@ class CompileCSP implements Operation
 
     private function compileCSP()
     {
-        return $this->compile($this->cspConfig);
+        return self::compile($this->cspConfig);
     }
 
     private function compileCSPRO()
@@ -87,10 +87,10 @@ class CompileCSP implements Operation
             array_flip($this->csproBlacklist)
         );
 
-        return $this->compile($filteredConfig);
+        return self::compile($filteredConfig);
     }
 
-    private function compile($config)
+    public static function compile($config)
     {
         $pieces = array();
 
@@ -107,7 +107,7 @@ class CompileCSP implements Operation
         return implode('; ', $pieces);
     }
 
-    private function deconstructCSP($cspString)
+    public static function deconstructCSP($cspString)
     {
         $csp = array();
 
