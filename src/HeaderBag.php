@@ -85,4 +85,15 @@ class HeaderBag
             array()
         );
     }
+
+    public function forEachNamed($type, $callback)
+    {
+        $type = strtolower($type);
+
+        if (isset($this->headers[$type])) {
+            foreach ($this->headers[$type] as $header) {
+                $callback($header);
+            }
+        }
+    }
 }

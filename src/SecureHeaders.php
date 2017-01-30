@@ -882,12 +882,11 @@ class SecureHeaders{
             );
         }
 
-        $this->apply($this->httpAdapter);
+        $finalHeaders = $this->apply($this->httpAdapter);
 
-        // TODO: Take care of these!
-        #$this->reportMissingHeaders();
-        #$this->validateHeaders();
-        #$this->reportErrors();
+        $this->reportMissingHeaders($finalHeaders);
+        $this->validateHeaders($finalHeaders);
+        $this->reportErrors();
     }
 
     public function apply(HttpAdapter $http)
@@ -899,6 +898,8 @@ class SecureHeaders{
         }
 
         $http->sendHeaders($headers);
+
+        return $headers;
     }
 
     /**
@@ -1174,30 +1175,30 @@ class SecureHeaders{
         return $attributes;
     }
 
-    private function validateHeaders()
+    private function validateHeaders(HeaderBag $headers)
     {
-        foreach ($this->headers->get() as $header)
-        {
-            $data = $header->getProps();
+        $headers->forEachNamed(
+            'content-security-policy',
+            function (Header $header) {
+                $this->validateSrcAttribute($header, 'default-src');
+                $this->validateSrcAttribute($header, 'script-src');
 
-            $friendlyHeader = str_replace('-', ' ', $header->getName());
-            $friendlyHeader = ucwords($friendlyHeader);
+                $this->validateCSPAttributes($header);
+            }
+        );
 
-            if (
-                $header->is('content-security-policy')
-                or $header->is('content-security-policy-report-only')
-            ) {
-
+        $headers->forEachNamed(
+            'content-security-policy-report-only',
+            function (Header $header) {
                 if (
-                    $header->is('content-security-policy-report-only')
-                    and (
-                        ! isset($data['attributes']['report-uri'])
-                        or  ! preg_match(
-                            '/https:\/\/[a-z0-9\-]+[.][a-z]{2,}.*/i',
-                            $data['attributes']['report-uri']
-                        )
+                    ! $header->hasAttribute('report-uri')
+                    or  ! preg_match(
+                        '/https:\/\/[a-z0-9\-]+[.][a-z]{2,}.*/i',
+                        $header->getAttributeValue('report-uri')
                     )
                 ) {
+                    $friendlyHeader = $header->getFriendlyName();
+
                     $this->addError($friendlyHeader.' header was sent,
                         but an invalid, or no reporting address was given.
                         This header will not enforce violations, and with no
@@ -1207,89 +1208,12 @@ class SecureHeaders{
                     );
                 }
 
-                foreach ($data['attributes'] as $name => $value)
-                {
-                    if ($name === 'default-src' or $name === 'script-src')
-                    {
-                        $badFlags = array("'unsafe-inline'", "'unsafe-eval'");
+                $this->validateSrcAttribute($header, 'default-src');
+                $this->validateSrcAttribute($header, 'script-src');
 
-                        foreach ($badFlags as $badFlag)
-                        {
-                            if (strpos($value, $badFlag) !== false)
-                            {
-                                $this->addError(
-                                    $friendlyHeader.' contains the <b>'
-                                    . $badFlag.'</b> keyword in <b>'.$name
-                                    . '</b>, which prevents CSP protecting
-                                    against the injection of arbitrary code
-                                    into the page.',
-
-                                    E_USER_WARNING
-                                );
-                            }
-                        }
-                    }
-
-                    if (
-                        preg_match_all(
-                            $this->cspSourceWildcardRe,
-                            $value,
-                            $matches
-                        )
-                    ) {
-                        if (
-                            ! in_array($name, $this->cspSensitiveDirectives)
-                        ) {
-                            # if we're not looking at one of the above, we'll
-                            # be a little less strict with data:
-                            if (
-                                (
-                                    $key = array_search('data:', $matches[0])
-                                ) !== false
-                            ) {
-                                unset($matches[0][$key]);
-                            }
-                        }
-
-                        if ( ! empty($matches[0]))
-                        {
-                            $this->addError(
-                                $friendlyHeader.' '.(count($matches[0]) > 1 ?
-                                    'contains the following wildcards '
-                                    : 'contains a wildcard ')
-                                . '<b>'.implode(', ', $matches[0]).'</b> as a
-                                source value in <b>'.$name.'</b>; this can
-                                allow anyone to insert elements covered by
-                                the <b>'.$name.'</b> directive into the
-                                page.',
-
-                                E_USER_WARNING
-                            );
-                        }
-                    }
-
-                    if (
-                        preg_match_all(
-                            '/(?:[ ]|^)\Khttp[:][^ ]*/',
-                            $value,
-                            $matches
-                        )
-                    ) {
-                        $this->addError(
-                            $friendlyHeader.' contains the insecure protocol
-                            HTTP in '.(count($matches[0]) > 1 ?
-                                'the following source values '
-                                :  'a source value ')
-                            . '<b>'.implode(', ', $matches[0]).'</b>; this can
-                            allow anyone to insert elements covered by the
-                            <b>'.$name.'</b> directive into the page.',
-
-                            E_USER_WARNING
-                        );
-                    }
-                }
+                $this->validateCSPAttributes($header);
             }
-        }
+        );
     }
 
     # ~~ private functions: Cookies
@@ -1680,14 +1604,14 @@ class SecureHeaders{
         return false;
     }
 
-    private function reportMissingHeaders()
+    private function reportMissingHeaders(HeaderBag $headers)
     {
         foreach ($this->reportMissingHeaders as $header)
         {
-            if (!$this->headers->has($header))
+            if ( ! $headers->has($header))
             {
                 $this->addError(
-                    'Missing security header: ' . "'" . $header . "'",
+                    "Missing security header: '$header'",
                     E_USER_WARNING
                 );
             }
@@ -1700,5 +1624,77 @@ class SecureHeaders{
     private function automatic($operation)
     {
         return ($this->automaticHeaders & $operation) === $operation;
+    }
+
+    private function validateSrcAttribute(Header $header, $attributeName)
+    {
+        if ($header->hasAttribute($attributeName)) {
+            $value = $header->getAttributeValue($attributeName);
+
+            $badFlags = array("'unsafe-inline'", "'unsafe-eval'");
+            foreach ($badFlags as $badFlag) {
+                if (strpos($value, $badFlag) !== false) {
+                    $friendlyHeader = $header->getFriendlyName();
+
+                    $this->addError(
+                        $friendlyHeader . ' contains the <b>'
+                        . $badFlag . '</b> keyword in <b>' . $attributeName
+                        . '</b>, which prevents CSP protecting
+                                against the injection of arbitrary code
+                                into the page.',
+
+                        E_USER_WARNING
+                    );
+                }
+            }
+        }
+    }
+
+    private function validateCSPAttributes(Header $header)
+    {
+        $header->forEachAttribute(function ($name, $value) use ($header) {
+            if (preg_match_all($this->cspSourceWildcardRe, $value, $matches)) {
+                if ( ! in_array($name, $this->cspSensitiveDirectives)) {
+                    # if we're not looking at one of the above, we'll
+                    # be a little less strict with data:
+                    if (($key = array_search('data:', $matches[0])) !== false) {
+                        unset($matches[0][$key]);
+                    }
+                }
+
+                if ( ! empty($matches[0])) {
+                    $friendlyHeader = $header->getFriendlyName();
+
+                    $this->addError(
+                        $friendlyHeader . ' ' . (count($matches[0]) > 1 ?
+                            'contains the following wildcards '
+                            : 'contains a wildcard ')
+                        . '<b>' . implode(', ', $matches[0]) . '</b> as a
+                            source value in <b>' . $name . '</b>; this can
+                            allow anyone to insert elements covered by
+                            the <b>' . $name . '</b> directive into the
+                            page.',
+
+                        E_USER_WARNING
+                    );
+                }
+            }
+
+            if (preg_match_all('/(?:[ ]|^)\Khttp[:][^ ]*/', $value, $matches)) {
+                $friendlyHeader = $header->getFriendlyName();
+
+                $this->addError(
+                    $friendlyHeader . ' contains the insecure protocol
+                        HTTP in ' . (count($matches[0]) > 1 ?
+                        'the following source values '
+                        : 'a source value ')
+                    . '<b>' . implode(', ', $matches[0]) . '</b>; this can
+                        allow anyone to insert elements covered by the
+                        <b>' . $name . '</b> directive into the page.',
+
+                    E_USER_WARNING
+                );
+            }
+        });
     }
 }

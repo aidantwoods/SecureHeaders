@@ -2,6 +2,8 @@
 
 namespace Aidantwoods\SecureHeaders;
 
+use InvalidArgumentException;
+
 class Header
 {
     private $name;
@@ -20,6 +22,12 @@ class Header
     public function getName()
     {
         return strtolower($this->name);
+    }
+
+    public function getFriendlyName()
+    {
+        $friendlyHeader = str_replace('-', ' ', $this->getName());
+        return ucwords($friendlyHeader);
     }
 
     public function is($name)
@@ -44,6 +52,24 @@ class Header
         reset($this->attributes);
 
         return key($this->attributes);
+    }
+
+    public function getAttributeValue($name)
+    {
+        if ( ! $this->hasAttribute($name)) {
+            throw new InvalidArgumentException(
+                "Attribute '$name' was not found"
+            );
+        }
+
+        return $this->attributes[strtolower($name)][0]['value'];
+    }
+
+    public function hasAttribute($name)
+    {
+        $name = strtolower($name);
+
+        return array_key_exists($name, $this->attributes);
     }
 
     public function removeAttribute($name)
@@ -79,6 +105,15 @@ class Header
         );
 
         $this->writeAttributesToValue();
+    }
+
+    public function forEachAttribute($callback)
+    {
+        foreach ($this->attributes as $attributes) {
+            foreach ($attributes as $attribute) {
+                $callback($attribute['name'], $attribute['value']);
+            }
+        }
     }
 
     public function __toString()
