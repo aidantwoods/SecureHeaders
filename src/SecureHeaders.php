@@ -194,6 +194,7 @@ class SecureHeaders{
     private $reportMissingHeaders   = array(
         'Strict-Transport-Security',
         'Content-Security-Policy',
+        'X-Permitted-Cross-Domain-Policies',
         'X-XSS-Protection',
         'X-Content-Type-Options',
         'X-Frame-Options'
@@ -838,6 +839,7 @@ class SecureHeaders{
 
         # Apply security headers for all (HTTP and HTTPS) connections
         if ($this->automatic(self::AUTO_ADD)) {
+            $operations[] = new AddHeader('X-Permitted-Cross-Domain-Policies', 'none');
             $operations[] = new AddHeader('X-XSS-Protection', '1; mode=block');
             $operations[] = new AddHeader('X-Content-Type-Options', 'nosniff');
             $operations[] = new AddHeader('X-Frame-Options', 'Deny');
