@@ -11,18 +11,21 @@ class CompileCSP implements Operation
     private $csproConfig;
     private $csproBlacklist;
     private $sendLegacyHeaders;
+    private $combine;
 
     public function __construct(
         array $cspConfig,
         array $csproConfig,
         array $csproBlacklist = array(),
-        $sendLegacyHeaders = false
+        $sendLegacyHeaders = false,
+        $combineMultiplePolicies = true
     ) {
         $this->cspConfig = $cspConfig;
         $this->csproConfig = $csproConfig;
         $this->csproBlacklist = $csproBlacklist;
 
         $this->sendLegacyHeaders = $sendLegacyHeaders;
+        $this->combine = $combineMultiplePolicies;
     }
 
     /**
@@ -34,19 +37,39 @@ class CompileCSP implements Operation
     public function modify(HeaderBag $headers)
     {
         $cspHeaders = array(
-            'Content-Security-Policy' => $this->compileCSP(),
-            'Content-Security-Policy-Report-Only' => $this->compileCSPRO(),
+            'Content-Security-Policy' => 'csp',
+            'Content-Security-Policy-Report-Only' => 'cspro',
         );
 
-        foreach ($cspHeaders as $header => $value) {
-            if (empty($value)) {
+        foreach ($cspHeaders as $header => $type)
+        {
+            if ($this->combine)
+            {
+                $otherPolicyHeaders = $headers->getByName($header);
+
+                $policies = array($this->{$type.'Config'});
+
+                foreach ($otherPolicyHeaders as $otherPolicy)
+                {
+                    $policies[]
+                        = $this->deconstructCSP($otherPolicy->getValue());
+                }
+
+                $this->{$type.'Config'} = $this->mergeCSPList($policies);
+            }
+
+            $value = $this->{'compile'.strtoupper($type)}();
+
+            if (empty($value))
+            {
                 continue;
             }
 
-            $headers->replace($header, $value);
+            $headers->{($this->combine ? 'replace' : 'add')}($header, $value);
 
-            if ($this->sendLegacyHeaders) {
-                $headers->replace("X-$header", $value);
+            if ($this->sendLegacyHeaders)
+            {
+                $headers->{($this->combine ? 'replace' : 'add')}("X-$header", $value);
             }
         }
     }
@@ -82,5 +105,74 @@ class CompileCSP implements Operation
         }
 
         return implode('; ', $pieces);
+    }
+
+    private function deconstructCSP($cspString)
+    {
+        $csp = array();
+
+        $directivesAndSources = explode(';', $cspString);
+
+        foreach ($directivesAndSources as $directiveAndSources)
+        {
+            $directiveAndSources = ltrim($directiveAndSources);
+
+            $list = explode(' ', $directiveAndSources, 2);
+
+            $directive = strtolower($list[0]);
+
+            if (isset($csp[$directive]))
+            {
+                continue;
+            }
+
+            if (isset($list[1]))
+            {
+                $sourcesString = $list[1];
+
+                $sources = explode(' ', $sourcesString);
+            }
+            else
+            {
+                $sources = true;
+            }
+
+            $csp[$directive] = $sources;
+        }
+
+        return $csp;
+    }
+
+    private function mergeCSPList(array $cspList)
+    {
+        $finalCSP = array();
+
+        foreach ($cspList as $csp)
+        {
+            foreach ($csp as $directive => $sources)
+            {
+                if ( ! isset($finalCSP[$directive]))
+                {
+                    $finalCSP[$directive] = $sources;
+
+                    continue;
+                }
+                elseif ($finalCSP[$directive] === true)
+                {
+                    continue;
+                }
+                else
+                {
+                    $finalCSP[$directive] = array_merge(
+                        $finalCSP[$directive],
+                        $sources
+                    );
+
+                    continue;
+                }
+            }
+        }
+
+        return $finalCSP;
     }
 }
