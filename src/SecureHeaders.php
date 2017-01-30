@@ -115,10 +115,6 @@ class SecureHeaders{
     private $hpkp               = array();
     private $hpkpro             = array();
 
-    private $importStarted      = false;
-
-    private $proposeHeaders     = false;
-
     private $isBufferReturned   = false;
 
     private $doneOnOutput       = false;
@@ -377,91 +373,6 @@ class SecureHeaders{
 
     # ~~
     # public functions: raw headers
-
-    public function addHeader($name, $value = null, $replace = null)
-    {
-        Types::assert(array('string' => array($name, $value)));
-
-        if ( ! isset($replace)) $replace = true;
-
-        if (
-            $this->correctHeaderName
-            and preg_match('/([^:]+)/', $name, $match)
-        ) {
-            $name = $match[1];
-
-            $capitalisedName = preg_replace_callback(
-                '/(?<=[-\s]|^)[^-\s]/',
-                function ($match) {
-                    return strtoupper($match[0]);
-                },
-                $name
-            );
-        }
-        else
-        {
-            $capitalisedName = $name;
-        }
-
-        $name = strtolower($name);
-
-        if (
-            $this->proposeHeaders
-            and (
-                isset($this->removedHeaders[$name])
-                or $this->headers->has($name)
-            )
-        ) {
-            # a proposal header will only be added if the intented header:
-            # {has not been staged for removal} or {already added}
-            return;
-        }
-
-        # if its actually a cookie, this requires special handling
-        if ($name === 'set-cookie')
-        {
-            $this->addCookie($value, null, true);
-        }
-        # a few headers are better handled as an imported policy
-        elseif (preg_match(
-            '/^content-security-policy(-report-only)?$/',
-            $name,
-            $matches
-        )) {
-            $this->importCSP($value, isset($matches[1]));
-        }
-        elseif ($name === 'strict-transport-security')
-        {
-            $this->importHSTS($value);
-        }
-        elseif (preg_match(
-            '/^public-key-pins(-report-only)?$/',
-            $name,
-            $matches
-        )) {
-            $this->importHPKP($value, isset($matches[1]));
-        }
-        # add the header, and disect its value
-        else
-        {
-            $this->headers->{$replace ? 'replace' : 'add'}(
-                $capitalisedName,
-                $value
-            );
-        }
-
-        if ( ! $this->importStarted)
-        {
-            unset($this->removedHeaders[$name]);
-        }
-    }
-
-    public function header($name, $value = null, $replace = null)
-    {
-        Types::assert(array('string' => array($name, $value)));
-
-        $this->addHeader($name, $value, $replace);
-    }
 
     public function removeHeader($name)
     {

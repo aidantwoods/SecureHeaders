@@ -31,22 +31,6 @@ class SecureHeadersTest extends PHPUnit_Framework_TestCase
         $this->assertContains('X-Foo: Bar', $headersString);
     }
 
-    public function testRegularHeaderNotLost()
-    {
-        $headerStrings = new StringHttpAdapter;
-
-        $headers = new SecureHeaders($headerStrings);
-        $headers->errorReporting(false);
-
-        $headers->addHeader('X-Foo', 'Bar');
-
-        $headers->done();
-
-        $headersString = $headerStrings->getSentHeaders();
-
-        $this->assertContains('X-Foo: Bar', $headersString);
-    }
-
     public function testCookies()
     {
         $headerStrings = new StringHttpAdapter(array(
@@ -63,47 +47,6 @@ class SecureHeadersTest extends PHPUnit_Framework_TestCase
 
         $this->assertContains('Set-Cookie: normalcookie=value1', $headersString);
         $this->assertContains('Set-Cookie: authcookie=value2; Secure; HttpOnly', $headersString);
-    }
-
-    public function testMultipleHeaders()
-    {
-        $headerStrings = new StringHttpAdapter(array(
-            'X-Bar: Foo1',
-            'X-Bar: Foo2',
-        ));
-
-        $headers = new SecureHeaders($headerStrings);
-        $headers->errorReporting(false);
-
-        $headers->addHeader('X-Foo', 'Bar1', false);
-        $headers->addHeader('X-Foo', 'Bar2', false);
-
-        $headers->done();
-
-        $headersString = $headerStrings->getSentHeaders();
-
-        $this->assertContains('X-Foo: Bar1', $headersString);
-        $this->assertContains('X-Foo: Bar2', $headersString);
-        $this->assertContains('X-Bar: Foo1', $headersString);
-        $this->assertContains('X-Bar: Foo2', $headersString);
-    }
-
-    public function testHeadersAreReplaced()
-    {
-        $headerStrings = new StringHttpAdapter;
-
-        $headers = new SecureHeaders($headerStrings);
-        $headers->errorReporting(false);
-
-        $headers->addHeader('X-Foo', 'Bar1');
-        $headers->addHeader('X-Foo', 'Bar2');
-
-        $headers->done();
-
-        $headersString = $headerStrings->getSentHeaders();
-
-        $this->assertNotContains('X-Foo: Bar1', $headersString);
-        $this->assertContains('X-Foo: Bar2', $headersString);
     }
 
     public function testThreeDefaultHeadersAreAdded()
@@ -161,10 +104,7 @@ class SecureHeadersTest extends PHPUnit_Framework_TestCase
             array(
                 'test' => 
                     function(&$headers){
-                        $headers->header(
-                            'Strict-Transport-Security',
-                            'max-age=31536000; includeSubDomains; preload'
-                        );
+                        $headers->hsts(31536000, true, true);
                     },
                 'assertions' => array(
                     'Contains' =>
@@ -175,10 +115,7 @@ class SecureHeadersTest extends PHPUnit_Framework_TestCase
                 'test' => 
                     function(&$headers){
                         $headers->safeMode();
-                        $headers->header(
-                            'Strict-Transport-Security',
-                            'max-age=31536000; includeSubDomains; preload'
-                        );
+                        $headers->hsts(31536000, true, true);
                     },
                 'assertions' => array(
                     'NotContains' =>
@@ -204,10 +141,7 @@ class SecureHeadersTest extends PHPUnit_Framework_TestCase
                 'test' => 
                     function(&$headers){
                         $headers->safeMode();
-                        $headers->header(
-                            'Public-Key-Pins',
-                            'max-age=31536000; pin-sha256="abcd"; includeSubDomains'
-                        );
+                        $headers->hpkp('abcd', 31536000, true);
                     },
                 'assertions' => array(
                     'NotContains' =>
