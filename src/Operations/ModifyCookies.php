@@ -10,23 +10,25 @@ class ModifyCookies implements Operation
 {
     private $blacklist;
     private $field;
+    private $value;
 
     private $matchSubstring = false;
 
-    public function __construct(array $blacklist, $field)
+    public function __construct(array $blacklist, $field, $value = true)
     {
         $this->blacklist = $blacklist;
         $this->field = $field;
+        $this->value = $value;
     }
 
-    public static function matchingFully(array $blacklist, $field)
+    public static function matchingFully(array $blacklist, $field, $value = true)
     {
-        return new static($blacklist, $field);
+        return new static($blacklist, $field, $value);
     }
 
-    public static function matchingPartially(array $blacklist, $field)
+    public static function matchingPartially(array $blacklist, $field, $value = true)
     {
-        $instance = new static($blacklist, $field);
+        $instance = new static($blacklist, $field, $value);
         $instance->matchSubstring = true;
 
         return $instance;
@@ -40,27 +42,15 @@ class ModifyCookies implements Operation
      */
     public function modify(HeaderBag $headers)
     {
-        foreach ($this->extractCookies($headers) as $cookieHeader) {
+        foreach ($headers->getByName('set-cookie') as $cookieHeader)
+        {
             $cookieName = $cookieHeader->getFirstAttributeName();
 
-            if ($this->matches($cookieName)) {
-                $cookieHeader->enableAttribute($this->field);
+            if ( ! $cookieHeader->hasAttribute($this->field) and $this->matches($cookieName))
+            {
+                $cookieHeader->setAttribute($this->field, $this->value);
             }
         }
-    }
-
-    /**
-     * @param HeaderBag $headers
-     * @return Header[]
-     */
-    private function extractCookies(HeaderBag $headers)
-    {
-        return array_filter(
-            $headers->get(),
-            function (Header $header) {
-                return $header->is('set-cookie');
-            }
-        );
     }
 
     private function matches($cookieName)
