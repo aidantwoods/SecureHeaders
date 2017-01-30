@@ -71,6 +71,8 @@ class SecureHeaders{
 
     protected $automaticHeaders     = self::AUTO_ALL;
 
+    protected $sameSiteCookies      = null;
+
     protected $correctHeaderName    = true;
 
     protected $protectedCookies     = array(
@@ -232,18 +234,19 @@ class SecureHeaders{
 
     # auto-headers
 
-    const AUTO_ADD              =  1; # 0b0001
-    const AUTO_REMOVE           =  2; # 0b0010
-    const AUTO_COOKIE_SECURE    =  4; # 0b0100
-    const AUTO_COOKIE_HTTPONLY  =  8; # 0b1000
-    const AUTO_ALL              = 15; # 0b1111
+    const AUTO_ADD              =  1; # 0b00001
+    const AUTO_REMOVE           =  2; # 0b00010
+    const AUTO_COOKIE_SECURE    =  4; # 0b00100
+    const AUTO_COOKIE_HTTPONLY  =  8; # 0b01000
+    const AUTO_COOKIE_SAMESITE  = 16; # 0b10000
+    const AUTO_ALL              = 31; # 0b11111
 
     # cookie upgrades
 
-    const COOKIE_NAME           =  1; # 0b0001
-    const COOKIE_SUBSTR         =  2; # 0b0010
+    const COOKIE_NAME           =  1; # 0b00001
+    const COOKIE_SUBSTR         =  2; # 0b00010
     const COOKIE_ALL            =  3; # COOKIE_NAME | COOKIE_SUBSTR
-    const COOKIE_REMOVE         =  4; # 0b0100
+    const COOKIE_REMOVE         =  4; # 0b00100
     const COOKIE_DEFAULT        =  2; # ~COOKIE_REMOVE & COOKIE_SUBSTR
 
     # ~~
@@ -279,6 +282,9 @@ class SecureHeaders{
     # ~~
     # public functions: settings
 
+    # ~~
+    # Settings: Safe Mode
+
     # safe-mode enforces settings that shouldn't cause too much accidental
     # down-time safe-mode intentionally overwrites user specified settings
 
@@ -296,15 +302,24 @@ class SecureHeaders{
         $this->safeModeExceptions[strtolower($name)] = true;
     }
 
+    # ~~
+    # Settings: Strict Mode
+
     public function strictMode($mode = true)
     {
         $this->strictMode = ($mode == true and strtolower($mode) !== 'off');
     }
 
-    public function returnExistingNonce($mode = true)
+    # ~~
+    # Settings: Error Reporting
+
+    public function errorReporting($mode)
     {
-        $this->returnExistingNonce = ($mode == true);
+        $this->errorReporting = ($mode == true);
     }
+
+    # ~~
+    # Settings: Automatic Behaviour
 
     public function auto($mode = self::AUTO_ALL)
     {
@@ -313,10 +328,57 @@ class SecureHeaders{
         $this->automaticHeaders = $mode;
     }
 
+    # ~~
+    # Settings: Headers
+
     public function correctHeaderName($mode = true)
     {
         $this->correctHeaderName = (true == $mode);
     }
+
+    # ~~
+    # Settings: Nonces
+
+    public function returnExistingNonce($mode = true)
+    {
+        $this->returnExistingNonce = ($mode == true);
+    }
+
+    # ~~
+    # Settings: Cookies
+
+    public function sameSiteCookies($mode = null)
+    {
+        Types::assert(array('string' => array($mode)));
+
+        if (isset($mode))
+        {
+            $mode = strtolower($mode);
+        }
+
+        if ($mode === 'lax' or $mode === 'strict')
+        {
+            $this->sameSiteCookies = ucfirst($mode);
+        }
+        elseif ( ! isset($mode))
+        {
+            $this->sameSiteCookies = null;
+        }
+    }
+
+    # ~~
+    # public functions: raw headers
+
+    public function removeHeader($name)
+    {
+        Types::assert(array('string' => array($name)));
+
+        $name = strtolower($name);
+        $this->removedHeaders[$name] = true;
+    }
+
+    # ~~
+    # public functions: cookies
 
     public function protectedCookie(
         $name,
@@ -371,20 +433,6 @@ class SecureHeaders{
             }
         }
     }
-
-    # ~~
-    # public functions: raw headers
-
-    public function removeHeader($name)
-    {
-        Types::assert(array('string' => array($name)));
-
-        $name = strtolower($name);
-        $this->removedHeaders[$name] = true;
-    }
-
-    # ~~
-    # public functions: cookies
 
     public function removeCookie($name)
     {
@@ -875,6 +923,43 @@ class SecureHeaders{
             );
         }
 
+        if (
+            ($this->automaticHeaders & self::AUTO_COOKIE_SAMESITE)
+            === self::AUTO_COOKIE_SAMESITE
+            and (
+                ! isset($this->sameSiteCookies)
+                or $this->sameSiteCookies === 'Lax'
+                or $this->sameSiteCookies === 'Strict'
+            )
+        ) {
+            # add SameSite to cookies that look like they hold
+            # session data
+
+            if ( ! isset($this->sameSiteCookies) and $this->strictMode)
+            {
+                $sameSite = 'Strict';
+            }
+            elseif ( ! isset($this->sameSiteCookies))
+            {
+                $sameSite = 'Lax';
+            }
+            else
+            {
+                $sameSite = $this->sameSiteCookies;
+            }
+
+            $operations[] = ModifyCookies::matchingPartially(
+                $this->protectedCookies['substrings'],
+                'SameSite',
+                $sameSite
+            );
+            $operations[] = ModifyCookies::matchingFully(
+                $this->protectedCookies['names'],
+                'SameSite',
+                $sameSite
+            );
+        }
+
         $operations[] = new CompileCSP(
             $this->csp,
             $this->cspro,
@@ -896,11 +981,6 @@ class SecureHeaders{
         }
 
         return $operations;
-    }
-
-    public function errorReporting($mode)
-    {
-        $this->errorReporting = ($mode == true);
     }
 
     # ~~
