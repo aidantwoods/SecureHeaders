@@ -937,27 +937,11 @@ class SecureHeaders{
         if (
             ($this->automaticHeaders & self::AUTO_COOKIE_SAMESITE)
             === self::AUTO_COOKIE_SAMESITE
-            and (
-                ! isset($this->sameSiteCookies)
-                or $this->sameSiteCookies === 'Lax'
-                or $this->sameSiteCookies === 'Strict'
-            )
         ) {
             # add SameSite to cookies that look like they hold
             # session data
 
-            if ( ! isset($this->sameSiteCookies) and $this->strictMode)
-            {
-                $sameSite = 'Strict';
-            }
-            elseif ( ! isset($this->sameSiteCookies))
-            {
-                $sameSite = 'Lax';
-            }
-            else
-            {
-                $sameSite = $this->sameSiteCookies;
-            }
+            $sameSite = $this->injectableSameSiteValue();
 
             $operations[] = ModifyCookies::matchingPartially(
                 $this->protectedCookies['substrings'],
@@ -1582,6 +1566,24 @@ class SecureHeaders{
         }
 
         return false;
+    }
+
+    private function injectableSameSiteValue()
+    {
+        if ( ! isset($this->sameSiteCookies) and $this->strictMode)
+        {
+            $sameSite = 'Strict';
+        }
+        elseif ( ! isset($this->sameSiteCookies))
+        {
+            $sameSite = 'Lax';
+        }
+        else
+        {
+            $sameSite = $this->sameSiteCookies;
+        }
+
+        return $sameSite;
     }
 
     private function errorHandler($level, $message)
