@@ -93,16 +93,21 @@ class Header
         }
     }
 
-    public function enableAttribute($name)
+    public function setAttribute($name, $value = true)
     {
         $key = strtolower($name);
 
         $this->attributes[$key] = array(
             array(
                 'name' => $name,
-                'value' => true
+                'value' => $value
             )
         );
+
+        if ($value === false)
+        {
+            unset($this->attributes[$key]);
+        }
 
         $this->writeAttributesToValue();
     }
