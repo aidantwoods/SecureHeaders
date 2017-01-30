@@ -781,16 +781,21 @@ class SecureHeaders{
     public function done()
     {
         // TODO: Move this elsewhere!
-        $directive = $this->canInjectStrictDynamic();
-        if ( ! is_int($directive)) {
-            $this->csp($directive, 'strict-dynamic');
-        } else if ($directive !== -1) {
-            $this->addError(
-                "<b>Strict-Mode</b> is enabled, but <b>'strict-dynamic'</b>
-                    could not be added to the Content-Security-Policy because
-                    no hash or nonce was used.",
-                E_USER_WARNING
-            );
+
+        if ($this->strictMode)
+        {
+            $directive = $this->canInjectStrictDynamic();
+
+            if (is_string($directive)) {
+                $this->csp($directive, 'strict-dynamic');
+            } else if ($directive !== -1) {
+                $this->addError(
+                    "<b>Strict-Mode</b> is enabled, but <b>'strict-dynamic'</b>
+                        could not be added to the Content-Security-Policy because
+                        no hash or nonce was used.",
+                    E_USER_WARNING
+                );
+            }
         }
 
         $finalHeaders = $this->apply($this->httpAdapter);
