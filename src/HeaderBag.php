@@ -86,6 +86,24 @@ class HeaderBag
         );
     }
 
+    public function getByName($name)
+    {
+        $name = strtolower($name);
+
+        if( ! array_key_exists($name, $this->headers))
+        {
+            return array();
+        }
+
+        return array_reduce(
+            array($this->headers[$name]),
+            function ($all, $item) {
+                return array_merge($all, $item);
+            },
+            array()
+        );
+    }
+
     public function forEachNamed($type, $callback)
     {
         $type = strtolower($type);
