@@ -22,7 +22,7 @@ class CompileHPKP implements Operation
      * @param HeaderBag $headers
      * @return void
      */
-    public function modify(HeaderBag $headers)
+    public function modify(HeaderBag &$headers)
     {
         $hpkpHeaders = array(
             'Public-Key-Pins' => $this->compilePKP(),

@@ -20,7 +20,7 @@ class RemoveHeaders implements Operation
      * @param HeaderBag $headers
      * @return void
      */
-    public function modify(HeaderBag $headers)
+    public function modify(HeaderBag &$headers)
     {
         foreach ($this->headersToRemove as $header) {
             $headers->remove($header);

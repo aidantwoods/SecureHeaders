@@ -40,7 +40,7 @@ class ModifyCookies implements Operation
      * @param HeaderBag $headers
      * @return void
      */
-    public function modify(HeaderBag $headers)
+    public function modify(HeaderBag &$headers)
     {
         foreach ($headers->getByName('set-cookie') as $cookieHeader)
         {

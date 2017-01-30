@@ -26,7 +26,7 @@ class ApplySafeMode implements Operation
      * @param HeaderBag $headers
      * @return void
      */
-    public function modify(HeaderBag $headers)
+    public function modify(HeaderBag &$headers)
     {
         foreach ($headers->get() as $header) {
             $headerName = $header->getName();

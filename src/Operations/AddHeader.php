@@ -23,7 +23,7 @@ class AddHeader implements Operation
      * @param HeaderBag $headers
      * @return void
      */
-    public function modify(HeaderBag $headers)
+    public function modify(HeaderBag &$headers)
     {
         if ( ! $headers->has($this->name)) {
             $headers->replace($this->name, $this->value);

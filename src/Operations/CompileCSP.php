@@ -34,7 +34,7 @@ class CompileCSP implements Operation
      * @param HeaderBag $headers
      * @return void
      */
-    public function modify(HeaderBag $headers)
+    public function modify(HeaderBag &$headers)
     {
         $cspHeaders = array(
             'Content-Security-Policy' => 'csp',
