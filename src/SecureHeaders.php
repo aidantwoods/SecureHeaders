@@ -41,6 +41,7 @@ use Aidantwoods\SecureHeaders\Operations\CompileCSP;
 use Aidantwoods\SecureHeaders\Operations\CompileHPKP;
 use Aidantwoods\SecureHeaders\Operations\CompileHSTS;
 use Aidantwoods\SecureHeaders\Operations\ModifyCookies;
+use Aidantwoods\SecureHeaders\Operations\ModifyHeader;
 use Aidantwoods\SecureHeaders\Operations\RemoveHeaders;
 use Aidantwoods\SecureHeaders\Util\Types;
 
@@ -852,25 +853,6 @@ class SecureHeaders{
     {
         // TODO: Move this elsewhere!
 
-        if ($this->strictMode)
-        {
-            $directive = $this->canInjectStrictDynamic();
-
-            if (is_string($directive))
-            {
-                $this->csp($directive, 'strict-dynamic');
-            }
-            else if ($directive !== -1)
-            {
-                $this->addError(
-                    "<b>Strict-Mode</b> is enabled, but <b>'strict-dynamic'</b>
-                        could not be added to the Content-Security-Policy
-                        because no hash or nonce was used.",
-                    E_USER_WARNING
-                );
-            }
-        }
-
         $finalHeaders = $this->apply($this->httpAdapter);
 
         $this->reportMissingHeaders($finalHeaders);
@@ -909,6 +891,26 @@ class SecureHeaders{
                 'Strict-Transport-Security',
                 'max-age=31536000; includeSubDomains; preload'
             );
+
+            $directive = $this->canInjectStrictDynamic();
+
+            if (is_string($directive))
+            {
+                $operations[] = new ModifyHeader(
+                    'Content-Security-Policy',
+                    $directive,
+                    "'strict-dynamic'"
+                );
+            }
+            else if ($directive !== -1)
+            {
+                $this->addError(
+                    "<b>Strict-Mode</b> is enabled, but <b>'strict-dynamic'</b>
+                        could not be added to the Content-Security-Policy
+                        because no hash or nonce was used.",
+                    E_USER_WARNING
+                );
+            }
         }
 
         # Apply security headers for all (HTTP and HTTPS) connections
