@@ -160,6 +160,24 @@ class SecureHeadersTest extends PHPUnit_Framework_TestCase
         $this->assertContains('Set-Cookie: authcookie=value; Secure; HttpOnly; SameSite=Strict', $headersString);
     }
 
+    public function testStrictDynamicInjectableForNonInternalPolicy()
+    {
+        $headerStrings = new StringHttpAdapter(array(
+            "Content-Security-Policy: script-src 'nonce-abcdefg+123456'"
+        ));
+
+        $headers = new SecureHeaders($headerStrings);
+        $headers->errorReporting(false);
+
+        $headers->strictMode();
+
+        $headers->done();
+
+        $headersString = $headerStrings->getSentHeaders();
+
+        $this->assertContains("Content-Security-Policy: script-src 'nonce-abcdefg+123456' 'strict-dynamic'", $headersString);
+    }
+
     public function testFourDefaultHeadersAreAdded()
     {
         $headerStrings = new StringHttpAdapter;
