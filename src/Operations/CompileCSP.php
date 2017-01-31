@@ -55,7 +55,7 @@ class CompileCSP implements Operation
                         = self::deconstructCSP($otherPolicy->getValue());
                 }
 
-                $this->{$type.'Config'} = $this->mergeCSPList($policies);
+                $this->{$type.'Config'} = self::mergeCSPList($policies);
             }
 
             $value = $this->{'compile'.strtoupper($type)}();
@@ -96,10 +96,16 @@ class CompileCSP implements Operation
 
         foreach ($config as $directive => $sources)
         {
-            if (is_array($sources)) {
+            if (is_array($sources))
+            {
+                self::removeEmptySources($sources);
+
                 array_unshift($sources, $directive);
+
                 $pieces[] = implode(' ', $sources);
-            } else {
+            }
+            else
+            {
                 $pieces[] = $directive;
             }
         }
@@ -130,12 +136,9 @@ class CompileCSP implements Operation
             {
                 $sourcesString = $list[1];
 
-                $sources = array_filter(
-                    explode(' ', $sourcesString),
-                    function($source) {
-                        return $source !== '';
-                    }
-                );
+                $sources = explode(' ', $sourcesString);
+
+                self::removeEmptySources($sources);
             }
             else
             {
@@ -148,7 +151,17 @@ class CompileCSP implements Operation
         return $csp;
     }
 
-    private function mergeCSPList(array $cspList)
+    private static function removeEmptySources(array &$sources)
+    {
+        $sources = array_filter(
+            $sources,
+            function($source) {
+                return $source !== '';
+            }
+        );
+    }
+
+    public static function mergeCSPList(array $cspList)
     {
         $finalCSP = array();
 
