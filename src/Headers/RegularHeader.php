@@ -1,10 +1,11 @@
 <?php
 
-namespace Aidantwoods\SecureHeaders;
+namespace Aidantwoods\SecureHeaders\Headers;
 
 use InvalidArgumentException;
+use Aidantwoods\SecureHeaders\HeaderTemplate;
 
-class RegularHeader
+class RegularHeader implements HeaderTemplate
 {
     protected $name;
     protected $value;

@@ -1,11 +1,12 @@
 <?php
 
-namespace Aidantwoods\SecureHeaders;
+namespace Aidantwoods\SecureHeaders\Headers;
 
 use InvalidArgumentException;
+use Aidantwoods\SecureHeaders\HeaderTemplate;
 use Aidantwoods\SecureHeaders\Operations\CompileCSP;
 
-class CSPHeader extends RegularHeader
+class CSPHeader extends RegularHeader implements HeaderTemplate
 {
     protected function parseAttributes()
     {

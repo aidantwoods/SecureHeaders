@@ -3,7 +3,7 @@
 namespace Aidantwoods\SecureHeaders;
 
 use InvalidArgumentException;
-use Aidantwoods\SecureHeaders\RegularHeader;
+use Aidantwoods\SecureHeaders\Headers\RegularHeader;
 
 class Header
 {
@@ -19,7 +19,7 @@ class Header
         {
             if (strpos(strtolower($name), $substring) !== false)
             {
-                $subClass = __NAMESPACE__."\\$subClass";
+                $subClass = __NAMESPACE__."\\Headers\\$subClass";
 
                 $this->instance = new $subClass($name, $value);
 
