@@ -44,6 +44,10 @@ class CSPHeader extends RegularHeader
                 {
                     $string = $directive;
                 }
+                elseif ( ! is_string($value) or trim($value) === '')
+                {
+                    continue;
+                }
                 else
                 {
                     $string = "$directive $value";
@@ -58,5 +62,22 @@ class CSPHeader extends RegularHeader
         $policy = CompileCSP::mergeCSPList($policies);
 
         $this->value = CompileCSP::compile($policy);
+    }
+
+    public function setAttribute($name, $value = true)
+    {
+        $key = strtolower($name);
+
+        if ( ! isset($this->attributes[$key]))
+        {
+            $this->attributes[$key] = array();
+        }
+
+        $this->attributes[$key][] = array(
+            'name' => $name,
+            'value' => $value
+        );
+
+        $this->writeAttributesToValue();
     }
 }
