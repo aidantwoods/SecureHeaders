@@ -29,12 +29,10 @@ class CSPHeader extends RegularHeader
 
     protected function writeAttributesToValue()
     {
-        $attributeStrings = array();
+        $policies = array();
 
         foreach ($this->attributes as $attributes)
         {
-            $policies = array();
-
             foreach ($attributes as $attrInfo)
             {
                 $directive = $attrInfo['name'];

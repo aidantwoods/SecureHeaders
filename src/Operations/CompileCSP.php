@@ -99,6 +99,7 @@ class CompileCSP implements Operation
             if (is_array($sources))
             {
                 self::removeEmptySources($sources);
+                self::removeDuplicateSources($sources);
 
                 array_unshift($sources, $directive);
 
@@ -159,6 +160,11 @@ class CompileCSP implements Operation
                 return $source !== '';
             }
         );
+    }
+
+    private static function removeDuplicateSources(array &$sources)
+    {
+        $sources = array_unique($sources, SORT_REGULAR);
     }
 
     public static function mergeCSPList(array $cspList)

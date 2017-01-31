@@ -11,16 +11,16 @@ class ModifyHeader implements Operation
     private $header;
     private $field;
     private $value;
-    private $modifyAll;
+    private $modifyIfExists;
 
     private $matchSubstring = false;
 
-    public function __construct($headerName, $field, $value = true, $modifyAll = false)
+    public function __construct($headerName, $field, $value = true, $modifyIfExists = false)
     {
         $this->header = $headerName;
         $this->field = $field;
         $this->value = $value;
-        $this->modifyAll = $modifyAll;
+        $this->modifyIfExists = $modifyIfExists;
     }
 
     /**
@@ -33,11 +33,9 @@ class ModifyHeader implements Operation
     {
         foreach ($headers->getByName($this->header) as $header)
         {
-            $header->setAttribute($this->field, $this->value);
-
-            if ( ! $this->modifyAll)
+            if ( ! $this->modifyIfExists or $header->hasAttribute($this->field))
             {
-                break;
+                $header->setAttribute($this->field, $this->value);
             }
         }
     }
