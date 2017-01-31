@@ -40,8 +40,8 @@ use Aidantwoods\SecureHeaders\Operations\ApplySafeMode;
 use Aidantwoods\SecureHeaders\Operations\CompileCSP;
 use Aidantwoods\SecureHeaders\Operations\CompileHPKP;
 use Aidantwoods\SecureHeaders\Operations\CompileHSTS;
+use Aidantwoods\SecureHeaders\Operations\InjectStrictDynamic;
 use Aidantwoods\SecureHeaders\Operations\ModifyCookies;
-use Aidantwoods\SecureHeaders\Operations\ModifyHeader;
 use Aidantwoods\SecureHeaders\Operations\RemoveHeaders;
 use Aidantwoods\SecureHeaders\Util\Types;
 
@@ -980,26 +980,7 @@ class SecureHeaders{
 
         if ($this->strictMode)
         {
-            $directive = $this->canInjectStrictDynamic();
-
-            if (is_string($directive))
-            {
-                $operations[] = new ModifyHeader(
-                    'Content-Security-Policy',
-                    $directive,
-                    "'strict-dynamic'",
-                    true
-                );
-            }
-            else if ($directive !== -1)
-            {
-                $this->addError(
-                    "<b>Strict-Mode</b> is enabled, but <b>'strict-dynamic'</b>
-                        could not be added to the Content-Security-Policy
-                        because no hash or nonce was used.",
-                    E_USER_WARNING
-                );
-            }
+            $operations[] = new InjectStrictDynamic($this->allowedCSPHashAlgs);
         }
 
         return $operations;
@@ -1561,44 +1542,6 @@ class SecureHeaders{
         }
 
         restore_error_handler();
-    }
-
-    private function canInjectStrictDynamic()
-    {
-        # check if a relevant directive exists
-        if (
-            isset($this->csp[$directive = 'script-src'])
-            or isset($this->csp[$directive = 'default-src'])
-        ) {
-            if (
-                isset($this->csp[$directive]["'strict-dynamic'"])
-                or isset($this->csp[$directive]["'none'"])
-            ) {
-                return -1;
-            }
-
-            $nonceOrHashRe = implode(
-                '|',
-                array_merge(
-                    array('nonce'),
-                    $this->allowedCSPHashAlgs
-                )
-            );
-
-            # if the directive contains a nonce or hash, return the directive
-            # that strict-dynamic should be injected into
-            $nonceOrHash = preg_grep(
-                "/^'(?:$nonceOrHashRe)-/i",
-                array_keys($this->csp[$directive])
-            );
-
-            if ( ! empty($nonceOrHash))
-            {
-                return $directive;
-            }
-        }
-
-        return false;
     }
 
     private function injectableSameSiteValue()
