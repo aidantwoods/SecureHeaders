@@ -4,8 +4,6 @@ namespace Aidantwoods\SecureHeaders;
 
 interface Header
 {
-    public function __construct($name, $value = '');
-
     public function getName();
 
     public function getFriendlyName();
