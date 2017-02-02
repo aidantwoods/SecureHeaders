@@ -23,12 +23,9 @@ class HeaderFactory
         {
             $class = "$namespace\\$class";
 
-            foreach ($headerNames as $headerName)
+            if (in_array(strtolower($name), $headerNames, true))
             {
-                if (strtolower($name) === $headerName)
-                {
-                    return new $class($name, $value);
-                }
+                return new $class($name, $value);
             }
         }
 
