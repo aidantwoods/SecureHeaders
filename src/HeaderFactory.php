@@ -7,18 +7,28 @@ use Aidantwoods\SecureHeaders\Headers\RegularHeader;
 class HeaderFactory
 {
     private static $memberClasses = array(
-        'content-security-policy'   => 'CSPHeader'
+        'CSPHeader' => array(
+            'content-security-policy',
+            'content-security-policy-report-only',
+            'x-content-security-policy',
+            'x-content-security-policy-report-only'
+        )
     );
 
     public static function build($name, $value = '')
     {
-        foreach (self::$memberClasses as $substring => $class)
-        {
-            if (strpos(strtolower($name), $substring) !== false)
-            {
-                $class = __NAMESPACE__."\\Headers\\$class";
+        $namespace = __NAMESPACE__.'\\Headers';
 
-                return new $class($name, $value);
+        foreach (self::$memberClasses as $class => $headerNames)
+        {
+            $class = "$namespace\\$class";
+
+            foreach ($headerNames as $headerName)
+            {
+                if (strtolower($name) === $headerName)
+                {
+                    return new $class($name, $value);
+                }
             }
         }
 
