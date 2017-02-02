@@ -2,11 +2,12 @@
 
 namespace Aidantwoods\SecureHeaders\Operations;
 
+use Aidantwoods\SecureHeaders\Error;
 use Aidantwoods\SecureHeaders\Header;
 use Aidantwoods\SecureHeaders\HeaderBag;
 use Aidantwoods\SecureHeaders\Operation;
 
-class InjectStrictDynamic implements Operation
+class InjectStrictDynamic extends OperationWithErrors implements Operation
 {
     private $allowedCSPHashAlgs;
 
@@ -23,6 +24,8 @@ class InjectStrictDynamic implements Operation
      */
     public function modify(HeaderBag &$headers)
     {
+        $this->clearErrors();
+
         $CSPHeaders = $headers->getByName('content-security-policy');
 
         if (isset($CSPHeaders[0]))
@@ -37,12 +40,12 @@ class InjectStrictDynamic implements Operation
             }
             else if ($directive !== -1)
             {
-                // $this->addError(
-                //     "<b>Strict-Mode</b> is enabled, but <b>'strict-dynamic'</b>
-                //         could not be added to the Content-Security-Policy
-                //         because no hash or nonce was used.",
-                //     E_USER_WARNING
-                // );
+                $this->addError(
+                    "<b>Strict-Mode</b> is enabled, but <b>'strict-dynamic'</b>
+                        could not be added to the Content-Security-Policy
+                        because no hash or nonce was used.",
+                    E_USER_WARNING
+                );
             }
         }
     }

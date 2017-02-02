@@ -2,11 +2,12 @@
 
 namespace Aidantwoods\SecureHeaders\Operations;
 
+use Aidantwoods\SecureHeaders\Error;
 use Aidantwoods\SecureHeaders\Header;
 use Aidantwoods\SecureHeaders\HeaderBag;
 use Aidantwoods\SecureHeaders\Operation;
 
-class ApplySafeMode implements Operation
+class ApplySafeMode extends OperationWithErrors implements Operation
 {
     private static $unsafeHeaders = array(
         'strict-transport-security' => 'sanitizeSTS',
@@ -28,6 +29,8 @@ class ApplySafeMode implements Operation
      */
     public function modify(HeaderBag &$headers)
     {
+        $this->clearErrors();
+
         foreach ($headers->get() as $header) {
             $headerName = $header->getName();
 
@@ -52,18 +55,16 @@ class ApplySafeMode implements Operation
         $header->removeAttribute('preload');
 
         if ($header->getValue() !== $origValue) {
-            /*$this->warn(
+            $this->addError(
                 'HSTS settings were overridden because Safe-Mode is enabled.
-                <a href="
-                https://scotthelme.co.uk/death-by-copy-paste/#hstsandpreloading">
-                Read about</a> some common mistakes when setting HSTS via
-                copy/paste, and ensure you
-                <a href="
-                https://www.owasp.org/index.php/
-                HTTP_Strict_Transport_Security_Cheat_Sheet">
-                understand the details</a> and possible side effects of this
-                security feature before using it.'
-            );*/
+                <a href="https://scotthelme.co.uk/death-by-copy-paste/\
+                #hstsandpreloading">Read about</a> some common mistakes when
+                setting HSTS via copy/paste, and ensure you
+                <a href="https://www.owasp.org/index.php/\
+                HTTP_Strict_Transport_Security_Cheat_Sheet">understand the
+                details</a> and possible side effects of this security feature
+                before using it.'
+            );
         }
     }
 
@@ -76,9 +77,9 @@ class ApplySafeMode implements Operation
         $header->removeAttribute('includeSubDomains');
 
         if ($header->getValue() !== $origValue) {
-            /*$this->warn(
+            $this->addError(
                 'Some HPKP settings were overridden because Safe-Mode is enabled.'
-            );*/
+            );
         }
     }
 }

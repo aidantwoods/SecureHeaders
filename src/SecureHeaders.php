@@ -42,6 +42,7 @@ use Aidantwoods\SecureHeaders\Operations\CompileHPKP;
 use Aidantwoods\SecureHeaders\Operations\CompileHSTS;
 use Aidantwoods\SecureHeaders\Operations\InjectStrictDynamic;
 use Aidantwoods\SecureHeaders\Operations\ModifyCookies;
+use Aidantwoods\SecureHeaders\Operations\OperationWithErrors;
 use Aidantwoods\SecureHeaders\Operations\RemoveHeaders;
 use Aidantwoods\SecureHeaders\Util\Types;
 
@@ -867,6 +868,14 @@ class SecureHeaders{
         foreach ($this->pipeline() as $operation)
         {
             $operation->modify($headers);
+
+            if ($operation instanceof OperationWithErrors)
+            {
+                $this->errors = array_merge(
+                    $this->errors,
+                    $operation->collectErrors()
+                );
+            }
         }
 
         $http->sendHeaders($headers);
@@ -973,14 +982,14 @@ class SecureHeaders{
         # Remove all headers that were configured to be removed
         $operations[] = new RemoveHeaders(array_keys($this->removedHeaders));
 
-        if ($this->safeMode)
-        {
-            $operations[] = new ApplySafeMode($this->safeModeExceptions);
-        }
-
         if ($this->strictMode)
         {
             $operations[] = new InjectStrictDynamic($this->allowedCSPHashAlgs);
+        }
+
+        if ($this->safeMode)
+        {
+            $operations[] = new ApplySafeMode($this->safeModeExceptions);
         }
 
         return $operations;
@@ -1513,17 +1522,13 @@ class SecureHeaders{
     # ~~
     # private functions: general
 
-    private function addError($message, $error = E_USER_NOTICE)
+    private function addError($message, $level = E_USER_NOTICE)
     {
         Types::assert(
-            array('string' => array($message), 'int' => array($error))
+            array('string' => array($message), 'int' => array($level))
         );
 
-        $message = preg_replace('/[\\\]\n\s*/', '', $message);
-
-        $message = preg_replace('/\s+/', ' ', $message);
-
-        $this->errors[] = array($message, $error);
+        $this->errors[] = new Error($message, $level);
     }
 
     private function reportErrors()
@@ -1534,11 +1539,9 @@ class SecureHeaders{
 
         if ( ! empty($this->errors)) $this->isBufferReturned = true;
 
-        foreach ($this->errors as $msgLevel)
+        foreach ($this->errors as $error)
         {
-            list($message, $level) = $msgLevel;
-
-            trigger_error($message, $level);
+            trigger_error($error->getMessage(), $error->getLevel());
         }
 
         restore_error_handler();
