@@ -74,7 +74,7 @@ class InjectStrictDynamic implements Operation
             # if the directive contains a nonce or hash, return the directive
             # that strict-dynamic should be injected into
             $containsNonceOrHash = preg_match(
-                "/^'(?:$nonceOrHashRe)-/i",
+                "/(?:^|\s)'(?:$nonceOrHashRe)-/i",
                 $header->getAttributeValue($directive)
             );
 
