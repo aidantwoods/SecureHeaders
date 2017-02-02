@@ -10,15 +10,13 @@ class HeaderFactory
         'content-security-policy'   => 'CSPHeader'
     );
 
-    private static $memberNamespace = __NAMESPACE__.'\\Headers';
-
     public static function build($name, $value = '')
     {
         foreach (self::$memberClasses as $substring => $class)
         {
             if (strpos(strtolower($name), $substring) !== false)
             {
-                $class = self::$memberNamespace."\\$class";
+                $class = __NAMESPACE__."\\Headers\\$class";
 
                 return new $class($name, $value);
             }
