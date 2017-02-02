@@ -173,32 +173,6 @@ class SecureHeaders{
         'sha256'
     );
 
-    private $safeModeUnsafeHeaders  = array(
-        'strict-transport-security' =>
-            array(
-                'max-age'           => 86400,
-                'includesubdomains' => false,
-                'preload'           => false,
-
-                'HSTS settings were overridden because Safe-Mode is enabled.
-                <a href="https://scotthelme.co.uk/death-by-copy-paste/\
-                #hstsandpreloading">Read about</a> some common mistakes when
-                setting HSTS via copy/paste, and ensure you
-                <a href="https://www.owasp.org/index.php/\
-                HTTP_Strict_Transport_Security_Cheat_Sheet">
-                understand the details</a> and possible side effects of this
-                security feature before using it.'
-            ),
-        'public-key-pins' =>
-            array(
-                'max-age'           => 10,
-                'includesubdomains' => false,
-
-                'Some HPKP settings were overridden because Safe-Mode is
-                 enabled.'
-            )
-    );
-
     private $reportMissingHeaders   = array(
         'Strict-Transport-Security',
         'Content-Security-Policy',
