@@ -3,9 +3,9 @@
 namespace Aidantwoods\SecureHeaders\Headers;
 
 use InvalidArgumentException;
-use Aidantwoods\SecureHeaders\HeaderTemplate;
+use Aidantwoods\SecureHeaders\Header;
 
-class RegularHeader implements HeaderTemplate
+class RegularHeader implements Header
 {
     protected $name;
     protected $value;

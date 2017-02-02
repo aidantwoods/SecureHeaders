@@ -49,14 +49,14 @@ class HeaderBag
         $key = strtolower($name);
         if ( ! array_key_exists($key, $this->headers)) $this->headers[$key] = array();
 
-        $this->headers[$key][] = new Header($name, $value);
+        $this->headers[$key][] = HeaderFactory::build($name, $value);
     }
 
     public function replace($name, $value = '')
     {
         Types::assert(array('string' => array($name, $value)));
 
-        $header = new Header($name, $value);
+        $header = HeaderFactory::build($name, $value);
         $this->headers[strtolower($name)] = array($header);
     }
 

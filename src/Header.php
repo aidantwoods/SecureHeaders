@@ -2,49 +2,33 @@
 
 namespace Aidantwoods\SecureHeaders;
 
-use InvalidArgumentException;
-use Aidantwoods\SecureHeaders\Headers\RegularHeader;
-
-class Header
+interface Header
 {
-    private static $subClasses = array(
-        'content-security-policy'   => 'CSPHeader'
-    );
+    public function __construct($name, $value = '');
 
-    private $instance;
+    public function getName();
 
-    public function __construct($name, $value = '')
-    {
-        foreach (self::$subClasses as $substring => $subClass)
-        {
-            if (strpos(strtolower($name), $substring) !== false)
-            {
-                $subClass = __NAMESPACE__."\\Headers\\$subClass";
+    public function getFriendlyName();
 
-                $this->instance = new $subClass($name, $value);
+    public function is($name);
 
-                break;
-            }
-        }
+    public function getValue();
 
-        if ( ! isset($this->instance))
-        {
-            $this->instance = new RegularHeader($name, $value);
-        }
-    }
+    public function setValue($newValue);
 
-    public function __call($method, $args) {
-       return call_user_func_array(
-           array(
-               $this->instance,
-               $method
-            ),
-           $args
-        );
-    }
+    public function getFirstAttributeName();
 
-    public function __toString()
-    {
-        return (string) $this->instance;
-    }
+    public function getAttributeValue($name);
+
+    public function hasAttribute($name);
+
+    public function removeAttribute($name);
+
+    public function ensureAttributeMaximum($name, $maxValue);
+
+    public function setAttribute($name, $value = true);
+
+    public function forEachAttribute($callback);
+
+    public function __toString();
 }
