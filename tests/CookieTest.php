@@ -16,10 +16,10 @@ class CookieTest extends PHPUnit_Framework_TestCase
             'Set-Cookie: authcookie=value2',
         ));
 
-        $headers = new SecureHeaders($headerStrings);
+        $headers = new SecureHeaders;
         $headers->errorReporting(false);
 
-        $headers->done();
+        $headers->apply($headerStrings);
 
         $headersString = $headerStrings->getSentHeaders();
 
@@ -33,12 +33,12 @@ class CookieTest extends PHPUnit_Framework_TestCase
             'Set-Cookie: authcookie=value'
         ));
 
-        $headers = new SecureHeaders($headerStrings);
+        $headers = new SecureHeaders;
         $headers->errorReporting(false);
 
         $headers->auto(SecureHeaders::AUTO_ALL & ~SecureHeaders::AUTO_COOKIE_SAMESITE);
 
-        $headers->done();
+        $headers->apply($headerStrings);
 
         $headersString = $headerStrings->getSentHeaders();
 
@@ -51,14 +51,14 @@ class CookieTest extends PHPUnit_Framework_TestCase
             'Set-Cookie: authcookie=value'
         ));
 
-        $headers = new SecureHeaders($headerStrings);
+        $headers = new SecureHeaders;
         $headers->errorReporting(false);
 
         $headers->auto(SecureHeaders::AUTO_ALL & ~SecureHeaders::AUTO_COOKIE_SAMESITE);
 
         $headers->strictMode();
 
-        $headers->done();
+        $headers->apply($headerStrings);
 
         $headersString = $headerStrings->getSentHeaders();
 
@@ -71,12 +71,12 @@ class CookieTest extends PHPUnit_Framework_TestCase
             'Set-Cookie: authcookie=value'
         ));
 
-        $headers = new SecureHeaders($headerStrings);
+        $headers = new SecureHeaders;
         $headers->errorReporting(false);
 
         $headers->strictMode();
 
-        $headers->done();
+        $headers->apply($headerStrings);
 
         $headersString = $headerStrings->getSentHeaders();
 
@@ -89,13 +89,13 @@ class CookieTest extends PHPUnit_Framework_TestCase
             'Set-Cookie: authcookie=value'
         ));
 
-        $headers = new SecureHeaders($headerStrings);
+        $headers = new SecureHeaders;
         $headers->errorReporting(false);
 
         $headers->sameSiteCookies('lax');
         $headers->strictMode();
 
-        $headers->done();
+        $headers->apply($headerStrings);
 
         $headersString = $headerStrings->getSentHeaders();
 
@@ -108,12 +108,12 @@ class CookieTest extends PHPUnit_Framework_TestCase
             'Set-Cookie: authcookie=value'
         ));
 
-        $headers = new SecureHeaders($headerStrings);
+        $headers = new SecureHeaders;
         $headers->errorReporting(false);
 
         $headers->sameSiteCookies('lax');
 
-        $headers->done();
+        $headers->apply($headerStrings);
 
         $headersString = $headerStrings->getSentHeaders();
 
@@ -126,12 +126,12 @@ class CookieTest extends PHPUnit_Framework_TestCase
             'Set-Cookie: authcookie=value'
         ));
 
-        $headers = new SecureHeaders($headerStrings);
+        $headers = new SecureHeaders;
         $headers->errorReporting(false);
 
         $headers->sameSiteCookies('strict');
 
-        $headers->done();
+        $headers->apply($headerStrings);
 
         $headersString = $headerStrings->getSentHeaders();
 

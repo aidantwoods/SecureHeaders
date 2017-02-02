@@ -78,10 +78,10 @@ class SafeModeTest extends PHPUnit_Framework_TestCase
      */
     public function testSafeMode($test, $assertions)
     {
-        $headers = new SecureHeaders($headerStrings = new StringHttpAdapter);
+        $headers = new SecureHeaders;
         $headers->errorReporting(false);
         $test($headers);
-        $headers->done();
+        $headers->apply($headerStrings = new StringHttpAdapter);
 
         $headersString = $headerStrings->getSentHeaders();
 

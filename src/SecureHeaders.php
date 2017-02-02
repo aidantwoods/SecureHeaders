@@ -53,11 +53,6 @@ class SecureHeaders{
     const version = '2.0.0';
 
     # ~~
-    # injected attributes
-
-    protected $httpAdapter;
-
-    # ~~
     # protected variables: settings
 
     protected $errorReporting           = true;
@@ -104,8 +99,6 @@ class SecureHeaders{
 
     # ~~
     # private variables: (non settings)
-
-    private $headers;
 
     private $removedHeaders     = array();
 
@@ -264,17 +257,6 @@ class SecureHeaders{
 
     # ~~
     # Public Functions
-
-    public function __construct(HttpAdapter $httpAdapter = null)
-    {
-        if (is_null($httpAdapter))
-        {
-            $httpAdapter = new GlobalHttpAdapter();
-        }
-
-        $this->httpAdapter = $httpAdapter;
-        $this->headers = new HeaderBag;
-    }
 
     public function doneOnOutput($mode = true)
     {
@@ -851,17 +833,18 @@ class SecureHeaders{
 
     public function done()
     {
-        // TODO: Move this elsewhere!
-
-        $finalHeaders = $this->apply($this->httpAdapter);
-
-        $this->reportMissingHeaders($finalHeaders);
-        $this->validateHeaders($finalHeaders);
-        $this->reportErrors();
+        return $this->apply();
     }
 
-    public function apply(HttpAdapter $http)
+    public function apply(HttpAdapter $http = null)
     {
+        // For ease of use, we allow calling this method without an adapter,
+        // which will cause the headers to be sent with PHP's global methods.
+        if (is_null($http))
+        {
+            $http = new GlobalHttpAdapter();
+        }
+
         $headers = $http->getHeaders();
 
         foreach ($this->pipeline() as $operation)
@@ -870,6 +853,10 @@ class SecureHeaders{
         }
 
         $http->sendHeaders($headers);
+
+        $this->reportMissingHeaders($headers);
+        $this->validateHeaders($headers);
+        $this->reportErrors();
 
         return $headers;
     }

@@ -14,12 +14,12 @@ class CSPTest extends PHPUnit_Framework_TestCase
             "Content-Security-Policy: script-src 'nonce-abcdefg+123456'"
         ));
 
-        $headers = new SecureHeaders($headerStrings);
+        $headers = new SecureHeaders;
         $headers->errorReporting(false);
 
         $headers->strictMode();
 
-        $headers->done();
+        $headers->apply($headerStrings);
 
         $headersString = $headerStrings->getSentHeaders();
 
@@ -33,12 +33,12 @@ class CSPTest extends PHPUnit_Framework_TestCase
             "Content-Security-Policy: block-all-mixed-content; img-src 'self' https://cdn.net"
         ));
 
-        $headers = new SecureHeaders($headerStrings);
+        $headers = new SecureHeaders;
         $headers->errorReporting(false);
 
         $headers->csp('script', 'https://another.domain.example.com');
 
-        $headers->done();
+        $headers->apply($headerStrings);
 
         $headersString = $headerStrings->getSentHeaders();
 
