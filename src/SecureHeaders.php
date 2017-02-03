@@ -102,7 +102,6 @@ class SecureHeaders{
 
     private $removedHeaders     = array();
 
-    private $cookies            = array();
     private $removedCookies     = array();
 
     private $errors             = array();
@@ -415,8 +414,6 @@ class SecureHeaders{
     public function removeCookie($name)
     {
         Types::assert(array('string' => array($name)));
-
-        unset($this->cookies[$name]);
 
         $this->removedCookies[strtolower($name)] = true;
     }
