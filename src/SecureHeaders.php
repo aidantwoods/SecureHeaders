@@ -214,20 +214,20 @@ class SecureHeaders{
 
     # auto-headers
 
-    const AUTO_ADD              =  1; # 0b00001
-    const AUTO_REMOVE           =  2; # 0b00010
-    const AUTO_COOKIE_SECURE    =  4; # 0b00100
-    const AUTO_COOKIE_HTTPONLY  =  8; # 0b01000
-    const AUTO_COOKIE_SAMESITE  = 16; # 0b10000
-    const AUTO_ALL              = 31; # 0b11111
+    const AUTO_ADD              = 0b00001;
+    const AUTO_REMOVE           = 0b00010;
+    const AUTO_COOKIE_SECURE    = 0b00100;
+    const AUTO_COOKIE_HTTPONLY  = 0b01000;
+    const AUTO_COOKIE_SAMESITE  = 0b10000;
+    const AUTO_ALL              = 0b11111;
 
     # cookie upgrades
 
-    const COOKIE_NAME           =  1; # 0b00001
-    const COOKIE_SUBSTR         =  2; # 0b00010
-    const COOKIE_ALL            =  3; # COOKIE_NAME | COOKIE_SUBSTR
-    const COOKIE_REMOVE         =  4; # 0b00100
-    const COOKIE_DEFAULT        =  2; # ~COOKIE_REMOVE & COOKIE_SUBSTR
+    const COOKIE_NAME           = 0b00001;
+    const COOKIE_SUBSTR         = 0b00010;
+    const COOKIE_ALL            = 0b00011; # COOKIE_NAME | COOKIE_SUBSTR
+    const COOKIE_REMOVE         = 0b00100;
+    const COOKIE_DEFAULT        = 0b00010; # ~COOKIE_REMOVE & COOKIE_SUBSTR
 
     # ~~
     # Public Functions
