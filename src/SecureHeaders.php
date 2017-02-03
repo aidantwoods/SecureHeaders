@@ -54,11 +54,6 @@ class SecureHeaders{
     const version = '2.0.0';
 
     # ~~
-    # injected attributes
-
-    protected $httpAdapter;
-
-    # ~~
     # protected variables: settings
 
     protected $errorReporting           = true;
@@ -106,11 +101,8 @@ class SecureHeaders{
     # ~~
     # private variables: (non settings)
 
-    private $headers;
-
     private $removedHeaders     = array();
 
-    private $cookies            = array();
     private $removedCookies     = array();
 
     private $errors             = array();
@@ -131,7 +123,7 @@ class SecureHeaders{
 
     private $isBufferReturned   = false;
 
-    private $doneOnOutput       = false;
+    private $applyOnOutput      = null;
 
     # private variables: (pre-defined static structures)
 
@@ -179,32 +171,6 @@ class SecureHeaders{
 
     private $allowedHPKPAlgs        = array(
         'sha256'
-    );
-
-    private $safeModeUnsafeHeaders  = array(
-        'strict-transport-security' =>
-            array(
-                'max-age'           => 86400,
-                'includesubdomains' => false,
-                'preload'           => false,
-
-                'HSTS settings were overridden because Safe-Mode is enabled.
-                <a href="https://scotthelme.co.uk/death-by-copy-paste/\
-                #hstsandpreloading">Read about</a> some common mistakes when
-                setting HSTS via copy/paste, and ensure you
-                <a href="https://www.owasp.org/index.php/\
-                HTTP_Strict_Transport_Security_Cheat_Sheet">
-                understand the details</a> and possible side effects of this
-                security feature before using it.'
-            ),
-        'public-key-pins' =>
-            array(
-                'max-age'           => 10,
-                'includesubdomains' => false,
-
-                'Some HPKP settings were overridden because Safe-Mode is
-                 enabled.'
-            )
     );
 
     private $reportMissingHeaders   = array(
@@ -266,30 +232,22 @@ class SecureHeaders{
     # ~~
     # Public Functions
 
-    public function __construct(HttpAdapter $httpAdapter = null)
+    public function applyOnOutput(HttpAdapter $http = null, $mode = true)
     {
-        if (is_null($httpAdapter))
+        if ($mode == true)
         {
-            $httpAdapter = new GlobalHttpAdapter();
+            if ($this->applyOnOutput === null)
+            {
+                ob_start(array($this, 'returnBuffer'));
+            }
+
+            $this->applyOnOutput = $http;
         }
-
-        $this->httpAdapter = $httpAdapter;
-        $this->headers = new HeaderBag;
-    }
-
-    public function doneOnOutput($mode = true)
-    {
-        if ($mode == true and $this->doneOnOutput === false)
-        {
-            ob_start(array($this, 'returnBuffer'));
-
-            $this->doneOnOutput = true;
-        }
-        elseif ($this->doneOnOutput === true)
+        elseif ($this->applyOnOutput !== null)
         {
             ob_end_clean();
 
-            $this->doneOnOutput = false;
+            $this->applyOnOutput = null;
         }
     }
 
@@ -460,8 +418,6 @@ class SecureHeaders{
     public function removeCookie($name)
     {
         Types::assert(array('string' => array($name)));
-
-        unset($this->cookies[$name]);
 
         $this->removedCookies[strtolower($name)] = true;
     }
@@ -850,19 +806,15 @@ class SecureHeaders{
     # ~~
     # public functions: general
 
-    public function done()
+    public function apply(HttpAdapter $http = null)
     {
-        // TODO: Move this elsewhere!
+        // For ease of use, we allow calling this method without an adapter,
+        // which will cause the headers to be sent with PHP's global methods.
+        if (is_null($http))
+        {
+            $http = new GlobalHttpAdapter();
+        }
 
-        $finalHeaders = $this->apply($this->httpAdapter);
-
-        $this->reportMissingHeaders($finalHeaders);
-        $this->validateHeaders($finalHeaders);
-        $this->reportErrors();
-    }
-
-    public function apply(HttpAdapter $http)
-    {
         $headers = $http->getHeaders();
 
         foreach ($this->pipeline() as $operation)
@@ -879,6 +831,10 @@ class SecureHeaders{
         }
 
         $http->sendHeaders($headers);
+
+        $this->reportMissingHeaders($headers);
+        $this->validateHeaders($headers);
+        $this->reportErrors();
 
         return $headers;
     }
@@ -1005,7 +961,7 @@ class SecureHeaders{
     {
         if ($this->isBufferReturned) return $buffer;
 
-        $this->done();
+        $this->apply($this->applyOnOutput);
 
         if (ob_get_level() and ! empty($this->errorString))
         {
@@ -1025,165 +981,7 @@ class SecureHeaders{
     # Private Functions
 
     # ~~
-    # private functions: raw headers
-
-    private function importCSP($headerValue, $reportOnly)
-    {
-        Types::assert(
-            array(
-                'string' => array($headerValue),
-                'bool' => array($reportOnly)
-            )
-        );
-
-        $directives = $this->deconstructHeaderValue(
-            $headerValue,
-            'content-security-policy'
-        );
-
-        $csp = array();
-
-        foreach ($directives as $directive => $sourceString)
-        {
-            $sources = explode(' ', $sourceString);
-
-            if ( ! empty($sources) and ! is_bool($sourceString))
-            {
-                $csp[$directive] = $sources;
-            }
-            else
-            {
-                $csp[] = $directive;
-            }
-        }
-
-        $this->csp($csp, $reportOnly);
-    }
-
-    private function importHSTS($headerValue)
-    {
-        Types::assert(array('string' => array($headerValue)));
-
-        $hsts = $this->deconstructHeaderValue($headerValue);
-
-        $settings
-            = $this->safeModeUnsafeHeaders['strict-transport-security'];
-
-        foreach ($settings as $setting => $default)
-        {
-            if ( ! isset($hsts[$setting]))
-            {
-                $hsts[$setting] = $default;
-            }
-        }
-
-        $this->hsts(
-            $hsts['max-age'],
-            $hsts['includesubdomains'],
-            $hsts['preload']
-        );
-    }
-
-    private function importHPKP($headerValue, $reportOnly = null)
-    {
-        Types::assert(
-            array(
-                'string' => array($headerValue),
-                'bool' => array($reportOnly)
-            )
-        );
-
-        $hpkp = $this->deconstructHeaderValue(
-            $headerValue,
-            'public-key-pins'
-        );
-
-        if (empty($hpkp['pin'])) return;
-
-        $settings = $this->safeModeUnsafeHeaders['public-key-pins'];
-        if ( ! isset($settings['report-uri'])) $settings['report-uri'] = null;
-
-        foreach ($settings as $setting => $default)
-        {
-            if ( ! isset($hpkp[$setting]))
-            {
-                $hpkp[$setting] = $default;
-            }
-        }
-
-        $this->hpkp(
-            $hpkp['pin'],
-            $hpkp['max-age'],
-            $hpkp['includesubdomains'],
-            $hpkp['report-uri']
-        );
-    }
-
-    private function deconstructHeaderValue(
-        $header = null,
-        $name = null,
-        $getPosition = null
-    ) {
-        Types::assert(
-            array(
-                'string' => array($header, $name),
-                'bool' => array($getPosition)
-            )
-        );
-
-        if ( empty($header)) return array();
-
-        if ( ! isset($getPosition)) $n = 0;
-        else $n = 1;
-
-        $attributes = array();
-
-        $storeMultipleValues = false;
-
-        if (isset($name) and strpos($name, 'content-security-policy') !== false)
-        {
-            $headerRe = '/($^)|[; ]*([^; ]+)(?:(?:[ ])([^;]+)|)/';
-        }
-        elseif (isset($name) and strpos($name, 'public-key-pins') !== false)
-        {
-            $headerRe = '/["; ]*(?:(pin)-)?([^;=]+)(?:(?:="?)([^;"]+)|)/';
-            $storeMultipleValues = true;
-        }
-        else
-        {
-            $headerRe = '/($^)|[; ]*([^;=]+)(?:(?:=)([^;]+)|)/';
-        }
-
-        if (
-            preg_match_all(
-                $headerRe,
-                $header,
-                $matches,
-                PREG_SET_ORDER | PREG_OFFSET_CAPTURE
-            )
-        ) {
-            foreach ($matches as $match)
-            {
-                if ( ! isset($match[3][0]))
-                {
-                    $match[3][$n] = ($n ? $match[2][$n] : true);
-                }
-
-                if ($storeMultipleValues and ! empty($match[1][0]))
-                {
-                    $attributes[strtolower($match[1][0])]
-                        []= array($match[2][$n], $match[3][$n]);
-                }
-                # don't overwrite an existing entry
-                elseif ( ! isset($attributes[strtolower($match[2][0])]))
-                {
-                    $attributes[strtolower($match[2][0])] = $match[3][$n];
-                }
-            }
-        }
-
-        return $attributes;
-    }
+    # private functions: validation
 
     private function validateHeaders(HeaderBag $headers)
     {
@@ -1226,57 +1024,6 @@ class SecureHeaders{
                 $this->validateCSPAttributes($header);
             }
         );
-    }
-
-    # ~~ private functions: Cookies
-
-    private function addCookie($name, $value = null, $extractCookie = null)
-    {
-        Types::assert(array('string' => array($name, $value)));
-
-        # if extractCookie loosely compares to true, the value will be
-        # extracted from the cookie name e.g. the from the form
-        # ('name=value; attribute=abc; attrib;')
-
-        $cookie = array();
-
-        if ($extractCookie)
-        {
-            if (
-                preg_match_all(
-                    '/[; ]*([^=; ]+)(?:(?:=)([^;]+)|)/',
-                    $name,
-                    $matches,
-                    PREG_SET_ORDER
-                )
-            ) {
-                $name = $matches[0][1];
-
-                if (isset($matches[0][2]))
-                {
-                    $cookie[0] = $matches[0][2];
-                }
-                else
-                {
-                    $cookie[0] = '';
-                }
-
-                unset($matches[0]);
-
-                foreach ($matches as $match)
-                {
-                    if ( ! isset($match[2])) $match[2] = true;
-
-                    $cookie[strtolower($match[1])] = $match[2];
-                }
-            }
-        }
-        else
-        {
-            $cookie[0] = $value;
-        }
-
-        $this->cookies[$name] = $cookie;
     }
 
     # ~~

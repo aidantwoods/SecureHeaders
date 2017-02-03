@@ -22,9 +22,9 @@ class SecureHeadersTest extends PHPUnit_Framework_TestCase
             'X-Foo: Bar',
         ));
 
-        $headers = new SecureHeaders($headerStrings);
+        $headers = new SecureHeaders;
         $headers->errorReporting(false);
-        $headers->done();
+        $headers->apply($headerStrings);
 
         $headersString = $headerStrings->getSentHeaders();
 
@@ -35,9 +35,9 @@ class SecureHeadersTest extends PHPUnit_Framework_TestCase
     {
         $headerStrings = new StringHttpAdapter;
 
-        $headers = new SecureHeaders($headerStrings);
+        $headers = new SecureHeaders;
         $headers->errorReporting(false);
-        $headers->done();
+        $headers->apply($headerStrings);
 
         $headersString = $headerStrings->getSentHeaders();
 
@@ -53,9 +53,9 @@ class SecureHeadersTest extends PHPUnit_Framework_TestCase
             'X-Frame-Options: sameorigin',
         ));
 
-        $headers = new SecureHeaders($headerStrings);
+        $headers = new SecureHeaders;
         $headers->errorReporting(false);
-        $headers->done();
+        $headers->apply($headerStrings);
 
         $headersString = $headerStrings->getSentHeaders();
 
@@ -70,10 +70,10 @@ class SecureHeadersTest extends PHPUnit_Framework_TestCase
     {
         $headerStrings = new StringHttpAdapter;
 
-        $headers = new SecureHeaders($headerStrings);
+        $headers = new SecureHeaders;
         $headers->errorReporting(false);
         $headers->removeHeader('X-XSS-Protection');
-        $headers->done();
+        $headers->apply($headerStrings);
 
         $headersString = $headerStrings->getSentHeaders();
 
