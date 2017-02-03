@@ -42,21 +42,21 @@ class HeaderBag
         return array_key_exists(strtolower($name), $this->headers);
     }
 
-    public function add($name, $value = '', $props = array())
+    public function add($name, $value = '')
     {
         Types::assert(array('string' => array($name, $value)));
 
         $key = strtolower($name);
         if ( ! array_key_exists($key, $this->headers)) $this->headers[$key] = array();
 
-        $this->headers[$key][] = new Header($name, $value, $props);
+        $this->headers[$key][] = HeaderFactory::build($name, $value);
     }
 
-    public function replace($name, $value = '', $props = array())
+    public function replace($name, $value = '')
     {
         Types::assert(array('string' => array($name, $value)));
 
-        $header = new Header($name, $value, $props);
+        $header = HeaderFactory::build($name, $value);
         $this->headers[strtolower($name)] = array($header);
     }
 
@@ -72,6 +72,9 @@ class HeaderBag
         $this->headers = array();
     }
 
+    /**
+     * @return Header[]
+     */
     public function get()
     {
         return array_reduce(
@@ -82,53 +85,27 @@ class HeaderBag
             array()
         );
     }
-}
 
-class Header
-{
-    private $name;
-    private $value;
-    private $props;
-
-    public function __construct($name, $value = '', array $props = array())
+    public function getByName($name)
     {
-        $this->name = $name;
-        $this->value = $value;
-        $this->props = $props;
+        $name = strtolower($name);
+
+        if( ! array_key_exists($name, $this->headers))
+        {
+            return array();
+        }
+
+        return $this->headers[$name];
     }
 
-    public function getName()
+    public function forEachNamed($type, $callback)
     {
-        return strtolower($this->name);
-    }
+        $type = strtolower($type);
 
-    public function is($name)
-    {
-        return strtolower($name) === strtolower($this->name);
-    }
-
-    public function getValue()
-    {
-        return $this->value;
-    }
-
-    public function setValue($newValue)
-    {
-        $this->value = $newValue;
-    }
-
-    public function getProps()
-    {
-        return $this->props;
-    }
-
-    public function setProps(array $newProps)
-    {
-        $this->props = $newProps;
-    }
-
-    public function __toString()
-    {
-        return $this->name . ':' .(empty($this->value) ? '' : ' ' . $this->value);
+        if (isset($this->headers[$type])) {
+            foreach ($this->headers[$type] as $header) {
+                $callback($header);
+            }
+        }
     }
 }
