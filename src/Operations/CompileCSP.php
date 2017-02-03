@@ -81,7 +81,7 @@ class CompileCSP implements Operation
 
     private function compileCSPRO()
     {
-        // Filter out the blacklisted directives
+        # Filter out the blacklisted directives
         $filteredConfig = array_diff_key(
             $this->csproConfig,
             array_flip($this->csproBlacklist)

@@ -808,8 +808,8 @@ class SecureHeaders{
 
     public function apply(HttpAdapter $http = null)
     {
-        // For ease of use, we allow calling this method without an adapter,
-        // which will cause the headers to be sent with PHP's global methods.
+        # For ease of use, we allow calling this method without an adapter,
+        # which will cause the headers to be sent with PHP's global methods.
         if (is_null($http))
         {
             $http = new GlobalHttpAdapter();

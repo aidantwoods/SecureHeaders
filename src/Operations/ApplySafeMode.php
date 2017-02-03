@@ -49,7 +49,7 @@ class ApplySafeMode extends OperationWithErrors implements Operation
     {
         $origValue = $header->getValue();
 
-        // Only do these when the attribute exists!
+        # Only do these when the attribute exists!
         $header->ensureAttributeMaximum('max-age', 86400);
         $header->removeAttribute('includeSubDomains');
         $header->removeAttribute('preload');
@@ -72,7 +72,7 @@ class ApplySafeMode extends OperationWithErrors implements Operation
     {
         $origValue = $header->getValue();
 
-        // Only do these when the attributes exist
+        # Only do these when the attributes exist
         $header->ensureAttributeMaximum('max-age', 10);
         $header->removeAttribute('includeSubDomains');
 

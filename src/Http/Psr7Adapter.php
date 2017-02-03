@@ -25,14 +25,14 @@ class Psr7Adapter implements HttpAdapter
      */
     public function sendHeaders(HeaderBag $headers)
     {
-        // First, remove all headers on the response object
+        # First, remove all headers on the response object
         $headersToRemove = $this->response->getHeaders();
         foreach ($headersToRemove as $name => $headerLines)
         {
             $this->response = $this->response->withoutHeader($name);
         }
 
-        // And then, reset all headers from the HeaderBag instance
+        # And then, reset all headers from the HeaderBag instance
         foreach ($headers->get() as $header)
         {
             $this->response = $this->response->withAddedHeader(
