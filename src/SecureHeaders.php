@@ -122,7 +122,7 @@ class SecureHeaders{
 
     private $isBufferReturned   = false;
 
-    private $doneOnOutput       = false;
+    private $applyOnOutput      = null;
 
     # private variables: (pre-defined static structures)
 
@@ -231,19 +231,22 @@ class SecureHeaders{
     # ~~
     # Public Functions
 
-    public function doneOnOutput($mode = true)
+    public function applyOnOutput(HttpAdapter $http = null, $mode = true)
     {
-        if ($mode == true and $this->doneOnOutput === false)
+        if ($mode == true)
         {
-            ob_start(array($this, 'returnBuffer'));
+            if ($this->applyOnOutput === null)
+            {
+                ob_start(array($this, 'returnBuffer'));
+            }
 
-            $this->doneOnOutput = true;
+            $this->applyOnOutput = $http;
         }
-        elseif ($this->doneOnOutput === true)
+        elseif ($this->applyOnOutput !== null)
         {
             ob_end_clean();
 
-            $this->doneOnOutput = false;
+            $this->applyOnOutput = null;
         }
     }
 
@@ -802,11 +805,6 @@ class SecureHeaders{
     # ~~
     # public functions: general
 
-    public function done()
-    {
-        return $this->apply();
-    }
-
     public function apply(HttpAdapter $http = null)
     {
         // For ease of use, we allow calling this method without an adapter,
@@ -954,7 +952,7 @@ class SecureHeaders{
     {
         if ($this->isBufferReturned) return $buffer;
 
-        $this->done();
+        $this->apply($this->applyOnOutput);
 
         if (ob_get_level() and ! empty($this->errorString))
         {
