@@ -18,6 +18,7 @@ SecureHeaders::AUTO_ALL = SecureHeaders::AUTO_ADD
                         | SecureHeaders::AUTO_REMOVE
                         | SecureHeaders::AUTO_COOKIE_SECURE
                         | SecureHeaders::AUTO_COOKIE_HTTPONLY
+                        | SecureHeaders::AUTO_COOKIE_SAMESITE
 ```
 `AUTO_ALL` will enable everything listed below.
 
@@ -60,3 +61,11 @@ SecureHeaders::AUTO_COOKIE_HTTPONLY
 `AUTO_COOKIE_HTTPONLY` will ensure that cookies considered [protected](protectedCookie), will have the `HttpOnly` flag when they are sent to the users browser. This will ensure that the cookie is not accessible by JavaScript. This is a good failsafe to ensure that even if the web application contains an XSS vulnerability, then the protected cookie will not be accessible to an attacker who can inject malicious code.
 
 **A note on forgoing this setting:** Corrections to incorrectly marking cookies as HttpOnly, or additions to the cookies that are automatically marked can be made using [`protectedCookie`](protectedCookie).
+
+### AUTO_COOKIE_SAMESITE
+```php
+SecureHeaders::AUTO_COOKIE_SAMESITE
+```
+`AUTO_COOKIE_SAMESITE` will ensure that cookies considered [protected](protectedCookie), will have the `SameSite` flag when they are sent to the users browser. See [`->sameSiteCookies`](sameSiteCookies) for infomation on whether this will set either `SameSite=Lax` or `SameSite=Strict`. The default is `SameSite=Lax`, though the default will change to `SameSite=Strict` if [`->strictMode`](strictMode) is enabled. Having a `SameSite` setting will ensure that the cookie is not accessible when certain cross-origin requests are made. See the [specification](https://tools.ietf.org/html/draft-west-first-party-cookies-07#section-4.1) for exactly what this means for the different settings.
+
+**A note on forgoing this setting:** Corrections to incorrectly marking cookies as `SameSite`, or additions to the cookies that are automatically marked can be made using [`protectedCookie`](protectedCookie).
