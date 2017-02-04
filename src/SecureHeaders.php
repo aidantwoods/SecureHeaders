@@ -42,7 +42,6 @@ use Aidantwoods\SecureHeaders\Operations\CompileHPKP;
 use Aidantwoods\SecureHeaders\Operations\CompileHSTS;
 use Aidantwoods\SecureHeaders\Operations\InjectStrictDynamic;
 use Aidantwoods\SecureHeaders\Operations\ModifyCookies;
-use Aidantwoods\SecureHeaders\Operations\OperationWithErrors;
 use Aidantwoods\SecureHeaders\Operations\RemoveHeaders;
 use Aidantwoods\SecureHeaders\Util\Types;
 

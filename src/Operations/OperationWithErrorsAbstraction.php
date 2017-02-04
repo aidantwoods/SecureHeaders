@@ -4,8 +4,9 @@ namespace Aidantwoods\SecureHeaders\Operations;
 
 use Aidantwoods\SecureHeaders\Error;
 use Aidantwoods\SecureHeaders\Operation;
+use Aidantwoods\SecureHeaders\OperationWithErrors;
 
-abstract class OperationWithErrors implements Operation
+abstract class OperationWithErrorsAbstraction implements OperationWithErrors
 {
     private $errors;
 

@@ -6,8 +6,9 @@ use Aidantwoods\SecureHeaders\Error;
 use Aidantwoods\SecureHeaders\Header;
 use Aidantwoods\SecureHeaders\HeaderBag;
 use Aidantwoods\SecureHeaders\Operation;
+use Aidantwoods\SecureHeaders\OperationWithErrors;
 
-class ApplySafeMode extends OperationWithErrors implements Operation
+class ApplySafeMode extends OperationWithErrorsAbstraction implements OperationWithErrors
 {
     private static $unsafeHeaders = array(
         'strict-transport-security' => 'sanitizeSTS',

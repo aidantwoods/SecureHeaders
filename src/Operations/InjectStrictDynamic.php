@@ -6,8 +6,9 @@ use Aidantwoods\SecureHeaders\Error;
 use Aidantwoods\SecureHeaders\Header;
 use Aidantwoods\SecureHeaders\HeaderBag;
 use Aidantwoods\SecureHeaders\Operation;
+use Aidantwoods\SecureHeaders\OperationWithErrors;
 
-class InjectStrictDynamic extends OperationWithErrors implements Operation
+class InjectStrictDynamic extends OperationWithErrorsAbstraction implements OperationWithErrors
 {
     private $allowedCSPHashAlgs;
 
