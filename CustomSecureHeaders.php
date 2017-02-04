@@ -1,5 +1,6 @@
 <?php
-class CustomSecureHeaders extends SecureHeaders{
+class CustomSecureHeaders extends SecureHeaders
+{
     public function __construct()
     {
         # implicitly call $this->done() on first byte of output
@@ -8,7 +9,7 @@ class CustomSecureHeaders extends SecureHeaders{
         # content headers
         $this->header('Content-type', 'text/html; charset=utf-8');
 
-        # Custom function added in this extenstion: 
+        # Custom function added in this extenstion:
         # redirect to www subdomain if not on localhost
         $this->www_if_not_localhost();
 
@@ -44,10 +45,10 @@ class CustomSecureHeaders extends SecureHeaders{
         # add a hpkp policy
         $this->hpkp(
             array(
-                'pin1', 
-                ['pin2', 'sha256'],
-                ['sha256', 'pin3'],
-                ['pin4']
+                'pin1',
+                array('pin2', 'sha256'),
+                array('sha256', 'pin3'),
+                array('pin4')
             ),
             1500,
             1
@@ -62,56 +63,53 @@ class CustomSecureHeaders extends SecureHeaders{
 
         # uncomment the next line to allow HSTS in safe mode
         // $this->safeModeException('Strict-Transport-Security');
-
     }
 
     public function www_if_not_localhost()
     {
-        if ($_SERVER['SERVER_NAME'] !== 'localhost' and substr($_SERVER['HTTP_HOST'], 0, 4) !== 'www.')
-        {
+        if ($_SERVER['SERVER_NAME'] !== 'localhost' and substr($_SERVER['HTTP_HOST'], 0, 4) !== 'www.') {
             $this->header('HTTP/1.1 301 Moved Permanently');
             $this->header('Location', 'https://www.'.$_SERVER['SERVER_NAME'].$_SERVER['REQUEST_URI']);
         }
     }
 
     private $base = array(
-        "default-src" => ["'self'"],
-        "script-src" => [
+        "default-src" => array("'self'"),
+        "script-src" => array(
             "'self'",
             "https://www.google-analytics.com/"
-        ],
-        "style-src" => [
+        ),
+        "style-src" => array(
             "'self'",
             "https://fonts.googleapis.com/",
             "https://cdnjs.cloudflare.com/ajax/libs/font-awesome/"
-        ],
-        "img-src" => [
+        ),
+        "img-src" => array(
             "'self'",
             "https://www.google-analytics.com/",
-        ],
-        "font-src" => [
+        ),
+        "font-src" => array(
             "'self'",
             "https://fonts.googleapis.com/",
             "https://fonts.gstatic.com/",
             "https://cdnjs.cloudflare.com/ajax/libs/font-awesome/"
-        ],
-        "child-src" => [
+        ),
+        "child-src" => array(
             "'self'"
-        ],
-        "frame-src" => [
+        ),
+        "frame-src" => array(
             "'self'"
-        ],
-        "base-uri" => ["'self'"],
-        "connect-src" => [
+        ),
+        "base-uri" => array("'self'"),
+        "connect-src" => array(
             "'self'",
             "https://www.google-analytics.com/r/collect"
-        ],
-        "form-action" => [
+        ),
+        "form-action" => array(
             "'self'"
-        ],
-        "frame-ancestors" => ["'none'"],
-        "object-src" => ["'none'"],
-        'block-all-mixed-content' => [null]
+        ),
+        "frame-ancestors" => array("'none'"),
+        "object-src" => array("'none'"),
+        'block-all-mixed-content' => array(null)
     );
 }
-?>
