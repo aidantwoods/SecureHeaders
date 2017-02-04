@@ -820,7 +820,7 @@ class SecureHeaders{
         {
             $operation->modify($headers);
 
-            if ($operation instanceof OperationWithErrors)
+            if ($operation instanceof ExposesErrors)
             {
                 $this->errors = array_merge(
                     $this->errors,

@@ -3,12 +3,12 @@
 namespace Aidantwoods\SecureHeaders\Operations;
 
 use Aidantwoods\SecureHeaders\Error;
+use Aidantwoods\SecureHeaders\ExposesErrors;
 use Aidantwoods\SecureHeaders\Header;
 use Aidantwoods\SecureHeaders\HeaderBag;
 use Aidantwoods\SecureHeaders\Operation;
-use Aidantwoods\SecureHeaders\OperationWithErrors;
 
-class ApplySafeMode extends OperationWithErrorsAbstraction implements OperationWithErrors
+class ApplySafeMode extends OperationWithErrors implements Operation, ExposesErrors
 {
     private static $unsafeHeaders = array(
         'strict-transport-security' => 'sanitizeSTS',
