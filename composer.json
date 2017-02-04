@@ -7,7 +7,8 @@
         "csp",
         "headers",
         "hsts",
-        "secure"
+        "secure",
+        "secureheaders"
     ],
     "homepage": "https://github.com/aidantwoods/SecureHeaders/wiki",
     "support": {
