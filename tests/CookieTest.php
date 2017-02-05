@@ -137,4 +137,22 @@ class CookieTest extends PHPUnit_Framework_TestCase
 
         $this->assertContains('Set-Cookie: authcookie=value; Secure; HttpOnly; SameSite=Strict', $headersString);
     }
+
+    public function testCookiesRemovable()
+    {
+        $headerStrings = new StringHttpAdapter(array(
+            'Set-Cookie: authcookie=value',
+            'Set-Cookie: regularcookie=value'
+        ));
+
+        $headers = new SecureHeaders;
+        $headers->errorReporting(false);
+
+        $headers->removeCookie('authcookie');
+        $headers->removeCookie('regularcookie');
+
+        $this->assertNotContains('Set-Cookie: authcookie=value', $headersString);
+        $this->assertNotContains('Set-Cookie: regularcookie=value', $headersString);
+        $this->assertNotContains('Set-Cookie:', $headersString);
+    }
 }   
