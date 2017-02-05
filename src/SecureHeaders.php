@@ -43,6 +43,7 @@ use Aidantwoods\SecureHeaders\Operations\CompileHSTS;
 use Aidantwoods\SecureHeaders\Operations\InjectStrictDynamic;
 use Aidantwoods\SecureHeaders\Operations\ModifyCookies;
 use Aidantwoods\SecureHeaders\Operations\RemoveHeaders;
+use Aidantwoods\SecureHeaders\Operations\RemoveCookies;
 use Aidantwoods\SecureHeaders\Util\Types;
 
 class SecureHeaders{
@@ -418,7 +419,7 @@ class SecureHeaders{
     {
         Types::assert(array('string' => array($name)));
 
-        $this->removedCookies[strtolower($name)] = true;
+        $this->removedCookies[] = strtolower($name);
     }
 
     # ~~
@@ -933,6 +934,8 @@ class SecureHeaders{
         }
 
         $operations[] = new CompileHPKP($this->hpkp, $this->hpkpro);
+
+        $operations[] = new RemoveCookies(array_keys($this->removedCookies));
 
         # Remove all headers that were configured to be removed
         $operations[] = new RemoveHeaders(array_keys($this->removedHeaders));
