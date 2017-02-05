@@ -151,6 +151,8 @@ class CookieTest extends PHPUnit_Framework_TestCase
         $headers->removeCookie('authcookie');
         $headers->removeCookie('regularcookie');
 
+        $headersString = $headerStrings->getSentHeaders();
+
         $this->assertNotContains('Set-Cookie: authcookie=value', $headersString);
         $this->assertNotContains('Set-Cookie: regularcookie=value', $headersString);
         $this->assertNotContains('Set-Cookie:', $headersString);
