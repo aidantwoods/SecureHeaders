@@ -30,8 +30,6 @@ class ApplySafeMode extends OperationWithErrors implements Operation, ExposesErr
      */
     public function modify(HeaderBag &$headers)
     {
-        $this->clearErrors();
-
         foreach ($headers->get() as $header) {
             $headerName = $header->getName();
 

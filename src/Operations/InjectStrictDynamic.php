@@ -25,8 +25,6 @@ class InjectStrictDynamic extends OperationWithErrors implements Operation, Expo
      */
     public function modify(HeaderBag &$headers)
     {
-        $this->clearErrors();
-
         $CSPHeaders = $headers->getByName('content-security-policy');
 
         if (isset($CSPHeaders[0]))
