@@ -2,7 +2,6 @@
 
 namespace Aidantwoods\SecureHeaders\Headers;
 
-use InvalidArgumentException;
 use Aidantwoods\SecureHeaders\Header;
 use Aidantwoods\SecureHeaders\Operations\CompileCSP;
 
