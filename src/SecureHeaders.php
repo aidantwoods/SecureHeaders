@@ -428,6 +428,9 @@ class SecureHeaders{
     public function csp()
     {
         $args = func_get_args();
+
+        Types::assert(array('string|array|int|bool' => $args));
+
         $num = count($args);
 
         # look for a bool or intgers (commonly used in place of bools)
@@ -491,6 +494,8 @@ class SecureHeaders{
     public function cspro()
     {
         $args = func_get_args();
+
+        Types::assert(array('string|array|int|bool' => $args));
 
         foreach ($args as $i => $arg)
         {
