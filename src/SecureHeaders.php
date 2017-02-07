@@ -232,6 +232,23 @@ class SecureHeaders{
     # ~~
     # Public Functions
 
+    /**
+     * Used to enable or disable output buffering with ob_start.
+     * When enabled, the ob_start callback will be set to automatically call
+     * {@see apply} upon the first byte of output.
+     *
+     * If unconfigured, the default setting for {@see applyOnOutput} is off.
+     *
+     * @param HttpAdapter $http
+     * @param mixed $mode
+     *  mode is the on/off setting. Any value of type that is loosely castable to a boolean is valid.
+     *
+     *  Passing a boolean of value true will turn output buffering on,
+     *  passing a boolean of value false will turn it off. The integers
+     *  1 and 0 will do the same respectively.
+     *
+     * @return void
+     */
     public function applyOnOutput(HttpAdapter $http = null, $mode = true)
     {
         if ($mode == true)
@@ -257,16 +274,42 @@ class SecureHeaders{
     # ~~
     # Settings: Safe Mode
 
-    # safe-mode enforces settings that shouldn't cause too much accidental
-    # down-time safe-mode intentionally overwrites user specified settings
-
+    /**
+     * Used to turn safe mode on or off.
+     *
+     * Safe mode will modify certain headers that may cause lasting effects so
+     * to limit how long accidental effects can last for.
+     *
+     * Note that exceptions can be made to safe-mode on a header by header
+     * basis with {@see safeModeException}
+     *
+     * @param mixed $mode
+     *  mode is the on/off setting. Any value of type that is loosely castable to a boolean is valid.
+     *
+     *  Loosely casted to a boolean, `true` turns safe mode on, `false` turns
+     *  it off. The exception being the string 'off' case-insensitively, which
+     *  will operate as if it was casted to `false` (this makes the behaviour
+     *  more similar to the way some values are set in PHP ini files).
+     *
+     * @return void
+     */
     public function safeMode($mode = true)
     {
         $this->safeMode = ($mode == true and strtolower($mode) !== 'off');
     }
 
-    # if operating in safe mode, use this to manually allow a specific header
-
+    /**
+     * Used to add an exception to {@see safeMode}.
+     *
+     * @param string $name
+     *  Specify the name of the header that you wish to be exempt from
+     *  {@see safeMode} warnings and auto-modification.
+     *
+     *  (Note that if you want to turn safe mode off for all headers, use
+     *  [`->safeMode(false)`](safeMode) – safe mode is **not** on by default).
+     *
+     * @return void
+     */
     public function safeModeException($name)
     {
         Types::assert(array('string' => array($name)));
@@ -277,6 +320,42 @@ class SecureHeaders{
     # ~~
     # Settings: Strict Mode
 
+    /**
+     * Turn strict mode on or off.
+     *
+     * * When enabled, strict mode will auto-enable HSTS with a 1 year duration,
+     *   and the `includeSubDomains` and `preload` flags set. Note that this
+     *   HSTS policy is made as a [header proposal](header-proposals), and can
+     *   thus be removed or modified.
+     *
+     * * The source keyword `'strict-dynamic'` will also be added to the first
+     *   of the following directives that exist: `script-src`, `default-src`;
+     *   only if that directive also contains a nonce or hash source value, and
+     *   not otherwise.
+     *
+     *   This will disable the source whitelist in `script-src` in CSP3
+     *   compliant browsers. The use of whitelists in script-src is
+     *   [considered not to be an ideal practice][1], because they are often
+     *   trivial to bypass.
+     *
+     *   [1]: https://research.google.com/pubs/pub45542.html "The Insecurity of
+     *   Whitelists and the Future of Content Security Policy"
+     *
+     *   Don't forget to [manually submit](https://hstspreload.appspot.com/)
+     *   your domain to the HSTS preload list if you are using this option.
+     *
+     * * The default `SameSite` value injected into {@see protectedCookie} will
+     *   be changed from `SameSite=Lax` to `SameSite=Strict`.
+     *   See [`->auto`](auto#AUTO_COOKIE_SAMESITE) to enable/disable injection
+     *   of `SameSite` and {@see sameSiteCookies} for more on specific behaviour
+     *   and to explicitly define this value manually, to override the default.
+     *
+     * @param mixed $mode
+     *  Loosely casted to a boolean, `true` enables strict mode, `false` turns
+     *  it off.
+     *
+     * @return void
+     */
     public function strictMode($mode = true)
     {
         $this->strictMode = ($mode == true and strtolower($mode) !== 'off');
@@ -285,13 +364,36 @@ class SecureHeaders{
     # ~~
     # Settings: Error Reporting
 
+    /**
+     * Enable or disable error reporting.
+     *
+     * Note that SecureHeaders will honour the PHP configuration for error
+     * reporting level and for whether errors are displayed by default. If you
+     * would like to specifically turn off errors from only SecureHeaders then
+     * use this function.
+     *
+     * @param mixed $mode
+     *  Loosely casted as a boolean, `true` will enable error reporting
+     *  (the default), `false` will disable it.
+     *
+     * @return void
+     */
     public function errorReporting($mode)
     {
         $this->errorReporting = ($mode == true);
     }
 
-    # use this to manually disable missing reports on a specific header
-
+    /**
+     *
+     * Selectively disable 'Missing security header: ...' reports for a
+     * specific header.
+     *
+     * @param string $name
+     *  The (case-insensitive) name of the header to disable missing reports
+     *  for.
+     *
+     * @return void
+     */
     public function reportMissingException($name)
     {
         Types::assert(array('string' => array($name)));
@@ -302,6 +404,19 @@ class SecureHeaders{
     # ~~
     # Settings: Automatic Behaviour
 
+    /**
+     * Enable or disable certain automatically applied header functions
+     *
+     * If unconfigured, the default setting for {@see auto} is
+     * {@see AUTO_ALL}.
+     *
+     * @param int $mode
+     *  `mode` accepts one or more of the following constants. Multiple
+     *  constants may be specified by combination using
+     *  [bitwise operators](https://secure.php.net/manual/language.operators.bitwise.php)
+     *
+     * @return void
+     */
     public function auto($mode = self::AUTO_ALL)
     {
         Types::assert(array('int' => array($mode)));
@@ -312,6 +427,14 @@ class SecureHeaders{
     # ~~
     # Settings: Headers
 
+    /**
+     * Description
+     *
+     * @param Type $variable
+     *  Description
+     *
+     * @return void
+     */
     public function correctHeaderName($mode = true)
     {
         $this->correctHeaderName = (true == $mode);
@@ -320,6 +443,22 @@ class SecureHeaders{
     # ~~
     # Settings: Nonces
 
+    /**
+     * Determine the behaviour of {@see cspNonce} and its aliases when
+     * a nonce for the specified directive already exists.
+     *
+     * When enabled, the existing nonce will be returned. When disabled, a new
+     * nonce will be generated for the directive, added alongside the existing
+     * one, and the new nonce will be returned.
+     *
+     * If not explicitly set, the default mode for this setting is enabled.
+     *
+     * @param mixed $mode
+     *  Loosely casted to a boolean, `true` enables the behaviour, `false`
+     *  turns it off.
+     *
+     * @return void
+     */
     public function returnExistingNonce($mode = true)
     {
         $this->returnExistingNonce = ($mode == true);
@@ -328,6 +467,27 @@ class SecureHeaders{
     # ~~
     # Settings: Cookies
 
+    /**
+     * Add and configure the default setting for
+     * [protected cookies](protectedCookie) that are automatically marked
+     * as `SameSite`.
+     *
+     * If this setting is unspecified the default will be `SameSite=Lax`, if
+     * this setting is given an invalid `string` setting the last setting will
+     * be honoured. If {@see strictMode} is enabled then the default
+     * will be `SameSite=Strict` under the same criteria for set value. If you
+     * wish to disable making cookies as same site,
+     * see [`->auto`](auto#AUTO_COOKIE_SAMESITE).
+     *
+     * @param string $mode
+     *  Valid values for `$mode` are either (case-insensitively) the strings
+     *  `'Lax'` and `'Strict'`. If `null` is passed the setting will revert to
+     *  the default as defined above. If another `string` is passed then the
+     *  call will be ignored and the previous setting will be retained (if no
+     *  setting was specified previously then the default will remain).
+     *
+     * @return void
+     */
     public function sameSiteCookies($mode = null)
     {
         Types::assert(array('string' => array($mode)));
@@ -350,6 +510,17 @@ class SecureHeaders{
     # ~~
     # public functions: raw headers
 
+    /**
+     * Queue a header for removal.
+     *
+     * Upon calling {@see apply} the header will be removed. This function can
+     * be used to manually prevent [automatic headers](auto) from being sent.
+     *
+     * @param string $name
+     *  Case insensitive name of the header to remove.
+     *
+     * @return void
+     */
     public function removeHeader($name)
     {
         Types::assert(array('string' => array($name)));
@@ -361,6 +532,48 @@ class SecureHeaders{
     # ~~
     # public functions: cookies
 
+    /**
+     * Configure which cookies SecureHeaders will regard as protected.
+     *
+     * SecureHeaders will consider substrings and names of cookies separately.
+     * By default, cookies that case insensitively match the following
+     * substrings or names will be regarded as protected.
+     *
+     * #### Substrings
+     * ```
+     * sess
+     * auth
+     * login
+     * csrf
+     * xsrf
+     * token
+     * antiforgery
+     * ```
+     *
+     * #### Names
+     * ```
+     * sid
+     * s
+     * persistent
+     * ```
+     *
+     * If a cookie is protected, then cookie flags will be appended as
+     * configured by {@see auto}. The default behaviour is to add `Secure` and
+     * `HttpOnly` flags, to ensure cookies are both sent securely, and out of
+     * the reach of JavaScript.
+     *
+     * @param string|array $name
+     *  The name (or substring of the name, depending on mode configuration),
+     *  of the cookie to add/remove from the protection list (depending on mode
+     *  configuration). Or a list of cookie names (or substrings of the name to
+     *  match) as an array of strings.
+     * @param int $mode
+     *  `mode` accepts one or more of the following constants. Multiple
+     *   constants may be specified by combination using
+     *  [bitwise operators](https://secure.php.net/manual/language.operators.bitwise.php)
+     *
+     * @return void
+     */
     public function protectedCookie(
         $name,
         $mode = self::COOKIE_DEFAULT
@@ -415,6 +628,19 @@ class SecureHeaders{
         }
     }
 
+    /**
+     * Remove a cookie from SecureHeaders' internal list (thus preventing the
+     * `Set-Cookie` header for that specific cookie from being sent).
+     *
+     * This allows you to form a blacklist for cookies that should not be sent
+     * (either programatically or globally, depending on where this is
+     * configured).
+     *
+     * @param string $name
+     *  The (case-insensitive) name of the cookie to remove.
+     *
+     * @return void
+     */
     public function removeCookie($name)
     {
         Types::assert(array('string' => array($name)));
@@ -425,6 +651,9 @@ class SecureHeaders{
     # ~~
     # public functions: Content-Security-Policy (CSP)
 
+    /**
+     * @ignore Polymorphic variadic function
+     */
     public function csp()
     {
         $args = func_get_args();
@@ -491,6 +720,9 @@ class SecureHeaders{
         }
     }
 
+    /**
+     * @ignore Polymorphic variadic function
+     */
     public function cspro()
     {
         $args = func_get_args();
@@ -512,8 +744,26 @@ class SecureHeaders{
         call_user_func_array(array($this, 'csp'), $args);
     }
 
-     # Content-Security-Policy: Settings
+    # Content-Security-Policy: Settings
 
+    /**
+     * Enable or disable legacy CSP support.
+     *
+     * When enabled, SecureHeaders will send an additional
+     * `X-Content-Security-Policy` and/or
+     * `X-Content-Security-Policy-Report-Only`. The policy configured with
+     * {@see csp} or {@see cspro} respectively will be sent with this legacy
+     * header, with no attempt to strip out newer CSP features (browsers should
+     * ignore CSP directives and keywords they do not recognise).
+     *
+     * If this setting is unconfigured, the default is off.
+     *
+     * @param mixed $mode
+     *  Loosely casted as a boolean, `true` enables the legacy headers, `false`
+     *  disables them.
+     *
+     * @return void
+     */
     public function cspLegacy($mode = true)
     {
         $this->cspLegacy = ($mode == true);
@@ -521,6 +771,21 @@ class SecureHeaders{
 
     # Content-Security-Policy: Policy string removals
 
+    /**
+     * Remove a previously added source from a CSP directive.
+     *
+     * @param string $directive
+     *  The directive (case insensitive) in which the source to be removed
+     *  resides.
+     * @param string $source
+     *  The source (case insensitive) to remove.
+     * @param mixed $reportOnly
+     *  Loosely casted as a boolean, `true` ensures the function acts on the
+     *  report only policy, `false` (the default, as `null` casts to false)
+     *  ensures the function acts on the enforced policy.
+     *
+     * @return void
+     */
     public function removeCSPSource($directive, $source, $reportOnly = null)
     {
         Types::assert(array('string' => array($directive, $source)));
@@ -540,6 +805,18 @@ class SecureHeaders{
         return true;
     }
 
+    /**
+     * Remove a previously added directive from CSP.
+     *
+     * @param string $directive
+     *  The directive (case insensitive) to remove.
+     * @param mixed $reportOnly
+     *  Loosely casted as a boolean, `true` ensures the function acts on the
+     *  report only policy, `false` (the default, as `null` casts to false)
+     *  ensures the function acts on the enforced policy.
+     *
+     * @return void
+     */
     public function removeCSPDirective($directive, $reportOnly = null)
     {
         Types::assert(array('string' => array($directive)));
@@ -558,6 +835,15 @@ class SecureHeaders{
         return true;
     }
 
+    /**
+     * Reset the CSP.
+     *
+     * @param mixed $reportOnly
+     *  Loosely casted to a boolean, `true` resets the policy configured by
+     * {@see cspro}, `false` resets the policy configured by {@see csp}.
+     *
+     * @return void
+     */
     public function resetCSP($reportOnly = null)
     {
         $csp = &$this->getCSPObject($reportOnly);
@@ -567,6 +853,31 @@ class SecureHeaders{
 
     # Content-Security-Policy: Hashing
 
+    /**
+     * Generate a hash of the provided [`$string`](#string) value, and have it
+     * added to the [`$friendlyDirective`](#friendlyDirective) directive in CSP.
+     *
+     * @param string $friendlyDirective
+     *  The (case insensitive)
+     *  [friendly name](friendly_directives_and_sources#directives) that the
+     *  hash should be to be added to.
+     * @param string $string
+     *  The string that should be hashed and added to the
+     *  [`$friendlyDirective`](friendly_directives_and_sources#directives)
+     *  directive.
+     * @param string $algo = 'sha256'
+     *  The hashing algorithm to use. CSP currently supports `sha256`,
+     *  `sha384`, `sha512`.
+     * @param mixed $isFile
+     *  Loosely casted as a boolean. Indicates that [`$string`](string) instead
+     *  specifies a file path.
+     * @param mixed $reportOnly
+     *  Loosely casted as a boolean. Indicates that the hash should be added
+     *  to the report only policy `true`, or the enforced policy `false`.
+     *
+     * @return string
+     *  Returns the hash value.
+     */
     public function cspHash(
         $friendlyDirective,
         $string,
@@ -597,6 +908,17 @@ class SecureHeaders{
         return $hash;
     }
 
+    /**
+     * An alias for {@see cspHash} with [reportOnly](cspHash#reportOnly)
+     * set to true.
+     *
+     * @param string $friendlyDirective
+     * @param string $string
+     * @param string $algo
+     * @param mixed $isFile
+     *
+     * @return string
+     */
     public function csproHash(
         $friendlyDirective,
         $string,
@@ -616,6 +938,16 @@ class SecureHeaders{
         );
     }
 
+    /**
+     * An alias for {@see cspHash} with [isFile](cspHash#isFile) set to `true`.
+     *
+     * @param string $friendlyDirective
+     * @param string $string
+     * @param string $algo
+     * @param mixed $reportOnly
+     *
+     * @return string
+     */
     public function cspHashFile(
         $friendlyDirective,
         $string,
@@ -635,6 +967,16 @@ class SecureHeaders{
         );
     }
 
+    /**
+     * An alias for {@see cspHash} with [reportOnly](cspHash#reportOnly) set
+     * to true, and [isFile](cspHash#isFile) set to true.
+     *
+     * @param string $friendlyDirective
+     * @param string $string
+     * @param string $algo
+     *
+     * @return string
+     */
     public function csproHashFile($friendlyDirective, $string, $algo = null)
     {
         Types::assert(
@@ -646,6 +988,35 @@ class SecureHeaders{
 
     # Content-Security-Policy: Nonce
 
+    /**
+     * Used to securely generate a nonce value, and have it be added to the
+     * [`$friendlyDirective`](#friendlyDirective) in CSP.
+     *
+     * Note that if a nonce already exists for the specified directive, the
+     * existing value will be returned instead of generating a new one
+     * (multiple nonces in the same directive don't offer any security benefits
+     * at present – since they're all treated equally). This should facilitate
+     * distributing the nonce to any code that needs it (provided the code can
+     * access the SecureHeaders instance).
+     *
+     * If you want to disable returning an existing nonce, use
+     * {@see returnExistingNonce} to turn the behaviour on or off.
+
+     * **Make sure not to use nonces where the content given the nonce is
+     * partially of user origin! This would allow an attacker to bypass the
+     * protections of CSP!**
+     *
+     * @param string $friendlyDirective
+     *  The (case insensitive)
+     *  [friendly name](friendly_directives_and_sources#directives) that the
+     *  nonce should be to be added to.
+     * @param mixed $reportOnly
+     *  Loosely casted as a boolean. Indicates that the hash should be added to
+     *  the report only policy `true`, or the enforced policy `false`.
+     *
+     * @return string
+     *  Returns the nonce value.
+     */
     public function cspNonce($friendlyDirective, $reportOnly = null)
     {
         Types::assert(array('string' => array($friendlyDirective)));
@@ -674,6 +1045,18 @@ class SecureHeaders{
         return $nonce;
     }
 
+    /**
+     * An alias for {@see cspNonce} with [reportOnly](cspNonce#reportOnly)
+     * set to true.
+     *
+     * **Make sure not to use nonces where the content given the nonce is
+     * partially of user origin! This would allow an attacker to bypass the
+     * protections of CSP!**
+     *
+     * @param string $friendlyDirective
+     *
+     * @return string
+     */
     public function csproNonce($friendlyDirective)
     {
         Types::assert(array('string' => array($friendlyDirective)));
@@ -684,6 +1067,34 @@ class SecureHeaders{
     # ~~
     # public functions: HSTS
 
+    /**
+     * Used to add and configure the Strict-Transport-Security header.
+     *
+     * HSTS makes sure that a user's browser will fill the role of redirecting
+     * them from HTTP to HTTPS so that they need not trust an insecure response
+     * from the network.
+     *
+     * @param int|string $maxAge
+     *  The length, in seconds either as a string, or an integer – specify the
+     *  length that a user's browser should remember that the application is
+     *  HTTPS only.
+     *
+     * @param mixed $subdomains
+     *  Loosely casted as a boolean, whether to include the `includeSubDomains`
+     *  flag – to deploy the HSTS policy across the entire domain.
+     *
+     * @param mixed $preload
+     *  Loosely casted as a boolean, whether to include the `preload` flag – to
+     *  consent to have the domain loaded into
+     *  [various preload lists](https://hstspreload.appspot.com/) (so that a
+     *  user need not initially visit your site securely to know about the
+     *  HSTS policy).
+     *
+     *  You must also [manually preload](https://hstspreload.appspot.com/)
+     *  your domain for this to take effect – the flag just indicates consent.
+     *
+     * @return void
+     */
     public function hsts(
         $maxAge = 31536000,
         $subdomains = false,
@@ -696,11 +1107,31 @@ class SecureHeaders{
         $this->hsts['preload']      = ($preload == true);
     }
 
+    /**
+     * Add or remove the `includeSubDomains` flag from the [HSTS](hsts) policy
+     * (note this can be done with the {@see hsts} function too).
+     *
+     * @param mixed $mode
+     *  Loosely casted to a boolean, `true` adds the `includeSubDomains` flag,
+     *  `false` removes it.
+     *
+     * @return void
+     */
     public function hstsSubdomains($mode = true)
     {
         $this->hsts['subdomains'] = ($mode == true);
     }
 
+    /**
+     * Add or remove the `preload` flag from the [HSTS](hsts) policy (note this
+     * can be done with the {@see hsts} function too).
+     *
+     * @param mixed $mode
+     *  Loosely casted to a boolean, `true` adds the `preload` flag, `false`
+     *  removes it.
+     *
+     * @return void
+     */
     public function hstsPreload($mode = true)
     {
         $this->hsts['preload'] = ($mode == true);
@@ -709,6 +1140,52 @@ class SecureHeaders{
     # ~~
     # public functions: HPKP
 
+    /**
+     * Add and configure the HTTP Public Key Pins header.
+     *
+     * @param string|array $pins
+     *  Either give a valid pin as a string here, or give multiple as an array.
+     *  **Note that browsers will not enforce this header unless a backup pin
+     *  AND a pin that is currently deployed is specified)**. This means that
+     *  at least two pins must be specified. (to do this by passing strings,
+     *  simply call {@see hpkp} again with the second pin as the first
+     *  argument).
+     *
+     *  Valid array syntax is as follows
+     *  ```php
+     *  $pins = array(
+     *      array('sha256', 'pin1'),
+     *      array('pin2'),
+     *      array('pin3', 'sha256')
+     *  );
+     *  $headers->hpkp($pins);
+     *  ```
+     *
+     *  The above will add `pin1`, `pin2`, and `pin3` with the associated hash
+     *  label `sha256`. This is the only valid *  HPKP hashing algorithm at
+     *  time of writing.
+     *
+     * @param int|string $maxAge
+     *  The length, in seconds that a browser should enforce the policy after
+     *  last receiving it.
+     *
+     *  If this is left unset across all calls to  {@see hpkp}, the value will
+     *  default to 10 seconds (which isn't much use – so it is best to set the
+     *  value).
+     *
+     * @param mixed $subdomains
+     *  Loosely casted to a boolean, whether to include the `includeSubDomains`
+     *  flag to deploy the policy across the entire domain. `true` enables this
+     *  flag.
+     *
+     * @param string $reportUri
+     *  A reporting address to send violation reports to.
+     *
+     * @param mixed $reportOnly
+     *  Settings will apply to the report-only version of this header
+     *
+     * @return void
+     */
     public function hpkp(
         $pins,
         $maxAge = null,
@@ -778,6 +1255,17 @@ class SecureHeaders{
         }
     }
 
+    /**
+     * Add and configure the HTTP Public Key Pins header in report-only mode.
+     * This is an alias for {@see hpkp} with `$reportOnly` set to `true`.
+     *
+     * @param string|array $pins
+     * @param int|string $maxAge
+     * @param mixed $subdomains
+     * @param string $reportUri
+     *
+     * @return void
+     */
     public function hpkpro(
         $pins,
         $maxAge = null,
@@ -796,6 +1284,18 @@ class SecureHeaders{
         return $this->hpkp($pins, $maxAge, $subdomains, $reportUri, true);
     }
 
+    /**
+     * Add or remove the `includeSubDomains` flag from the [HPKP](hpkp) policy
+     * (note this can be done with the {@see hpkp} function too).
+     *
+     * @param mixed $mode
+     *  Loosely casted to a boolean, `true` adds the `includeSubDomains` flag,
+     *  `false` removes it.
+     * @param mixed $reportOnly
+     *  Apply this setting to the report-only version of the HPKP policy header
+     *
+     * @return void
+     */
     public function hpkpSubdomains($mode = true, $reportOnly = null)
     {
         $hpkp = &$this->getHPKPObject($reportOnly);
@@ -803,6 +1303,13 @@ class SecureHeaders{
         $hpkp['includesubdomains'] = ($mode == true);
     }
 
+    /**
+     * An alias for {@see hpkpSubdomains} with `$reportOnly` set to `true`
+     *
+     * @param mixed $mode
+     *
+     * @return void
+     */
     public function hpkproSubdomains($mode = true)
     {
         return $this->hpkpSubdomains($mode, true);
@@ -811,6 +1318,45 @@ class SecureHeaders{
     # ~~
     # public functions: general
 
+    /**
+     * Description
+     *
+     * @param HttpAdapter $http = new GlobalHttpAdapter
+     *  An implementation of the {@see HttpAdapter} interface, to which
+     *  settings configured via SecureHeaders will be applied.
+     *
+     *  Calling this function will initiate the following
+     *
+     *  1. Existing headers from the HttpAdapter's source will be imported into
+     *     SecureHeaders' internal list, parsed
+     *  2. [Automatic header functions](auto) will be applied
+     *  3. [CSP](csp), [HSTS](hsts), and [HPKP](hpkp) policies will be compiled
+     *     and added to SecureHeaders' internal header list
+     *  4. Headers queued for [removal](removeHeader) will be deleted from
+     *     SecureHeaders' internal header list
+     *  5. [Safe Mode](safeMode) will examine the list of headers, and make any
+     *     required changes according to its settings
+     *  6. The HttpAdapter will be instructed to remove all headers from its
+     *     header source, Headers will then be copied from SecureHeaders'
+     *     internal header list, into the HttpAdapter's (now empty) list of
+     *     headers
+     *  7. If [error reporting](errorReporting) is enabled (both within
+     *     SecureHeaders and according to the PHP configuration values for
+     *     error reporting, and whether to display errors)
+     *     * Missing security headers will be reported as `E_USER_WARNING`
+     *     * Misconfigured headers will be reported as `E_USER_WARNING` or
+     *       `E_USER_NOTICE` depending on severity, the former being most
+     *       severe an issue.
+     *
+     *  **Note:** Calling this function is **required** before the first byte
+     *  of output in order for SecureHeaders to (be able to) do anything. If
+     *  you're not sure when the first byte of output might occur, or simply
+     *  don't want to have to call this every time – take a look at
+     *  {@see applyOnOutput} to have SecureHeaders take care of this for you.
+     *
+     * @return HeaderBag
+     *  Returns the headers
+     */
     public function apply(HttpAdapter $http = null)
     {
         # For ease of use, we allow calling this method without an adapter,
