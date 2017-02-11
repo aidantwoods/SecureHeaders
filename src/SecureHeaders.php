@@ -865,7 +865,7 @@ class SecureHeaders{
      *  The string that should be hashed and added to the
      *  [`$friendlyDirective`](friendly_directives_and_sources#directives)
      *  directive.
-     * @param string $algo = 'sha256'
+     * @param ?string $algo = 'sha256'
      *  The hashing algorithm to use. CSP currently supports `sha256`,
      *  `sha384`, `sha512`.
      * @param mixed $isFile
@@ -914,7 +914,7 @@ class SecureHeaders{
      *
      * @param string $friendlyDirective
      * @param string $string
-     * @param string $algo
+     * @param ?string $algo = 'sha256'
      * @param mixed $isFile
      *
      * @return string
@@ -943,7 +943,7 @@ class SecureHeaders{
      *
      * @param string $friendlyDirective
      * @param string $string
-     * @param string $algo
+     * @param ?string $algo = 'sha256'
      * @param mixed $reportOnly
      *
      * @return string
@@ -973,7 +973,7 @@ class SecureHeaders{
      *
      * @param string $friendlyDirective
      * @param string $string
-     * @param string $algo
+     * @param ?string $algo = 'sha256'
      *
      * @return string
      */
@@ -1165,7 +1165,7 @@ class SecureHeaders{
      *  label `sha256`. This is the only valid *  HPKP hashing algorithm at
      *  time of writing.
      *
-     * @param int|string $maxAge
+     * @param ?integer|string $maxAge
      *  The length, in seconds that a browser should enforce the policy after
      *  last receiving it.
      *
@@ -1173,16 +1173,27 @@ class SecureHeaders{
      *  default to 10 seconds (which isn't much use – so it is best to set the
      *  value).
      *
-     * @param mixed $subdomains
+     *  Passing `null` indicates that a maxAge should not be modified on this
+     *  call (e.g. can be used to prevent overwriting a previous setting).
+     *
+     * @param ?mixed $subdomains
      *  Loosely casted to a boolean, whether to include the `includeSubDomains`
      *  flag to deploy the policy across the entire domain. `true` enables this
      *  flag.
      *
-     * @param string $reportUri
+     *  Passing `null` indicates that a subdomains should not be modified on
+     *  this call (e.g. can be used to prevent overwriting a previous setting).
+     *
+     * @param ?string $reportUri
      *  A reporting address to send violation reports to.
      *
+     *  Passing `null` indicates that a reporting address should not be modified
+     *  on this call (e.g. can be used to prevent overwriting a previous
+     *  setting).
+     *
      * @param mixed $reportOnly
-     *  Settings will apply to the report-only version of this header
+     *  Loosely cased to a boolean. If `true`, settings will apply to the
+     *  report-only version of this header.
      *
      * @return void
      */
@@ -1260,9 +1271,9 @@ class SecureHeaders{
      * This is an alias for {@see hpkp} with `$reportOnly` set to `true`.
      *
      * @param string|array $pins
-     * @param int|string $maxAge
-     * @param mixed $subdomains
-     * @param string $reportUri
+     * @param ?integer|string $maxAge
+     * @param ?mixed $subdomains
+     * @param ?string $reportUri
      *
      * @return void
      */
@@ -1348,7 +1359,7 @@ class SecureHeaders{
      *  don't want to have to call this every time – take a look at
      *  {@see applyOnOutput} to have SecureHeaders take care of this for you.
      *
-     * @param HttpAdapter $http = new GlobalHttpAdapter
+     * @param ?HttpAdapter $http = new GlobalHttpAdapter
      *  An implementation of the {@see HttpAdapter} interface, to which
      *  settings configured via SecureHeaders will be applied.
      *
