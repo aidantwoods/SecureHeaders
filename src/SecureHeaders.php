@@ -10,7 +10,7 @@ namespace Aidantwoods\SecureHeaders;
 #
 # MIT License
 #
-# Copyright (c) 2016 Aidan Woods
+# Copyright (c) 2016-2017 Aidan Woods
 # https://aidanwoods.com
 #
 # Permission is hereby granted, free of charge, to any person obtaining a
@@ -74,7 +74,7 @@ class SecureHeaders{
 
     protected $reportMissingExceptions  = array();
 
-    protected $protectedCookies         = array(
+    protected $protectedCookies = array(
         'substrings'    => array(
             'sess',
             'auth',
@@ -91,11 +91,17 @@ class SecureHeaders{
         )
     );
 
-    protected $headerProposals          = array(
-        'X-Permitted-Cross-Domain-Policies' => 'none',
-        'X-XSS-Protection'                  => '1; mode=block',
-        'X-Content-Type-Options'            => 'nosniff',
-        'X-Frame-Options'                   => 'Deny'
+    protected $headerProposals = array(
+        'Referrer-Policy'
+            => 'strict-origin-when-cross-origin',
+        'X-Permitted-Cross-Domain-Policies'
+            => 'none',
+        'X-XSS-Protection'
+            => '1; mode=block',
+        'X-Content-Type-Options'
+            => 'nosniff',
+        'X-Frame-Options'
+            => 'Deny'
     );
 
     # ~~
@@ -179,7 +185,8 @@ class SecureHeaders{
         'X-Permitted-Cross-Domain-Policies',
         'X-XSS-Protection',
         'X-Content-Type-Options',
-        'X-Frame-Options'
+        'X-Frame-Options',
+        'Referrer-Policy'
     );
 
     private $cspSourceWildcardRe
