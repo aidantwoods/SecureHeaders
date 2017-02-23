@@ -70,8 +70,6 @@ class SecureHeaders{
 
     protected $sameSiteCookies          = null;
 
-    protected $correctHeaderName        = true;
-
     protected $reportMissingExceptions  = array();
 
     protected $protectedCookies = array(
@@ -429,22 +427,6 @@ class SecureHeaders{
         Types::assert(array('int' => array($mode)));
 
         $this->automaticHeaders = $mode;
-    }
-
-    # ~~
-    # Settings: Headers
-
-    /**
-     * Description
-     *
-     * @param Type $variable
-     *  Description
-     *
-     * @return void
-     */
-    public function correctHeaderName($mode = true)
-    {
-        $this->correctHeaderName = (true == $mode);
     }
 
     # ~~
