@@ -7,7 +7,7 @@ $headers = new SecureHeaders();
 $headers->hsts();
 $headers->csp('default', 'self');
 $headers->csp('script', 'https://my.cdn.org');
-$headers->done();
+$headers->apply();
 ```
 
 Here's an even better one (but don't copy paste it into production code unless you understand what HSTS preloading is):
@@ -15,7 +15,7 @@ Here's an even better one (but don't copy paste it into production code unless y
 $headers = new SecureHeaders();
 $headers->strictMode();
 $headers->cspNonce('script');
-$headers->done();
+$headers->apply();
 ```
 As an aside to that warning, do take a look at [`->safeMode`](safeMode) if you're worried about breaking something with headers (or don't plan on reading the documentation before typing).
 
@@ -23,12 +23,12 @@ For more on these examples, [see below](#examples).
 
 # Getting Started
 
-To get started with SecureHeaders, you need only create an instance of the class and call [`->done`](done) before your first byte of output. If you're not sure where, or what that is then you can tell SecureHeaders to set all the headers for you when output is generated, using [`->doneOnOutput`](doneOnOutput).
+To get started with SecureHeaders, you need only create an instance of the class and call [`->apply`](apply) before your first byte of output. If you're not sure where, or what that is then you can tell SecureHeaders to set all the headers for you when output is generated, using [`->applyOnOutput`](applyOnOutput).
 
 The former option is simply the following two lines of code:
 ```php
 $headers = new SecureHeaders();
-$headers->done();
+$headers->apply();
 ```
 The latter could be achieved by slightly rewriting the second line.
 
@@ -38,7 +38,7 @@ Okay, so what did that do exactly?
 The following details behaviour that is automatically applied to every instance of SecureHeaders (unless these settings are modified).
 
 ### Added Headers
-When `->done` was called, SecureHeaders analysed all the headers already loaded in PHPs internal list. 
+When `->apply` was called, SecureHeaders analysed all the headers already loaded in PHPs internal list. 
 
 As part of this process, the following headers will be sent. This provided they don't already have values (and are not explicitly removed using [`->removeHeader`](removeHeader)).
 
@@ -64,14 +64,14 @@ It is also advisable that the `Server` header is removed, because it leaks much 
 
 ### Protected Cookies
 
-If any cookies have been set at any time before `->done()` is
-called(, or at any time before the first byte of output if `->doneOnOutput()` is set).
+If any cookies have been set at any time before `->apply()` is
+called(, or at any time before the first byte of output if `->applyOnOutput()` is set).
 
 Consider the following as an example.
 ```php
 <?php
 $headers = new SecureHeaders();
-$headers->doneOnOutput();
+$headers->applyOnOutput();
 
 setcookie('auth', generateSuperSecretAuthenticationString());
 ?>
@@ -103,7 +103,7 @@ $headers = new SecureHeaders();
 $headers->hsts();
 $headers->csp('default', 'self');
 $headers->csp('script', 'https://my.cdn.org');
-$headers->done();
+$headers->apply();
 ```
 Here, [`->hsts`](hsts) with no arguments will deploy Strict-Transport-Security with a one year duration.
 
@@ -114,7 +114,7 @@ The lines calling [`->csp`](csp) will add `'self'` as a whitelisted source to `d
 $headers = new SecureHeaders();
 $headers->strictMode();
 $headers->cspNonce('script');
-$headers->done();
+$headers->apply();
 ```
 Here, [`->strictMode`](strictMode) is used. Strict mode will deploy Strict-Transport-Security with a one year duration, and `includeSubDomains` and `preload` flags. (You'll still have to [manually submit](https://hstspreload.appspot.com/) your domain to become preloaded though).
 

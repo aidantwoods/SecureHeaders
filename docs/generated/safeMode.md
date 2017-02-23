@@ -20,7 +20,7 @@ mode is the on/off setting. Any value of type that is loosely castable to a bool
  more similar to the way some values are set in PHP ini files).
 
 ## Examples
-For example, if the following code was run (safe mode can be called at any point before `->done()` to be effective)
+For example, if the following code was run (safe mode can be called at any point before `->apply()` to be effective)
 ```php
 $headers->hsts();
 $headers->safeMode();

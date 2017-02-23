@@ -1,5 +1,5 @@
 ## Examples
-For example, if the following code was run (safe mode can be called at any point before `->done()` to be effective)
+For example, if the following code was run (safe mode can be called at any point before `->apply()` to be effective)
 ```php
 $headers->hsts();
 $headers->safeMode();

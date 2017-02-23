@@ -5,8 +5,8 @@ namespace Aidantwoods\SecureHeaders;
 class CustomSecureHeaders extends SecureHeaders{
     public function __construct()
     {
-        # implicitly call $this->done() on first byte of output
-        $this->doneOnOutput();
+        # implicitly call $this->apply() on first byte of output
+        $this->applyOnOutput();
 
         # content headers
         $this->header('Content-type', 'text/html; charset=utf-8');

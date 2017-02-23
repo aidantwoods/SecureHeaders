@@ -28,17 +28,17 @@ A page that wants to use this, now only need the following:
 $headers = new CustomSecureHeaders;
 ```
 
-Of course, if you want to add additional CSP sources on the fly per page, simply call [`->csp`](csp) at some point before [`->done`](done).
+Of course, if you want to add additional CSP sources on the fly per page, simply call [`->csp`](csp) at some point before [`->apply`](apply).
 
 
 ### Auto send headers
-Don't want to have to call [`->done`](done), write an extension that enables [`->doneOnOutput`](doneOnOutput) on instance construction.
+Don't want to have to call [`->apply`](apply), write an extension that enables [`->applyOnOutput`](applyOnOutput) on instance construction.
 ```php
 
 class CustomSecureHeaders extends SecureHeaders{
     public function __construct()
     {
-        $this->doneOnOutput();
+        $this->applyOnOutput();
     }
 }
 ```
@@ -48,13 +48,13 @@ $headers = new CustomSecureHeaders;
 ```
 
 ### Whatever suits you
-This one will enable [`->doneOnOutput`](doneOnOutput), generate some nonces to use for `style-src` and `script-src`, and enable [`->strictMode`](strictMode).
+This one will enable [`->applyOnOutput`](applyOnOutput), generate some nonces to use for `style-src` and `script-src`, and enable [`->strictMode`](strictMode).
 
 ```php
 class CustomSecureHeaders extends SecureHeaders{    
     public function __construct()
     {
-        $this->doneOnOutput();
+        $this->applyOnOutput();
 
         $this->strictMode();
 
