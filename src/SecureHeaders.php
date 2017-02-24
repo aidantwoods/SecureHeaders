@@ -91,7 +91,10 @@ class SecureHeaders{
 
     protected $headerProposals = array(
         'Referrer-Policy'
-            => 'strict-origin-when-cross-origin',
+            => array(
+                'no-referrer',
+                'strict-origin-when-cross-origin'
+            ),
         'X-Permitted-Cross-Domain-Policies'
             => 'none',
         'X-XSS-Protection'
