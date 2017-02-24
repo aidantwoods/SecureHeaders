@@ -158,13 +158,6 @@ class SecureHeaders{
         'strict-dynamic'    =>  "'strict-dynamic'"
     );
 
-    private $cspSensitiveDirectives = array(
-        'default-src',
-        'script-src',
-        'style-src',
-        'object-src'
-    );
-
     protected $csproBlacklist       = array(
         'block-all-mixed-content',
         'upgrade-insecure-requests'
@@ -189,33 +182,6 @@ class SecureHeaders{
         'X-Frame-Options',
         'Referrer-Policy'
     );
-
-    private $cspSourceWildcardRe
-        =   '/(?:[ ]|^)\K
-            (?:
-            # catch open protocol wildcards
-                [^:.\/ ]+?
-                [:]
-                (?:[\/]{2})?
-                [*]?
-            |
-            # catch domain based wildcards
-                (?: # optional protocol
-                    [^:. ]+?
-                    [:]
-                    [\/]{2}
-                )?
-                # optionally match domain text before *
-                [^\/:* ]*?
-                [*]
-                (?: # optionally match TLDs after *
-                    (?:[^. ]*?[.])?
-                    (?:[^. ]{1,3}[.])?
-                    [^. ]*
-                )?
-            )
-            # assert that match covers the entire value
-            (?=[ ;]|$)/ix';
 
     # ~
     # Constants
@@ -1539,44 +1505,9 @@ class SecureHeaders{
 
     private function validateHeaders(HeaderBag $headers)
     {
-        $headers->forEachNamed(
-            'content-security-policy',
-            function (Header $header)
-            {
-                $this->validateSrcAttribute($header, 'default-src');
-                $this->validateSrcAttribute($header, 'script-src');
-
-                $this->validateCSPAttributes($header);
-            }
-        );
-
-        $headers->forEachNamed(
-            'content-security-policy-report-only',
-            function (Header $header)
-            {
-                if (
-                    ! $header->hasAttribute('report-uri')
-                    or  ! preg_match(
-                        '/https:\/\/[a-z0-9\-]+[.][a-z]{2,}.*/i',
-                        $header->getAttributeValue('report-uri')
-                    )
-                ) {
-                    $friendlyHeader = $header->getFriendlyName();
-
-                    $this->addError($friendlyHeader.' header was sent,
-                        but an invalid, or no reporting address was given.
-                        This header will not enforce violations, and with no
-                        reporting address specified, the browser can only
-                        report them locally in its console. Consider adding
-                        a reporting address to make full use of this header.'
-                    );
-                }
-
-                $this->validateSrcAttribute($header, 'default-src');
-                $this->validateSrcAttribute($header, 'script-src');
-
-                $this->validateCSPAttributes($header);
-            }
+        $this->errors = array_merge(
+            $this->errors,
+            Validator::validate($headers)
         );
     }
 
@@ -1917,88 +1848,5 @@ class SecureHeaders{
     private function automatic($operation)
     {
         return ($this->automaticHeaders & $operation) === $operation;
-    }
-
-    private function validateSrcAttribute(Header $header, $attributeName)
-    {
-        if ($header->hasAttribute($attributeName))
-        {
-            $value = $header->getAttributeValue($attributeName);
-
-            $badFlags = array("'unsafe-inline'", "'unsafe-eval'");
-            foreach ($badFlags as $badFlag)
-            {
-                if (strpos($value, $badFlag) !== false)
-                {
-                    $friendlyHeader = $header->getFriendlyName();
-
-                    $this->addError(
-                        $friendlyHeader . ' contains the <b>'
-                        . $badFlag . '</b> keyword in <b>' . $attributeName
-                        . '</b>, which prevents CSP protecting
-                                against the injection of arbitrary code
-                                into the page.',
-
-                        E_USER_WARNING
-                    );
-                }
-            }
-        }
-    }
-
-    private function validateCSPAttributes(Header $header)
-    {
-        $header->forEachAttribute(
-            function ($name, $value) use ($header)
-            {
-                if (preg_match_all($this->cspSourceWildcardRe, $value, $matches))
-                {
-                    if ( ! in_array($name, $this->cspSensitiveDirectives))
-                    {
-                        # if we're not looking at one of the above, we'll
-                        # be a little less strict with data:
-                        if (($key = array_search('data:', $matches[0])) !== false)
-                        {
-                            unset($matches[0][$key]);
-                        }
-                    }
-
-                    if ( ! empty($matches[0]))
-                    {
-                        $friendlyHeader = $header->getFriendlyName();
-
-                        $this->addError(
-                            $friendlyHeader . ' ' . (count($matches[0]) > 1 ?
-                                'contains the following wildcards '
-                                : 'contains a wildcard ')
-                            . '<b>' . implode(', ', $matches[0]) . '</b> as a
-                                source value in <b>' . $name . '</b>; this can
-                                allow anyone to insert elements covered by
-                                the <b>' . $name . '</b> directive into the
-                                page.',
-
-                            E_USER_WARNING
-                        );
-                    }
-                }
-
-                if (preg_match_all('/(?:[ ]|^)\Khttp[:][^ ]*/', $value, $matches))
-                {
-                    $friendlyHeader = $header->getFriendlyName();
-
-                    $this->addError(
-                        $friendlyHeader . ' contains the insecure protocol
-                            HTTP in ' . (count($matches[0]) > 1 ?
-                            'the following source values '
-                            : 'a source value ')
-                        . '<b>' . implode(', ', $matches[0]) . '</b>; this can
-                            allow anyone to insert elements covered by the
-                            <b>' . $name . '</b> directive into the page.',
-
-                        E_USER_WARNING
-                    );
-                }
-            }
-        );
     }
 }
