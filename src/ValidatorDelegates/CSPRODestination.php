@@ -6,7 +6,7 @@ use Aidantwoods\SecureHeaders\Error;
 use Aidantwoods\SecureHeaders\Header;
 use Aidantwoods\SecureHeaders\ValidatorDelegate;
 
-class csproDestination implements ValidatorDelegate
+class CSPRODestination implements ValidatorDelegate
 {
     /**
      * Validate the given header

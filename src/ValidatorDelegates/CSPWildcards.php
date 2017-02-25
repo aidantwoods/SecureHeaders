@@ -6,7 +6,7 @@ use Aidantwoods\SecureHeaders\Error;
 use Aidantwoods\SecureHeaders\Header;
 use Aidantwoods\SecureHeaders\ValidatorDelegate;
 
-class cspWildcards implements ValidatorDelegate
+class CSPWildcards implements ValidatorDelegate
 {
     const CSP_SOURCE_WILDCARD_RE
         = '/(?:[ ]|^)\K

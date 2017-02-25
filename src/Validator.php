@@ -10,11 +10,11 @@ abstract class Validator
     const VALIDATOR_NAMESPACE = 'Aidantwoods\SecureHeaders\ValidatorDelegates';
 
     private static $delegates = array(
-        'cspBadFlags'
+        'CSPBadFlags'
             => array(self::CSP, self::CSPRO),
-        'cspWildcards'
+        'CSPWildcards'
             => array(self::CSP, self::CSPRO),
-        'csproDestination'
+        'CSPRODestination'
             => self::CSPRO 
     );
 
