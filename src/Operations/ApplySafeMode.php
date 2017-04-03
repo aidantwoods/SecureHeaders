@@ -2,7 +2,6 @@
 
 namespace Aidantwoods\SecureHeaders\Operations;
 
-use Aidantwoods\SecureHeaders\Error;
 use Aidantwoods\SecureHeaders\ExposesErrors;
 use Aidantwoods\SecureHeaders\Header;
 use Aidantwoods\SecureHeaders\HeaderBag;
