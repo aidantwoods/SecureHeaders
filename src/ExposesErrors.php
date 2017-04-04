@@ -2,8 +2,6 @@
 
 namespace Aidantwoods\SecureHeaders;
 
-use Aidantwoods\SecureHeaders\Error;
-
 interface ExposesErrors
 {
     /**

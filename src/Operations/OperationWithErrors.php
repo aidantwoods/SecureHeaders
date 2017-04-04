@@ -3,7 +3,6 @@
 namespace Aidantwoods\SecureHeaders\Operations;
 
 use Aidantwoods\SecureHeaders\Error;
-use Aidantwoods\SecureHeaders\Operation;
 use Aidantwoods\SecureHeaders\ExposesErrors;
 
 abstract class OperationWithErrors implements ExposesErrors
