@@ -35,6 +35,6 @@ class AddHeaderTest extends PHPUnit_Framework_TestCase
         $allHeaders = $headers->get();
         $this->assertCount(1, $allHeaders);
         $this->assertTrue($allHeaders[0]->is('x-foo'));
-        $this->assertEquals('bar', $allHeaders[0]->getValue());
+        $this->assertSame('bar', $allHeaders[0]->getValue());
     }
-}   
+}
