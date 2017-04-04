@@ -4,6 +4,7 @@ namespace Tests\Util;
 
 use Aidantwoods\SecureHeaders\Util\Types;
 use PHPUnit_Framework_TestCase;
+use stdClass;
 
 class TypesTest extends PHPUnit_Framework_TestCase
 {
@@ -34,7 +35,7 @@ class TypesTest extends PHPUnit_Framework_TestCase
             array('boolean', false),
             array('boolean', true),
             array('boolean', null),
-            array('object', new \stdClass()),
+            array('object', new stdClass()),
             array('object', null),
         );
     }
@@ -58,25 +59,25 @@ class TypesTest extends PHPUnit_Framework_TestCase
             array('string', 1.5),
             array('string', false),
             array('string', true),
-            array('string', new \stdClass()),
+            array('string', new stdClass()),
             array('integer', 'abcde'),
             array('integer', 1.5),
             array('integer', false),
             array('integer', true),
-            array('integer', new \stdClass()),
+            array('integer', new stdClass()),
             array('double', 'abcde'),
             array('double', 42),
             array('double', false),
             array('double', true),
-            array('double', new \stdClass()),
+            array('double', new stdClass()),
             array('bool', 'abcde'),
             array('bool', 42),
             array('bool', 1.5),
-            array('bool', new \stdClass()),
+            array('bool', new stdClass()),
             array('boolean', 'abcde'),
             array('boolean', 42),
             array('boolean', 1.5),
-            array('boolean', new \stdClass()),
+            array('boolean', new stdClass()),
             array('object', 'abcde'),
             array('object', 42),
             array('object', 1.5),
@@ -84,4 +85,4 @@ class TypesTest extends PHPUnit_Framework_TestCase
             array('object', true),
         );
     }
-}   
+}
