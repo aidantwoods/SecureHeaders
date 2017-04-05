@@ -8,67 +8,67 @@ use PHPUnit_Framework_TestCase;
 
 class SafeModeTest extends PHPUnit_Framework_TestCase
 {
-    private $assertions = array(
+    private $assertions = [
         'Contains',
         'NotContains',
         'Equals',
         'Regexp',
         'NotRegExp'
-    );
+    ];
 
     function dataSafeMode()
     {
-        return array(
-            array(
+        return [
+            [
                 'test' => 
                     function(&$headers){
                         $headers->hsts(31536000, true, true);
                     },
-                'assertions' => array(
+                'assertions' => [
                     'Contains' =>
                         'Strict-Transport-Security: max-age=31536000; includeSubDomains; preload'
-                )
-            ),
-            array(
+                ]
+            ],
+            [
                 'test' => 
                     function(&$headers){
                         $headers->safeMode();
                         $headers->hsts(31536000, true, true);
                     },
-                'assertions' => array(
+                'assertions' => [
                     'NotContains' =>
                         'Strict-Transport-Security: max-age=31536000; includeSubDomains; preload',
                     'Contains' =>
                         'Strict-Transport-Security: max-age=86400'
-                )
-            ),
-            array(
+                ]
+            ],
+            [
                 'test' => 
                     function(&$headers){
                         $headers->safeMode();
                         $headers->strictMode();
                     },
-                'assertions' => array(
+                'assertions' => [
                     'NotContains' =>
                         'Strict-Transport-Security: max-age=31536000; includeSubDomains; preload',
                     'Contains' =>
                         'Strict-Transport-Security: max-age=86400'
-                )
-            ),
-            array(
+                ]
+            ],
+            [
                 'test' => 
                     function(&$headers){
                         $headers->safeMode();
                         $headers->hpkp('abcd', 31536000, true);
                     },
-                'assertions' => array(
+                'assertions' => [
                     'NotContains' =>
                         'max-age=31536000; pin-sha256="abcd"; includeSubDomains',
                     'Contains' =>
                         'Public-Key-Pins: max-age=10; pin-sha256="abcd"'
-                )
-            )
-        );
+                ]
+            ]
+        ];
     }
 
     /**
@@ -91,7 +91,7 @@ class SafeModeTest extends PHPUnit_Framework_TestCase
             {
                 if ( ! is_array($assertions[$assertion]))
                 {
-                    $assertions[$assertion] = array($assertions[$assertion]);
+                    $assertions[$assertion] = [$assertions[$assertion]];
                 }
                 foreach ($assertions[$assertion] as $assertionString)
                 {

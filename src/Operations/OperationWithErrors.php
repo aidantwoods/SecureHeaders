@@ -7,7 +7,7 @@ use Aidantwoods\SecureHeaders\ExposesErrors;
 
 abstract class OperationWithErrors implements ExposesErrors
 {
-    private $errors = array();
+    private $errors = [];
 
     /**
      * Return an array of errors, clearing any stored errors
@@ -32,7 +32,7 @@ abstract class OperationWithErrors implements ExposesErrors
      */
     protected function clearErrors()
     {
-        $this->errors = array();
+        $this->errors = [];
     }
 
     /**

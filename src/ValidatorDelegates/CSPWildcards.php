@@ -35,12 +35,12 @@ class CSPWildcards implements ValidatorDelegate
             # assert that match covers the entire value
             (?=[ ;]|$)/ix';
 
-    private static $cspSensitiveDirectives = array(
+    private static $cspSensitiveDirectives = [
         'default-src',
         'script-src',
         'style-src',
         'object-src'
-    );
+    ];
 
     /**
      * Validate the given header
@@ -51,7 +51,7 @@ class CSPWildcards implements ValidatorDelegate
      */
     public static function validate(Header $header)
     {
-        $errors = array();
+        $errors = [];
 
         $header->forEachAttribute(
             function ($directive, $sources) use ($header, &$errors)

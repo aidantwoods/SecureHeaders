@@ -16,7 +16,7 @@ class CompileCSP implements Operation
     public function __construct(
         array $cspConfig,
         array $csproConfig,
-        array $csproBlacklist = array(),
+        array $csproBlacklist = [],
         $sendLegacyHeaders = false,
         $combineMultiplePolicies = true
     ) {
@@ -36,10 +36,10 @@ class CompileCSP implements Operation
      */
     public function modify(HeaderBag &$headers)
     {
-        $cspHeaders = array(
+        $cspHeaders = [
             'Content-Security-Policy' => 'csp',
             'Content-Security-Policy-Report-Only' => 'cspro',
-        );
+        ];
 
         foreach ($cspHeaders as $header => $type)
         {
@@ -47,7 +47,7 @@ class CompileCSP implements Operation
             {
                 $otherPolicyHeaders = $headers->getByName($header);
 
-                $policies = array($this->{$type.'Config'});
+                $policies = [$this->{$type.'Config'}];
 
                 foreach ($otherPolicyHeaders as $otherPolicy)
                 {
@@ -92,7 +92,7 @@ class CompileCSP implements Operation
 
     public static function compile($config)
     {
-        $pieces = array();
+        $pieces = [];
 
         foreach ($config as $directive => $sources)
         {
@@ -116,7 +116,7 @@ class CompileCSP implements Operation
 
     public static function deconstructCSP($cspString)
     {
-        $csp = array();
+        $csp = [];
 
         $directivesAndSources = explode(';', $cspString);
 
@@ -169,7 +169,7 @@ class CompileCSP implements Operation
 
     public static function mergeCSPList(array $cspList)
     {
-        $finalCSP = array();
+        $finalCSP = [];
 
         foreach ($cspList as $csp)
         {

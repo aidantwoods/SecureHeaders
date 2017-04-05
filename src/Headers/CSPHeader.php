@@ -9,7 +9,7 @@ class CSPHeader extends RegularHeader implements Header
 {
     protected function parseAttributes()
     {
-        $this->attributes = array();
+        $this->attributes = [];
 
         $policy = CompileCSP::deconstructCSP($this->value);
 
@@ -17,19 +17,19 @@ class CSPHeader extends RegularHeader implements Header
         {
             if ( ! isset($this->attributes[$directive]))
             {
-                $this->attributes[$directive] = array();
+                $this->attributes[$directive] = [];
             }
 
-            $this->attributes[$directive][] = array(
+            $this->attributes[$directive][] = [
                 'name' => $directive,
                 'value' => $sources === true ?: implode(' ', $sources)
-            );
+            ];
         }
     }
 
     protected function writeAttributesToValue()
     {
-        $policies = array();
+        $policies = [];
 
         foreach ($this->attributes as $attributes)
         {
@@ -68,13 +68,13 @@ class CSPHeader extends RegularHeader implements Header
 
         if ( ! isset($this->attributes[$key]))
         {
-            $this->attributes[$key] = array();
+            $this->attributes[$key] = [];
         }
 
-        $this->attributes[$key][] = array(
+        $this->attributes[$key][] = [
             'name' => $name,
             'value' => $value
-        );
+        ];
 
         $this->writeAttributesToValue();
     }

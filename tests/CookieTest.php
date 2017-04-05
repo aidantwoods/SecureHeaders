@@ -11,10 +11,10 @@ class CookieTest extends PHPUnit_Framework_TestCase
 
     public function testCookieUpgrades()
     {
-        $headerStrings = new StringHttpAdapter(array(
+        $headerStrings = new StringHttpAdapter([
             'Set-Cookie: normalcookie=value1',
             'Set-Cookie: authcookie=value2',
-        ));
+        ]);
 
         $headers = new SecureHeaders;
         $headers->errorReporting(false);
@@ -29,9 +29,9 @@ class CookieTest extends PHPUnit_Framework_TestCase
 
     public function testSameSiteCookiesNoSameSite()
     {
-        $headerStrings = new StringHttpAdapter(array(
+        $headerStrings = new StringHttpAdapter([
             'Set-Cookie: authcookie=value'
-        ));
+        ]);
 
         $headers = new SecureHeaders;
         $headers->errorReporting(false);
@@ -47,9 +47,9 @@ class CookieTest extends PHPUnit_Framework_TestCase
 
     public function testSameSiteCookiesStrictModeNoSameSite()
     {
-        $headerStrings = new StringHttpAdapter(array(
+        $headerStrings = new StringHttpAdapter([
             'Set-Cookie: authcookie=value'
-        ));
+        ]);
 
         $headers = new SecureHeaders;
         $headers->errorReporting(false);
@@ -67,9 +67,9 @@ class CookieTest extends PHPUnit_Framework_TestCase
 
     public function testSameSiteCookiesStrictMode()
     {
-        $headerStrings = new StringHttpAdapter(array(
+        $headerStrings = new StringHttpAdapter([
             'Set-Cookie: authcookie=value'
-        ));
+        ]);
 
         $headers = new SecureHeaders;
         $headers->errorReporting(false);
@@ -85,9 +85,9 @@ class CookieTest extends PHPUnit_Framework_TestCase
 
     public function testSameSiteCookiesStrictModeExplicitLax()
     {
-        $headerStrings = new StringHttpAdapter(array(
+        $headerStrings = new StringHttpAdapter([
             'Set-Cookie: authcookie=value'
-        ));
+        ]);
 
         $headers = new SecureHeaders;
         $headers->errorReporting(false);
@@ -104,9 +104,9 @@ class CookieTest extends PHPUnit_Framework_TestCase
 
     public function testSameSiteCookiesExplicitLax()
     {
-        $headerStrings = new StringHttpAdapter(array(
+        $headerStrings = new StringHttpAdapter([
             'Set-Cookie: authcookie=value'
-        ));
+        ]);
 
         $headers = new SecureHeaders;
         $headers->errorReporting(false);
@@ -122,9 +122,9 @@ class CookieTest extends PHPUnit_Framework_TestCase
 
     public function testSameSiteCookiesExplicitStrict()
     {
-        $headerStrings = new StringHttpAdapter(array(
+        $headerStrings = new StringHttpAdapter([
             'Set-Cookie: authcookie=value'
-        ));
+        ]);
 
         $headers = new SecureHeaders;
         $headers->errorReporting(false);
@@ -140,10 +140,10 @@ class CookieTest extends PHPUnit_Framework_TestCase
 
     public function testCookiesRemovable()
     {
-        $headerStrings = new StringHttpAdapter(array(
+        $headerStrings = new StringHttpAdapter([
             'Set-Cookie: authcookie=value',
             'Set-Cookie: regularcookie=value'
-        ));
+        ]);
 
         $headers = new SecureHeaders;
         $headers->errorReporting(false);

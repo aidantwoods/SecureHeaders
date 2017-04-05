@@ -14,7 +14,7 @@ class Types
             foreach ($vars as $var)
             {
                 $allowedTypes = array_merge(
-                    array('NULL'),
+                    ['NULL'],
                     explode('|', $type)
                 );
 
@@ -45,14 +45,14 @@ class Types
     private static function normalizeType($type)
     {
         return preg_replace(
-            array(
+            [
                 '/bool(?=$|[\|])/',
                 '/int(?=$|[\|])/'
-            ),
-            array(
+            ],
+            [
                 'boolean',
                 'integer'
-            ),
+            ],
             strtolower($type)
         );
     }

@@ -10,9 +10,9 @@ class AddHeaderTest extends PHPUnit_Framework_TestCase
 {
     public function testHeadersCanBeAdded()
     {
-        $headers = HeaderBag::fromHeaderLines(array(
+        $headers = HeaderBag::fromHeaderLines([
             'X-Foo: Bar',
-        ));
+        ]);
 
         $operation = new AddHeader('Location', 'index.php');
         $operation->modify($headers);
@@ -23,9 +23,9 @@ class AddHeaderTest extends PHPUnit_Framework_TestCase
 
     public function testExistingHeadersAreNotReplaced()
     {
-        $headers = HeaderBag::fromHeaderLines(array(
+        $headers = HeaderBag::fromHeaderLines([
             'X-Foo: bar',
-        ));
+        ]);
 
         $operation = new AddHeader('x-foo', 'baz');
         $operation->modify($headers);
