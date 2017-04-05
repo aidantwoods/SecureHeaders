@@ -58,4 +58,4 @@ class ModifyCookiesTest extends PHPUnit_Framework_TestCase
             strpos($header->getValue(), $flag)
         );
     }
-}   
+}

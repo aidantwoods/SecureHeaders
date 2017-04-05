@@ -82,4 +82,4 @@ class SecureHeadersTest extends PHPUnit_Framework_TestCase
         $this->assertContains('X-Frame-Options: Deny', $headersString);
         $this->assertNotContains('X-XSS-Protection', $headersString);
     }
-}   
+}

@@ -16,12 +16,12 @@ class SafeModeTest extends PHPUnit_Framework_TestCase
         'NotRegExp'
     ];
 
-    function dataSafeMode()
+    public function dataSafeMode()
     {
         return [
             [
-                'test' => 
-                    function(&$headers){
+                'test' =>
+                    function (&$headers) {
                         $headers->hsts(31536000, true, true);
                     },
                 'assertions' => [
@@ -30,8 +30,8 @@ class SafeModeTest extends PHPUnit_Framework_TestCase
                 ]
             ],
             [
-                'test' => 
-                    function(&$headers){
+                'test' =>
+                    function (&$headers) {
                         $headers->safeMode();
                         $headers->hsts(31536000, true, true);
                     },
@@ -43,8 +43,8 @@ class SafeModeTest extends PHPUnit_Framework_TestCase
                 ]
             ],
             [
-                'test' => 
-                    function(&$headers){
+                'test' =>
+                    function (&$headers) {
                         $headers->safeMode();
                         $headers->strictMode();
                     },
@@ -56,8 +56,8 @@ class SafeModeTest extends PHPUnit_Framework_TestCase
                 ]
             ],
             [
-                'test' => 
-                    function(&$headers){
+                'test' =>
+                    function (&$headers) {
                         $headers->safeMode();
                         $headers->hpkp('abcd', 31536000, true);
                     },
@@ -85,16 +85,12 @@ class SafeModeTest extends PHPUnit_Framework_TestCase
 
         $headersString = $headerStrings->getSentHeaders();
 
-        foreach ($this->assertions as $assertion)
-        {
-            if (isset($assertions[$assertion]))
-            {
-                if ( ! is_array($assertions[$assertion]))
-                {
+        foreach ($this->assertions as $assertion) {
+            if (isset($assertions[$assertion])) {
+                if (! is_array($assertions[$assertion])) {
                     $assertions[$assertion] = [$assertions[$assertion]];
                 }
-                foreach ($assertions[$assertion] as $assertionString)
-                {
+                foreach ($assertions[$assertion] as $assertionString) {
                     $this->{'assert'.$assertion}(
                         $assertionString,
                         $headersString
@@ -103,4 +99,4 @@ class SafeModeTest extends PHPUnit_Framework_TestCase
             }
         }
     }
-}   
+}

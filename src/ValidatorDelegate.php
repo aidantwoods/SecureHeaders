@@ -9,7 +9,7 @@ interface ValidatorDelegate
      *
      * @param Header $header
      *
-     * @return Error[] 
+     * @return Error[]
      */
     public static function validate(Header $header);
 }

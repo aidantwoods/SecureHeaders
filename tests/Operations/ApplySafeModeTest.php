@@ -44,4 +44,4 @@ class ApplySafeModeTest extends PHPUnit_Framework_TestCase
             $allHeaders[0]->getValue()
         );
     }
-}   
+}

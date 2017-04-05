@@ -15,7 +15,7 @@ abstract class Validator
         'CSPWildcards'
             => [self::CSP, self::CSPRO],
         'CSPRODestination'
-            => self::CSPRO 
+            => self::CSPRO
     ];
 
     /**
@@ -29,21 +29,17 @@ abstract class Validator
     {
         $errors = [];
 
-        foreach (self::$delegates as $delegate => $headerList)
-        {
+        foreach (self::$delegates as $delegate => $headerList) {
             $class = self::VALIDATOR_NAMESPACE.'\\'.$delegate;
 
-            if ( ! is_array($headerList))
-            {
+            if (! is_array($headerList)) {
                 $headerList = [$headerList];
             }
 
-            foreach ($headerList as $headerName)
-            {
+            foreach ($headerList as $headerName) {
                 $headers->forEachNamed(
                     $headerName,
-                    function (Header $header) use (&$errors, $class)
-                    {
+                    function (Header $header) use (&$errors, $class) {
                         $errors = array_merge(
                             $errors,
                             $class::validate($header)

@@ -27,14 +27,12 @@ class Psr7Adapter implements HttpAdapter
     {
         # First, remove all headers on the response object
         $headersToRemove = $this->response->getHeaders();
-        foreach ($headersToRemove as $name => $headerLines)
-        {
+        foreach ($headersToRemove as $name => $headerLines) {
             $this->response = $this->response->withoutHeader($name);
         }
 
         # And then, reset all headers from the HeaderBag instance
-        foreach ($headers->get() as $header)
-        {
+        foreach ($headers->get() as $header) {
             $this->response = $this->response->withAddedHeader(
                 $header->getName(),
                 $header->getValue()
@@ -50,10 +48,8 @@ class Psr7Adapter implements HttpAdapter
     public function getHeaders()
     {
         $headerLines = [];
-        foreach ($this->response->getHeaders() as $name => $lines)
-        {
-            foreach ($lines as $line)
-            {
+        foreach ($this->response->getHeaders() as $name => $lines) {
+            foreach ($lines as $line) {
                 $headerLines[] = "$name: $line";
             }
         }

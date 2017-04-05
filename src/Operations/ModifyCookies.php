@@ -41,12 +41,10 @@ class ModifyCookies implements Operation
      */
     public function modify(HeaderBag &$headers)
     {
-        foreach ($headers->getByName('set-cookie') as $cookieHeader)
-        {
+        foreach ($headers->getByName('set-cookie') as $cookieHeader) {
             $cookieName = $cookieHeader->getFirstAttributeName();
 
-            if ( ! $cookieHeader->hasAttribute($this->field) and $this->matches($cookieName))
-            {
+            if (! $cookieHeader->hasAttribute($this->field) and $this->matches($cookieName)) {
                 $cookieHeader->setAttribute($this->field, $this->value);
             }
         }
