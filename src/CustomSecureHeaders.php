@@ -46,12 +46,12 @@ class CustomSecureHeaders extends SecureHeaders{
 
         # add a hpkp policy
         $this->hpkp(
-            array(
+            [
                 'pin1', 
                 ['pin2', 'sha256'],
                 ['sha256', 'pin3'],
                 ['pin4']
-            ),
+            ],
             1500,
             1
         );
@@ -77,7 +77,7 @@ class CustomSecureHeaders extends SecureHeaders{
         }
     }
 
-    private $base = array(
+    private $base = [
         "default-src" => ["'self'"],
         "script-src" => [
             "'self'",
@@ -115,5 +115,5 @@ class CustomSecureHeaders extends SecureHeaders{
         "frame-ancestors" => ["'none'"],
         "object-src" => ["'none'"],
         'block-all-mixed-content' => [null]
-    );
+    ];
 }

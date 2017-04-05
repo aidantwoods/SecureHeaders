@@ -9,14 +9,14 @@ use Aidantwoods\SecureHeaders\Operation;
 
 class ApplySafeMode extends OperationWithErrors implements Operation, ExposesErrors
 {
-    private static $unsafeHeaders = array(
+    private static $unsafeHeaders = [
         'strict-transport-security' => 'sanitizeSTS',
         'public-key-pins' => 'sanitizePKP',
-    );
+    ];
 
     private $exceptions;
 
-    public function __construct(array $exceptions = array())
+    public function __construct(array $exceptions = [])
     {
         $this->exceptions = $exceptions;
     }

@@ -67,7 +67,7 @@ class InjectStrictDynamic extends OperationWithErrors implements Operation, Expo
             $nonceOrHashRe = implode(
                 '|',
                 array_merge(
-                    array('nonce'),
+                    ['nonce'],
                     $this->allowedCSPHashAlgs
                 )
             );

@@ -37,7 +37,7 @@ class Psr7AdapterTest extends PHPUnit_Framework_TestCase
 
         $finalResponse = $adapter->getFinalResponse();
 
-        $this->assertEquals(array(), $finalResponse->getHeaders());
+        $this->assertEquals([], $finalResponse->getHeaders());
     }
 
     public function testSendsAllHeadersFromHeaderBag()
@@ -48,18 +48,18 @@ class Psr7AdapterTest extends PHPUnit_Framework_TestCase
             ->withAddedHeader('X-Foo-Bar', 'val2');
 
         $adapter = new Psr7Adapter($response);
-        $adapter->sendHeaders(HeaderBag::fromHeaderLines(array(
+        $adapter->sendHeaders(HeaderBag::fromHeaderLines([
             'Content-Type: text/xml',
             'Content-Length: 123',
             'Cache-Control: no-worries :)'
-        )));
+        ]));
 
         $finalResponse = $adapter->getFinalResponse();
 
-        $this->assertEquals(array(
-            'content-type' => array('text/xml'),
-            'content-length' => array('123'),
-            'cache-control' => array('no-worries :)')
-        ), $finalResponse->getHeaders());
+        $this->assertEquals([
+            'content-type' => ['text/xml'],
+            'content-length' => ['123'],
+            'cache-control' => ['no-worries :)']
+        ], $finalResponse->getHeaders());
     }
 }   

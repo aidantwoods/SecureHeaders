@@ -49,7 +49,7 @@ class Psr7Adapter implements HttpAdapter
      */
     public function getHeaders()
     {
-        $headerLines = array();
+        $headerLines = [];
         foreach ($this->response->getHeaders() as $name => $lines)
         {
             foreach ($lines as $line)

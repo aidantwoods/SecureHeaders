@@ -8,112 +8,112 @@ use PHPUnit_Framework_TestCase;
 
 class StrictModeHeadersTest extends PHPUnit_Framework_TestCase
 {
-    private $assertions = array(
+    private $assertions = [
         'Contains',
         'NotContains',
         'Equals',
         'Regexp',
         'NotRegExp'
-    );
+    ];
 
     function dataStrictMode()
     {
-        return array(
-            array(
+        return [
+            [
                 'test' => 
                     function(&$headers){
                         $headers->strictMode();
                     },
-                'assertions' => array(
+                'assertions' => [
                     'Contains' =>
                         'Strict-Transport-Security: max-age=31536000; includeSubDomains; preload'
-                )
-            ),
-            array(
+                ]
+            ],
+            [
                 'test' => 
                     function(&$headers){
                         $headers->strictMode();
                         $headers->cspNonce('script');
                     },
-                'assertions' => array(
+                'assertions' => [
                     'Regexp' =>
                         "/Content-Security-Policy: script-src 'nonce-[^']+' 'strict-dynamic'/"
-                )
-            ),
-            array(
+                ]
+            ],
+            [
                 'test' => 
                     function(&$headers){
                         $headers->strictMode();
                         $headers->cspNonce('default');
                     },
-                'assertions' => array(
+                'assertions' => [
                     'Regexp' =>
                         "/Content-Security-Policy: default-src 'nonce-[^']+' 'strict-dynamic'/"
-                )
-            ),
-            array(
+                ]
+            ],
+            [
                 'test' => 
                     function(&$headers){
                         $headers->strictMode();
                         $headers->cspNonce('default');
                         $headers->cspNonce('script');
                     },
-                'assertions' => array(
+                'assertions' => [
                     'Regexp' =>
                         "/script-src 'nonce-[^']+' 'strict-dynamic'/",
                     'NotRegexp' =>
                         "/default-src 'nonce-[^']+' 'strict-dynamic'/"
-                )
-            ),
-            array(
+                ]
+            ],
+            [
                 'test' => 
                     function(&$headers){
                         $headers->strictMode();
                         $headers->cspHash('default', 'abcd');
                     },
-                'assertions' => array(
+                'assertions' => [
                     'Regexp' =>
                         "/Content-Security-Policy: default-src 'sha[^']+' 'strict-dynamic'/"
-                )
-            ),
-            array(
+                ]
+            ],
+            [
                 'test' => 
                     function(&$headers){
                         $headers->strictMode();
                         $headers->cspHash('script', 'abcd');
                     },
-                'assertions' => array(
+                'assertions' => [
                     'Regexp' =>
                         "/Content-Security-Policy: script-src 'sha[^']+' 'strict-dynamic'/"
-                )
-            ),
-            array(
+                ]
+            ],
+            [
                 'test' => 
                     function(&$headers){
                         $headers->strictMode();
                         $headers->cspHash('default', 'abcd');
                         $headers->cspHash('script', 'abcd');
                     },
-                'assertions' => array(
+                'assertions' => [
                     'Regexp' =>
                         "/script-src 'sha[^']+' 'strict-dynamic'/",
                     'NotRegexp' =>
                         "/default-src 'sha[^']+' 'strict-dynamic'/"
-                )
-            ),
-            array(
+                ]
+            ],
+            [
                 'test' => 
                     function(&$headers){
                         $headers->strictMode();
                         $headers->csp('default', 'http://some-cdn.org');
                         $headers->csp('script', 'http://other-cdn.net');
                     },
-                'assertions' => array(
+                'assertions' => [
                     'NotContains' =>
                         "'strict-dynamic'"
-                )
-            ),
-        );
+                ]
+            ],
+        ];
     }
 
     /**
@@ -136,7 +136,7 @@ class StrictModeHeadersTest extends PHPUnit_Framework_TestCase
             {
                 if ( ! is_array($assertions[$assertion]))
                 {
-                    $assertions[$assertion] = array($assertions[$assertion]);
+                    $assertions[$assertion] = [$assertions[$assertion]];
                 }
                 foreach ($assertions[$assertion] as $assertionString)
                 {

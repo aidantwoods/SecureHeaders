@@ -17,7 +17,7 @@ class CSPRODestination implements ValidatorDelegate
      */
     public static function validate(Header $header)
     {
-        $errors = array();
+        $errors = [];
 
         if (
             ! $header->hasAttribute('report-uri')

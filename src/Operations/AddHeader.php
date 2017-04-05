@@ -16,7 +16,7 @@ class AddHeader implements Operation
 
         if ( ! is_array($value))
         {
-            $value = array($value);
+            $value = [$value];
         }
 
         $this->value = $value;

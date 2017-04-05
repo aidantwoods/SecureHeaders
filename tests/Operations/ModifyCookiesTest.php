@@ -11,13 +11,13 @@ class ModifyCookiesTest extends PHPUnit_Framework_TestCase
 {
     public function testFlagsCanBeSetBasedOnFullyMatchingCookieName()
     {
-        $headers = HeaderBag::fromHeaderLines(array(
+        $headers = HeaderBag::fromHeaderLines([
             'Set-Cookie: session=foo',
             'Set-Cookie: sess=foo',
-        ));
+        ]);
 
         $operation = ModifyCookies::matchingFully(
-            array('sess', 'auth'),
+            ['sess', 'auth'],
             'HttpOnly'
         );
         $operation->modify($headers);
@@ -29,13 +29,13 @@ class ModifyCookiesTest extends PHPUnit_Framework_TestCase
 
     public function testFlagsCanBeSetBasedOnPartiallyMatchingCookieName()
     {
-        $headers = HeaderBag::fromHeaderLines(array(
+        $headers = HeaderBag::fromHeaderLines([
             'Set-Cookie: session=foo',
             'Set-Cookie: sess=foo',
-        ));
+        ]);
 
         $operation = ModifyCookies::matchingPartially(
-            array('sess', 'auth'),
+            ['sess', 'auth'],
             'Secure'
         );
         $operation->modify($headers);

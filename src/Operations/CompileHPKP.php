@@ -24,10 +24,10 @@ class CompileHPKP implements Operation
      */
     public function modify(HeaderBag &$headers)
     {
-        $hpkpHeaders = array(
+        $hpkpHeaders = [
             'Public-Key-Pins' => $this->compilePKP(),
             'Public-Key-Pins-Report-Only' => $this->compilePKPRO(),
-        );
+        ];
 
         foreach ($hpkpHeaders as $header => $value) {
             if (empty($value)) {
@@ -56,7 +56,7 @@ class CompileHPKP implements Operation
 
         $maxAge = isset($config['max-age']) ? $config['max-age'] : 10;
 
-        $pieces = array("max-age=$maxAge");
+        $pieces = ["max-age=$maxAge"];
 
         foreach ($config['pins'] as $pinAlg) {
             list($pin, $alg) = $pinAlg;

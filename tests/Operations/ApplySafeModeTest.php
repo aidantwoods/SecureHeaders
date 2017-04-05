@@ -10,12 +10,12 @@ class ApplySafeModeTest extends PHPUnit_Framework_TestCase
 {
     public function testSTSMaxAgeWillBeReducedToOneDay()
     {
-        $headers = HeaderBag::fromHeaderLines(array(
+        $headers = HeaderBag::fromHeaderLines([
             'Strict-Transport-Security: max-age=31536000; includeSubDomains; preload',
             'Strict-Transport-Security: max-age=31536000; includeSubdomains; PreLoad',
             'Strict-Transport-Security: max-age=31536000; includesubdomains; preLoad',
             'Strict-Transport-Security: max-age=31536000; iNCLUDEsUBdOMAINS; Preload',
-        ));
+        ]);
 
         $operation = new ApplySafeMode();
         $operation->modify($headers);
@@ -30,9 +30,9 @@ class ApplySafeModeTest extends PHPUnit_Framework_TestCase
 
     public function testPKPMaxAgeWillBeReducedToOneDay()
     {
-        $headers = HeaderBag::fromHeaderLines(array(
+        $headers = HeaderBag::fromHeaderLines([
             'Public-Key-Pins: pin-sha256="abc"; pin-sha256="def"; max-age=5184000; includeSubDomains; report-uri="www"',
-        ));
+        ]);
 
         $operation = new ApplySafeMode();
         $operation->modify($headers);

@@ -10,7 +10,7 @@ class RegularHeader implements Header
     protected $name;
     protected $value;
 
-    protected $attributes = array();
+    protected $attributes = [];
 
     public function __construct($name, $value = '')
     {
@@ -98,12 +98,12 @@ class RegularHeader implements Header
     {
         $key = strtolower($name);
 
-        $this->attributes[$key] = array(
-            array(
+        $this->attributes[$key] = [
+            [
                 'name' => $name,
                 'value' => $value
-            )
-        );
+            ]
+        ];
 
         if ($value === false)
         {
@@ -131,7 +131,7 @@ class RegularHeader implements Header
     {
         $parts = explode('; ', $this->value);
 
-        $this->attributes = array();
+        $this->attributes = [];
 
         foreach ($parts as $part)
         {
@@ -141,19 +141,19 @@ class RegularHeader implements Header
 
             if ( ! isset($this->attributes[$type]))
             {
-                $this->attributes[$type] = array();
+                $this->attributes[$type] = [];
             }
 
-            $this->attributes[$type][] = array(
+            $this->attributes[$type][] = [
                 'name' => $attrParts[0],
                 'value' => isset($attrParts[1]) ? $attrParts[1] : true
-            );
+            ];
         }
     }
 
     protected function writeAttributesToValue()
     {
-        $attributeStrings = array();
+        $attributeStrings = [];
 
         foreach ($this->attributes as $attributes)
         {

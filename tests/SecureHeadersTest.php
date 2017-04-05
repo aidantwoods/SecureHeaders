@@ -8,19 +8,19 @@ use PHPUnit_Framework_TestCase;
 
 class SecureHeadersTest extends PHPUnit_Framework_TestCase
 {
-    private $assertions = array(
+    private $assertions = [
         'Contains',
         'NotContains',
         'Equals',
         'Regexp',
         'NotRegExp'
-    );
+    ];
 
     public function testExistingHeadersAreSent()
     {
-        $headerStrings = new StringHttpAdapter(array(
+        $headerStrings = new StringHttpAdapter([
             'X-Foo: Bar',
-        ));
+        ]);
 
         $headers = new SecureHeaders;
         $headers->errorReporting(false);
@@ -49,9 +49,9 @@ class SecureHeadersTest extends PHPUnit_Framework_TestCase
 
     public function testDefaultHeadersDoNotReplaceExistingHeaders()
     {
-        $headerStrings = new StringHttpAdapter(array(
+        $headerStrings = new StringHttpAdapter([
             'X-Frame-Options: sameorigin',
-        ));
+        ]);
 
         $headers = new SecureHeaders;
         $headers->errorReporting(false);

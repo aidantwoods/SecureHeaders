@@ -6,10 +6,10 @@ use Aidantwoods\SecureHeaders\HeaderBag;
 
 class StringHttpAdapter implements HttpAdapter
 {
-    private $headers = array();
+    private $headers = [];
     private $initialHeaders;
 
-    public function __construct(array $initialHeaders = array())
+    public function __construct(array $initialHeaders = [])
     {
         $this->initialHeaders = $initialHeaders;
     }
@@ -37,7 +37,7 @@ class StringHttpAdapter implements HttpAdapter
 
     public function getSentHeaders()
     {
-        $compiledHeaders = array();
+        $compiledHeaders = [];
 
         foreach ($this->headers as $header)
         {

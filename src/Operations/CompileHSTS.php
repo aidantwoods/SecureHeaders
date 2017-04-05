@@ -30,7 +30,7 @@ class CompileHSTS implements Operation
 
     private function makeHeaderValue()
     {
-        $pieces = array('max-age=' . $this->config['max-age']);
+        $pieces = ['max-age=' . $this->config['max-age']];
 
         if ($this->config['subdomains']) {
             $pieces[] = 'includeSubDomains';

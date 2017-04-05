@@ -9,14 +9,14 @@ abstract class Validator
 
     const VALIDATOR_NAMESPACE = 'Aidantwoods\SecureHeaders\ValidatorDelegates';
 
-    private static $delegates = array(
+    private static $delegates = [
         'CSPBadFlags'
-            => array(self::CSP, self::CSPRO),
+            => [self::CSP, self::CSPRO],
         'CSPWildcards'
-            => array(self::CSP, self::CSPRO),
+            => [self::CSP, self::CSPRO],
         'CSPRODestination'
             => self::CSPRO 
-    );
+    ];
 
     /**
      * Validate the given headers
@@ -27,7 +27,7 @@ abstract class Validator
      */
     public static function validate(HeaderBag $headers)
     {
-        $errors = array();
+        $errors = [];
 
         foreach (self::$delegates as $delegate => $headerList)
         {
@@ -35,7 +35,7 @@ abstract class Validator
 
             if ( ! is_array($headerList))
             {
-                $headerList = array($headerList);
+                $headerList = [$headerList];
             }
 
             foreach ($headerList as $headerName)

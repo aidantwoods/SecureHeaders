@@ -13,31 +13,31 @@ class TypesTest extends PHPUnit_Framework_TestCase
      */
     public function testValidValues($type, $variable)
     {
-        $result = Types::assert(array(
-            $type => array($variable)
-        ));
+        $result = Types::assert([
+            $type => [$variable]
+        ]);
 
         $this->assertNull($result);
     }
 
     public function validValues()
     {
-        return array(
-            array('string', 'abcde'),
-            array('string', null),
-            array('integer', 42),
-            array('integer', null),
-            array('double', 1.5),
-            array('double', null),
-            array('bool', false),
-            array('bool', true),
-            array('bool', null),
-            array('boolean', false),
-            array('boolean', true),
-            array('boolean', null),
-            array('object', new stdClass()),
-            array('object', null),
-        );
+        return [
+            ['string', 'abcde'],
+            ['string', null],
+            ['integer', 42],
+            ['integer', null],
+            ['double', 1.5],
+            ['double', null],
+            ['bool', false],
+            ['bool', true],
+            ['bool', null],
+            ['boolean', false],
+            ['boolean', true],
+            ['boolean', null],
+            ['object', new stdClass()],
+            ['object', null],
+        ];
     }
 
     /**
@@ -47,42 +47,42 @@ class TypesTest extends PHPUnit_Framework_TestCase
     {
         $this->setExpectedException('Aidantwoods\SecureHeaders\Util\TypeError');
 
-        Types::assert(array(
-            $type => array($variable)
-        ));
+        Types::assert([
+            $type => [$variable]
+        ]);
     }
 
     public function invalidValues()
     {
-        return array(
-            array('string', 42),
-            array('string', 1.5),
-            array('string', false),
-            array('string', true),
-            array('string', new stdClass()),
-            array('integer', 'abcde'),
-            array('integer', 1.5),
-            array('integer', false),
-            array('integer', true),
-            array('integer', new stdClass()),
-            array('double', 'abcde'),
-            array('double', 42),
-            array('double', false),
-            array('double', true),
-            array('double', new stdClass()),
-            array('bool', 'abcde'),
-            array('bool', 42),
-            array('bool', 1.5),
-            array('bool', new stdClass()),
-            array('boolean', 'abcde'),
-            array('boolean', 42),
-            array('boolean', 1.5),
-            array('boolean', new stdClass()),
-            array('object', 'abcde'),
-            array('object', 42),
-            array('object', 1.5),
-            array('object', false),
-            array('object', true),
-        );
+        return [
+            ['string', 42],
+            ['string', 1.5],
+            ['string', false],
+            ['string', true],
+            ['string', new stdClass()],
+            ['integer', 'abcde'],
+            ['integer', 1.5],
+            ['integer', false],
+            ['integer', true],
+            ['integer', new stdClass()],
+            ['double', 'abcde'],
+            ['double', 42],
+            ['double', false],
+            ['double', true],
+            ['double', new stdClass()],
+            ['bool', 'abcde'],
+            ['bool', 42],
+            ['bool', 1.5],
+            ['bool', new stdClass()],
+            ['boolean', 'abcde'],
+            ['boolean', 42],
+            ['boolean', 1.5],
+            ['boolean', new stdClass()],
+            ['object', 'abcde'],
+            ['object', 42],
+            ['object', 1.5],
+            ['object', false],
+            ['object', true],
+        ];
     }
 }

@@ -9,10 +9,10 @@ class HeaderBagTest extends PHPUnit_Framework_TestCase
 {
     public function testThatHeadersAreAvailableWhenPassingAnArrayOnInstantiation()
     {
-        $headers = new HeaderBag(array(
+        $headers = new HeaderBag([
             'Content-Type' => 'text/html',
             'Content-Length' => '123',
-        ));
+        ]);
 
         $this->assertTrue($headers->has('Content-Type'));
         $this->assertTrue($headers->has('Content-Length'));
@@ -20,20 +20,20 @@ class HeaderBagTest extends PHPUnit_Framework_TestCase
         $export = array_map(function ($header) { return (string) $header; }, $headers->get());
 
         $this->assertEquals(
-            array(
+            [
                 'Content-Type: text/html',
                 'Content-Length: 123',
-            ),
+            ],
             $export
         );
     }
 
     public function testInstantiationFromHeaderLines()
     {
-        $headers = HeaderBag::fromHeaderLines(array(
+        $headers = HeaderBag::fromHeaderLines([
             'Content-Type: text/html',
             'Content-Length: 123',
-        ));
+        ]);
 
         $this->assertTrue($headers->has('Content-Type'));
         $this->assertTrue($headers->has('Content-Length'));
@@ -41,20 +41,20 @@ class HeaderBagTest extends PHPUnit_Framework_TestCase
         $export = array_map(function ($header) { return (string) $header; }, $headers->get());
 
         $this->assertEquals(
-            array(
+            [
                 'Content-Type: text/html',
                 'Content-Length: 123',
-            ),
+            ],
             $export
         );
     }
 
     public function testCaseIsPreserved()
     {
-        $headers = new HeaderBag(array(
+        $headers = new HeaderBag([
             'CONtenT-TYpE' => 'text/html',
             'conTENT-lENGTH' => '123',
-        ));
+        ]);
 
         $this->assertTrue($headers->has('content-type'));
 

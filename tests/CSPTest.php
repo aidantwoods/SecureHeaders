@@ -10,9 +10,9 @@ class CSPTest extends PHPUnit_Framework_TestCase
 {
     public function testStrictDynamicInjectableForNonInternalPolicy()
     {
-        $headerStrings = new StringHttpAdapter(array(
+        $headerStrings = new StringHttpAdapter([
             "Content-Security-Policy: script-src 'nonce-abcdefg+123456'"
-        ));
+        ]);
 
         $headers = new SecureHeaders;
         $headers->errorReporting(false);
@@ -28,10 +28,10 @@ class CSPTest extends PHPUnit_Framework_TestCase
 
     public function testCSPHeaderMerge()
     {
-        $headerStrings = new StringHttpAdapter(array(
+        $headerStrings = new StringHttpAdapter([
             "Content-Security-Policy: default-src 'self'; script-src http://insecure.cdn.org 'self'",
             "Content-Security-Policy: block-all-mixed-content; img-src 'self' https://cdn.net"
-        ));
+        ]);
 
         $headers = new SecureHeaders;
         $headers->errorReporting(false);
@@ -42,23 +42,23 @@ class CSPTest extends PHPUnit_Framework_TestCase
 
         $headersString = $headerStrings->getSentHeaders();
 
-        $policy = array(
+        $policy = [
             'block-all-mixed-content' 
                 => true,
             'img-src'
-                => array(
+                => [
                     "'self'",
                     'https://cdn.net'
-                ),
+                ],
             'script-src'
-                => array(
+                => [
                     'https://another.domain.example.com',
                     'http://insecure.cdn.org',
                     "'self'"
-                ),
+                ],
             'default-src'
-                => array('self')
-        );
+                => ['self']
+        ];
 
         $this->assertEquivalentCSP($policy, $headersString);
     }

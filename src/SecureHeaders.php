@@ -64,16 +64,16 @@ class SecureHeaders{
     protected $strictMode               = false;
 
     protected $safeMode                 = false;
-    protected $safeModeExceptions       = array();
+    protected $safeModeExceptions       = [];
 
     protected $automaticHeaders         = self::AUTO_ALL;
 
     protected $sameSiteCookies          = null;
 
-    protected $reportMissingExceptions  = array();
+    protected $reportMissingExceptions  = [];
 
-    protected $protectedCookies = array(
-        'substrings'    => array(
+    protected $protectedCookies = [
+        'substrings'    => [
             'sess',
             'auth',
             'login',
@@ -81,20 +81,20 @@ class SecureHeaders{
             'xsrf',
             'token',
             'antiforgery'
-        ),
-        'names'         => array(
+        ],
+        'names'         => [
             'sid',
             's',
             'persistent'
-        )
-    );
+        ]
+    ];
 
-    protected $headerProposals = array(
+    protected $headerProposals = [
         'Referrer-Policy'
-            => array(
+            => [
                 'no-referrer',
                 'strict-origin-when-cross-origin'
-            ),
+            ],
         'X-Permitted-Cross-Domain-Policies'
             => 'none',
         'X-XSS-Protection'
@@ -103,30 +103,30 @@ class SecureHeaders{
             => 'nosniff',
         'X-Frame-Options'
             => 'Deny'
-    );
+    ];
 
     # ~~
     # private variables: (non settings)
 
-    private $removedHeaders     = array();
+    private $removedHeaders     = [];
 
-    private $removedCookies     = array();
+    private $removedCookies     = [];
 
-    private $errors             = array();
+    private $errors             = [];
     private $errorString;
 
-    private $csp                = array();
-    private $cspro              = array();
+    private $csp                = [];
+    private $cspro              = [];
 
-    private $cspNonces          = array(
-        'enforced'      =>  array(),
-        'reportOnly'    =>  array()
-    );
+    private $cspNonces          = [
+        'enforced'      =>  [],
+        'reportOnly'    =>  []
+    ];
 
-    private $hsts               = array();
+    private $hsts               = [];
 
-    private $hpkp               = array();
-    private $hpkpro             = array();
+    private $hpkp               = [];
+    private $hpkpro             = [];
 
     private $isBufferReturned   = false;
 
@@ -134,7 +134,7 @@ class SecureHeaders{
 
     # private variables: (pre-defined static structures)
 
-    private $cspDirectiveShortcuts  = array(
+    private $cspDirectiveShortcuts  = [
         'default'           =>  'default-src',
         'script'            =>  'script-src',
         'style'             =>  'style-src',
@@ -148,32 +148,32 @@ class SecureHeaders{
         'object'            =>  'object-src',
         'report'            =>  'report-uri',
         'reporting'         =>  'report-uri'
-    );
+    ];
 
-    private $cspSourceShortcuts     = array(
+    private $cspSourceShortcuts     = [
         'self'              =>  "'self'",
         'none'              =>  "'none'",
         'unsafe-inline'     =>  "'unsafe-inline'",
         'unsafe-eval'       =>  "'unsafe-eval'",
         'strict-dynamic'    =>  "'strict-dynamic'"
-    );
+    ];
 
-    protected $csproBlacklist       = array(
+    protected $csproBlacklist       = [
         'block-all-mixed-content',
         'upgrade-insecure-requests'
-    );
+    ];
 
-    private $allowedCSPHashAlgs     = array(
+    private $allowedCSPHashAlgs     = [
         'sha256',
         'sha384',
         'sha512'
-    );
+    ];
 
-    private $allowedHPKPAlgs        = array(
+    private $allowedHPKPAlgs        = [
         'sha256'
-    );
+    ];
 
-    private $reportMissingHeaders   = array(
+    private $reportMissingHeaders   = [
         'Strict-Transport-Security',
         'Content-Security-Policy',
         'X-Permitted-Cross-Domain-Policies',
@@ -181,7 +181,7 @@ class SecureHeaders{
         'X-Content-Type-Options',
         'X-Frame-Options',
         'Referrer-Policy'
-    );
+    ];
 
     # ~
     # Constants
@@ -229,7 +229,7 @@ class SecureHeaders{
         {
             if ($this->applyOnOutput === null)
             {
-                ob_start(array($this, 'returnBuffer'));
+                ob_start([$this, 'returnBuffer']);
             }
 
             $this->applyOnOutput = $http;
@@ -286,7 +286,7 @@ class SecureHeaders{
      */
     public function safeModeException($name)
     {
-        Types::assert(array('string' => array($name)));
+        Types::assert(['string' => [$name]]);
 
         $this->safeModeExceptions[strtolower($name)] = true;
     }
@@ -370,7 +370,7 @@ class SecureHeaders{
      */
     public function reportMissingException($name)
     {
-        Types::assert(array('string' => array($name)));
+        Types::assert(['string' => [$name]]);
 
         $this->reportMissingExceptions[strtolower($name)] = true;
     }
@@ -393,7 +393,7 @@ class SecureHeaders{
      */
     public function auto($mode = self::AUTO_ALL)
     {
-        Types::assert(array('int' => array($mode)));
+        Types::assert(['int' => [$mode]]);
 
         $this->automaticHeaders = $mode;
     }
@@ -448,7 +448,7 @@ class SecureHeaders{
      */
     public function sameSiteCookies($mode = null)
     {
-        Types::assert(array('string' => array($mode)));
+        Types::assert(['string' => [$mode]]);
 
         if (isset($mode))
         {
@@ -481,7 +481,7 @@ class SecureHeaders{
      */
     public function removeHeader($name)
     {
-        Types::assert(array('string' => array($name)));
+        Types::assert(['string' => [$name]]);
 
         $name = strtolower($name);
         $this->removedHeaders[$name] = true;
@@ -537,10 +537,10 @@ class SecureHeaders{
         $mode = self::COOKIE_DEFAULT
     ) {
         Types::assert(
-            array(
-                'string|array' => array($name),
-                'int' => array($mode)
-            )
+            [
+                'string|array' => [$name],
+                'int' => [$mode]
+            ]
         );
 
         if (is_string($name))
@@ -556,7 +556,7 @@ class SecureHeaders{
             return;
         }
 
-        $stringTypes = array();
+        $stringTypes = [];
 
         if (($mode & self::COOKIE_NAME) === self::COOKIE_NAME)
             $stringTypes[] = 'names';
@@ -601,7 +601,7 @@ class SecureHeaders{
      */
     public function removeCookie($name)
     {
-        Types::assert(array('string' => array($name)));
+        Types::assert(['string' => [$name]]);
 
         $this->removedCookies[] = strtolower($name);
     }
@@ -616,7 +616,7 @@ class SecureHeaders{
     {
         $args = func_get_args();
 
-        Types::assert(array('string|array|int|bool' => $args));
+        Types::assert(['string|array|int|bool' => $args]);
 
         $num = count($args);
 
@@ -685,7 +685,7 @@ class SecureHeaders{
     {
         $args = func_get_args();
 
-        Types::assert(array('string|array|int|bool' => $args));
+        Types::assert(['string|array|int|bool' => $args]);
 
         foreach ($args as $i => $arg)
         {
@@ -699,7 +699,7 @@ class SecureHeaders{
 
         array_unshift($args, true);
 
-        call_user_func_array(array($this, 'csp'), $args);
+        call_user_func_array([$this, 'csp'], $args);
     }
 
     # Content-Security-Policy: Settings
@@ -746,7 +746,7 @@ class SecureHeaders{
      */
     public function removeCSPSource($directive, $source, $reportOnly = null)
     {
-        Types::assert(array('string' => array($directive, $source)));
+        Types::assert(['string' => [$directive, $source]]);
 
         $csp = &$this->getCSPObject($reportOnly);
 
@@ -777,7 +777,7 @@ class SecureHeaders{
      */
     public function removeCSPDirective($directive, $reportOnly = null)
     {
-        Types::assert(array('string' => array($directive)));
+        Types::assert(['string' => [$directive]]);
 
         $csp = &$this->getCSPObject($reportOnly);
 
@@ -806,7 +806,7 @@ class SecureHeaders{
     {
         $csp = &$this->getCSPObject($reportOnly);
 
-        $csp = array();
+        $csp = [];
     }
 
     # Content-Security-Policy: Hashing
@@ -844,7 +844,7 @@ class SecureHeaders{
         $reportOnly = null
     ) {
         Types::assert(
-            array('string' => array($friendlyDirective, $string, $algo))
+            ['string' => [$friendlyDirective, $string, $algo]]
         );
 
         if (
@@ -884,7 +884,7 @@ class SecureHeaders{
         $isFile = null
     ) {
         Types::assert(
-            array('string' => array($friendlyDirective, $string, $algo))
+            ['string' => [$friendlyDirective, $string, $algo]]
         );
 
         return $this->cspHash(
@@ -913,7 +913,7 @@ class SecureHeaders{
         $reportOnly = null
     ) {
         Types::assert(
-            array('string' => array($friendlyDirective, $string, $algo))
+            ['string' => [$friendlyDirective, $string, $algo]]
         );
 
         return $this->cspHash(
@@ -938,7 +938,7 @@ class SecureHeaders{
     public function csproHashFile($friendlyDirective, $string, $algo = null)
     {
         Types::assert(
-            array('string' => array($friendlyDirective, $string, $algo))
+            ['string' => [$friendlyDirective, $string, $algo]]
         );
 
         return $this->cspHash($friendlyDirective, $string, $algo, true, true);
@@ -977,7 +977,7 @@ class SecureHeaders{
      */
     public function cspNonce($friendlyDirective, $reportOnly = null)
     {
-        Types::assert(array('string' => array($friendlyDirective)));
+        Types::assert(['string' => [$friendlyDirective]]);
 
         $reportOnly = ($reportOnly == true);
 
@@ -1017,7 +1017,7 @@ class SecureHeaders{
      */
     public function csproNonce($friendlyDirective)
     {
-        Types::assert(array('string' => array($friendlyDirective)));
+        Types::assert(['string' => [$friendlyDirective]]);
 
         return $this->cspNonce($friendlyDirective, true);
     }
@@ -1058,7 +1058,7 @@ class SecureHeaders{
         $subdomains = false,
         $preload = false
     ) {
-        Types::assert(array('int|string' => array($maxAge)));
+        Types::assert(['int|string' => [$maxAge]]);
 
         $this->hsts['max-age']      = $maxAge;
         $this->hsts['subdomains']   = ($subdomains == true);
@@ -1163,12 +1163,12 @@ class SecureHeaders{
         $reportOnly = null
     ) {
         Types::assert(
-            array(
-                'string|array' => array($pins),
-                'int|string' => array($maxAge),
-                'string' => array($reportUri)
-            ),
-            array(1, 2, 4)
+            [
+                'string|array' => [$pins],
+                'int|string' => [$maxAge],
+                'string' => [$reportUri]
+            ],
+            [1, 2, 4]
         );
 
         $hpkp = &$this->getHPKPObject($reportOnly);
@@ -1191,7 +1191,7 @@ class SecureHeaders{
             $hpkp['report-uri'] = $reportUri;
         }
 
-        if ( ! is_array($pins)) $pins = array($pins);
+        if ( ! is_array($pins)) $pins = [$pins];
 
         # set pins
 
@@ -1204,10 +1204,10 @@ class SecureHeaders{
                 if ( ! empty($res))
                 {
                     $key = key($res);
-                    $hpkp['pins'][] = array(
+                    $hpkp['pins'][] = [
                         $pin[($key + 1) % 2],
                         $pin[$key]
-                    );
+                    ];
                 }
                 else
                 {
@@ -1219,7 +1219,7 @@ class SecureHeaders{
                 and count($pin) === 1
                 and ($pin = $pin[0]) !== false)
             ) {
-                $hpkp['pins'][] = array($pin, 'sha256');
+                $hpkp['pins'][] = [$pin, 'sha256'];
             }
         }
     }
@@ -1242,12 +1242,12 @@ class SecureHeaders{
         $reportUri = null
     ) {
         Types::assert(
-            array(
-                'string|array' => array($pins),
-                'int|string' => array($maxAge),
-                'string' => array($reportUri)
-            ),
-            array(1, 2, 4)
+            [
+                'string|array' => [$pins],
+                'int|string' => [$maxAge],
+                'string' => [$reportUri]
+            ],
+            [1, 2, 4]
         );
 
         return $this->hpkp($pins, $maxAge, $subdomains, $reportUri, true);
@@ -1366,7 +1366,7 @@ class SecureHeaders{
      */
     private function pipeline()
     {
-        $operations = array();
+        $operations = [];
 
         if ($this->strictMode)
         {
@@ -1388,7 +1388,7 @@ class SecureHeaders{
         if ($this->automatic(self::AUTO_REMOVE))
         {
             $operations[] = new RemoveHeaders(
-                array('Server', 'X-Powered-By')
+                ['Server', 'X-Powered-By']
             );
         }
 
@@ -1522,7 +1522,7 @@ class SecureHeaders{
         $reportOnly = null
     ) {
         Types::assert(
-            array('string' => array($friendlyDirective, $friendlySource))
+            ['string' => [$friendlyDirective, $friendlySource]]
         );
 
         $directive = $this->longDirective($friendlyDirective);
@@ -1538,7 +1538,7 @@ class SecureHeaders{
         # directive A is friendly directive. Otherwise, directive A will be
         # returned
 
-        Types::assert(array('string' => array($friendlyDirective)));
+        Types::assert(['string' => [$friendlyDirective]]);
 
         $friendlyDirective = strtolower($friendlyDirective);
 
@@ -1559,7 +1559,7 @@ class SecureHeaders{
         # takes source A and returns the corresponding long source, if the
         # source A is friendly source. Otherwise, source A will be returned
 
-        Types::assert(array('string' => array($friendlySource)));
+        Types::assert(['string' => [$friendlySource]]);
 
         $lowerFriendlySource = strtolower($friendlySource);
 
@@ -1580,7 +1580,7 @@ class SecureHeaders{
         $source = null,
         $reportOnly = null
     ) {
-        Types::assert(array('string' => array($directive, $source)));
+        Types::assert(['string' => [$directive, $source]]);
 
         $csp = &$this->getCSPObject($reportOnly);
 
@@ -1662,7 +1662,7 @@ class SecureHeaders{
         $isFlag = null,
         $reportOnly = null
     ) {
-        Types::assert(array('string' => array($directive)));
+        Types::assert(['string' => [$directive]]);
 
         if ( ! isset($isFlag)) $isFlag = false;
 
@@ -1673,7 +1673,7 @@ class SecureHeaders{
             return false;
         }
 
-        if ( ! $isFlag) $csp[$directive] = array();
+        if ( ! $isFlag) $csp[$directive] = [];
         else $csp[$directive] = null;
 
         return true;
@@ -1684,7 +1684,7 @@ class SecureHeaders{
         $algo = null,
         $isFile = null
     ) {
-        Types::assert(array('string' => array($string, $algo)));
+        Types::assert(['string' => [$string, $algo]]);
 
         if ( ! isset($algo)) $algo = 'sha256';
 
@@ -1757,7 +1757,7 @@ class SecureHeaders{
     private function addError($message, $level = E_USER_NOTICE)
     {
         Types::assert(
-            array('string' => array($message), 'int' => array($level))
+            ['string' => [$message], 'int' => [$level]]
         );
 
         $this->errors[] = new Error($message, $level);
@@ -1767,7 +1767,7 @@ class SecureHeaders{
     {
         if ( ! $this->errorReporting) return;
 
-        set_error_handler(array(get_class(), 'errorHandler'));
+        set_error_handler([get_class(), 'errorHandler']);
 
         if ( ! empty($this->errors)) $this->isBufferReturned = true;
 
@@ -1800,7 +1800,7 @@ class SecureHeaders{
     private function errorHandler($level, $message)
     {
         Types::assert(
-            array('int' => array($level), 'string' => array($message))
+            ['int' => [$level], 'string' => [$message]]
         );
 
         if (    error_reporting() & $level

@@ -6,14 +6,14 @@ use Aidantwoods\SecureHeaders\Headers\RegularHeader;
 
 class HeaderFactory
 {
-    private static $memberClasses = array(
-        'CSPHeader' => array(
+    private static $memberClasses = [
+        'CSPHeader' => [
             'content-security-policy',
             'content-security-policy-report-only',
             'x-content-security-policy',
             'x-content-security-policy-report-only'
-        )
-    );
+        ]
+    ];
 
     public static function build($name, $value = '')
     {
