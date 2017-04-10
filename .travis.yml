@@ -31,3 +31,4 @@ install:
 
 script:
  - if [ $STYLE = false ]; then vendor/bin/phpunit; fi
+ - if [ $STYLE = true ]; then vendor/bin/php-cs-fixer fix --no-interaction --dry-run . ;fi
