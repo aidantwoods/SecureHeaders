@@ -7,20 +7,19 @@ class Types
     public static function assert(array $typeList, array $argNums = null)
     {
         $i = 0;
-        foreach ($typeList as $type => $vars)
-        {
+        foreach ($typeList as $type => $vars) {
             $type = self::normalizeType($type);
 
-            foreach ($vars as $var)
-            {
+            foreach ($vars as $var) {
                 $allowedTypes = array_merge(
                     ['NULL'],
                     explode('|', $type)
                 );
 
-                if ( ! in_array(($varType = gettype($var)), $allowedTypes))
-                {
-                    if ( ! isset($argNums)) $argNums = self::generateArgNums($typeList);
+                if (! in_array(($varType = gettype($var)), $allowedTypes)) {
+                    if (! isset($argNums)) {
+                        $argNums = self::generateArgNums($typeList);
+                    }
 
                     throw TypeError::fromBacktrace($argNums[$i], $type, $varType);
                 }

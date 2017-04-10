@@ -62,4 +62,4 @@ class Psr7AdapterTest extends PHPUnit_Framework_TestCase
             'cache-control' => ['no-worries :)']
         ], $finalResponse->getHeaders());
     }
-}   
+}

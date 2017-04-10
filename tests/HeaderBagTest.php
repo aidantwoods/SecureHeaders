@@ -17,7 +17,9 @@ class HeaderBagTest extends PHPUnit_Framework_TestCase
         $this->assertTrue($headers->has('Content-Type'));
         $this->assertTrue($headers->has('Content-Length'));
 
-        $export = array_map(function ($header) { return (string) $header; }, $headers->get());
+        $export = array_map(function ($header) {
+            return (string) $header;
+        }, $headers->get());
 
         $this->assertEquals(
             [
@@ -38,7 +40,9 @@ class HeaderBagTest extends PHPUnit_Framework_TestCase
         $this->assertTrue($headers->has('Content-Type'));
         $this->assertTrue($headers->has('Content-Length'));
 
-        $export = array_map(function ($header) { return (string) $header; }, $headers->get());
+        $export = array_map(function ($header) {
+            return (string) $header;
+        }, $headers->get());
 
         $this->assertEquals(
             [
@@ -58,10 +62,12 @@ class HeaderBagTest extends PHPUnit_Framework_TestCase
 
         $this->assertTrue($headers->has('content-type'));
 
-        $export = array_map(function ($header) { return (string) $header; }, $headers->get());
+        $export = array_map(function ($header) {
+            return (string) $header;
+        }, $headers->get());
 
         $this->assertCount(2, $export);
         $this->assertStringStartsWith('CONtenT-TYpE', $export[0]);
         $this->assertStringStartsWith('conTENT-lENGTH', $export[1]);
     }
-}   
+}

@@ -8,7 +8,6 @@ use PHPUnit_Framework_TestCase;
 
 class CookieTest extends PHPUnit_Framework_TestCase
 {
-
     public function testCookieUpgrades()
     {
         $headerStrings = new StringHttpAdapter([
@@ -159,4 +158,4 @@ class CookieTest extends PHPUnit_Framework_TestCase
         $this->assertNotContains('Set-Cookie: regularcookie', $headersString);
         $this->assertNotContains('Set-Cookie:', $headersString);
     }
-}   
+}

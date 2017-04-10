@@ -2,7 +2,8 @@
 
 namespace Aidantwoods\SecureHeaders;
 
-class CustomSecureHeaders extends SecureHeaders{
+class CustomSecureHeaders extends SecureHeaders
+{
     public function __construct()
     {
         # implicitly call $this->apply() on first byte of output
@@ -11,7 +12,7 @@ class CustomSecureHeaders extends SecureHeaders{
         # content headers
         $this->header('Content-type', 'text/html; charset=utf-8');
 
-        # Custom function added in this extenstion: 
+        # Custom function added in this extenstion:
         # redirect to www subdomain if not on localhost
         $this->www_if_not_localhost();
 
@@ -47,7 +48,7 @@ class CustomSecureHeaders extends SecureHeaders{
         # add a hpkp policy
         $this->hpkp(
             [
-                'pin1', 
+                'pin1',
                 ['pin2', 'sha256'],
                 ['sha256', 'pin3'],
                 ['pin4']
@@ -65,13 +66,11 @@ class CustomSecureHeaders extends SecureHeaders{
 
         # uncomment the next line to allow HSTS in safe mode
         // $this->safeModeException('Strict-Transport-Security');
-
     }
 
     public function www_if_not_localhost()
     {
-        if ($_SERVER['SERVER_NAME'] !== 'localhost' and substr($_SERVER['HTTP_HOST'], 0, 4) !== 'www.')
-        {
+        if ($_SERVER['SERVER_NAME'] !== 'localhost' and substr($_SERVER['HTTP_HOST'], 0, 4) !== 'www.') {
             $this->header('HTTP/1.1 301 Moved Permanently');
             $this->header('Location', 'https://www.'.$_SERVER['SERVER_NAME'].$_SERVER['REQUEST_URI']);
         }
