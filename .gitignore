@@ -2,3 +2,4 @@ vendor/
 composer.lock
 phpunit.xml
 .DS_Store
+.php_cs.cache
