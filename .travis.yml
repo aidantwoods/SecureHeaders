@@ -29,4 +29,5 @@ before_install:
 install:
   - travis_retry composer install --prefer-dist --no-interaction --no-suggest
 
-script: vendor/bin/phpunit
+script:
+ - if [ $STYLE = false ]; then vendor/bin/phpunit; fi
