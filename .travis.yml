@@ -10,7 +10,7 @@ php:
   - nightly
 
 env:
-- NO_STYLE=1
+- STYLE=false
 
 cache:
   directories:
@@ -19,12 +19,12 @@ cache:
 matrix:
   include:
     - php: 7.1
-      env: NO_STYLE=0
+      env: STYLE=true
   allow_failures:
     - php: nightly
 
 before_install:
-  - if [ $NO_STYLE = 1 ]; then travis_retry composer remove friendsofphp/php-cs-fixer --dev --no-interaction --no-update; fi
+  - !$STYLE && travis_retry composer remove friendsofphp/php-cs-fixer --dev --no-interaction --no-update; fi
 
 install:
   - travis_retry composer install --prefer-dist --no-interaction --no-suggest
