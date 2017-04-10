@@ -43,6 +43,6 @@ class StringHttpAdapter implements HttpAdapter
             $compiledHeaders[] = (string) $header;
         }
 
-        return implode("\n", $compiledHeaders);
+        return implode(PHP_EOL, $compiledHeaders);
     }
 }
