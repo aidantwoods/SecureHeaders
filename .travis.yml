@@ -19,7 +19,7 @@ cache:
 matrix:
   include:
     - php: 7.1
-      env: STYLE=true
+      env: STYLE=true FIXER="vendor/bin/php-cs-fixer fix --config=.php_cs.dist -v --using-cache=no --path-mode=intersection"
   allow_failures:
     - php: nightly
 
@@ -31,4 +31,4 @@ install:
 
 script:
  - if [ $STYLE = false ]; then vendor/bin/phpunit; fi
- - if [ $STYLE = true ]; then vendor/bin/php-cs-fixer fix --no-interaction --dry-run . ;fi
+ - if [ $STYLE = true ]; then $FIXER --dry-run . ; if [ $? != 0 ]; then $FIXER . ; git diff; exit 1; fi ; fi
