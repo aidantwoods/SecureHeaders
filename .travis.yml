@@ -9,11 +9,18 @@ php:
   - hhvm
   - nightly
 
+env:
+  global:
+  - NO_STYLE=true
+
 cache:
   directories:
     - $HOME/.composer/cache
 
 matrix:
+  include:
+    - php: 7.1
+      env: NO_STYLE=false
   allow_failures:
     - php: nightly
 
@@ -22,3 +29,4 @@ install:
 
 script: vendor/bin/phpunit
 
+before_install: $NO_STYLE && composer remove friendsofphp/php-cs-fixer --dev

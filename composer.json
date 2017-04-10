@@ -36,7 +36,7 @@
         "psr/http-message": "In case you want to use the PSR-7 adapter"
     },
     "require-dev": {
-        "friendsofphp/php-cs-fixer": "~1.0",
+        "friendsofphp/php-cs-fixer": "^2.2",
         "phpunit/phpunit": "^4.0",
         "psr/http-message": "^1.0",
         "zendframework/zend-diactoros": "^1.0"
