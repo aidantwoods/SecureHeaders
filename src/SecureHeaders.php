@@ -538,8 +538,7 @@ class SecureHeaders
 
         if (is_string($name)) {
             $name = strtolower($name);
-        } elseif (is_array($name))
-        {
+        } elseif (is_array($name)) {
             foreach ($name as $cookie) {
                 $this->protectedCookie($cookie, $mode);
             }
