@@ -10,8 +10,7 @@ php:
   - nightly
 
 env:
-  global:
-  - NO_STYLE=1
+- NO_STYLE=1
 
 cache:
   directories:
