@@ -24,7 +24,7 @@ matrix:
     - php: nightly
 
 before_install:
-  - [ $NO_STYLE = 1 ] && travis_retry composer remove friendsofphp/php-cs-fixer --dev --no-interaction --no-update
+  - if [ $NO_STYLE = 1 ]; then travis_retry composer remove friendsofphp/php-cs-fixer --dev --no-interaction --no-update; fi
 
 install:
   - travis_retry composer install --prefer-dist --no-interaction --no-suggest
