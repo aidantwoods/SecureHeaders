@@ -1,5 +1,10 @@
 <?php
 
+if ( ! class_exists('PHPUnit_Framework_TestCase'))
+{
+    class_alias('PHPUnit\Framework\TestCase', 'PHPUnit_Framework_TestCase');
+}
+
 include('SecureHeaders.php');
 
 class Test extends PHPUnit_Framework_TestCase
@@ -16,7 +21,7 @@ class Test extends PHPUnit_Framework_TestCase
     {
         return array(
             array(
-                'test' => 
+                'test' =>
                     function(&$headers){
                         $headers->header(
                             'Strict-Transport-Security',
@@ -29,7 +34,7 @@ class Test extends PHPUnit_Framework_TestCase
                 )
             ),
             array(
-                'test' => 
+                'test' =>
                     function(&$headers){
                         $headers->safeMode();
                         $headers->header(
@@ -45,7 +50,7 @@ class Test extends PHPUnit_Framework_TestCase
                 )
             ),
             array(
-                'test' => 
+                'test' =>
                     function(&$headers){
                         $headers->safeMode();
                         $headers->strictMode();
@@ -58,7 +63,7 @@ class Test extends PHPUnit_Framework_TestCase
                 )
             ),
             array(
-                'test' => 
+                'test' =>
                     function(&$headers){
                         $headers->safeMode();
                         $headers->header(
@@ -113,7 +118,7 @@ class Test extends PHPUnit_Framework_TestCase
     {
         return array(
             array(
-                'test' => 
+                'test' =>
                     function(&$headers){
                         $headers->strictMode();
                     },
@@ -123,7 +128,7 @@ class Test extends PHPUnit_Framework_TestCase
                 )
             ),
             array(
-                'test' => 
+                'test' =>
                     function(&$headers){
                         $headers->strictMode();
                         $headers->cspNonce('script');
@@ -134,7 +139,7 @@ class Test extends PHPUnit_Framework_TestCase
                 )
             ),
             array(
-                'test' => 
+                'test' =>
                     function(&$headers){
                         $headers->strictMode();
                         $headers->cspNonce('default');
@@ -145,7 +150,7 @@ class Test extends PHPUnit_Framework_TestCase
                 )
             ),
             array(
-                'test' => 
+                'test' =>
                     function(&$headers){
                         $headers->strictMode();
                         $headers->cspNonce('default');
@@ -159,7 +164,7 @@ class Test extends PHPUnit_Framework_TestCase
                 )
             ),
             array(
-                'test' => 
+                'test' =>
                     function(&$headers){
                         $headers->strictMode();
                         $headers->cspHash('default', 'abcd');
@@ -170,7 +175,7 @@ class Test extends PHPUnit_Framework_TestCase
                 )
             ),
             array(
-                'test' => 
+                'test' =>
                     function(&$headers){
                         $headers->strictMode();
                         $headers->cspHash('script', 'abcd');
@@ -181,7 +186,7 @@ class Test extends PHPUnit_Framework_TestCase
                 )
             ),
             array(
-                'test' => 
+                'test' =>
                     function(&$headers){
                         $headers->strictMode();
                         $headers->cspHash('default', 'abcd');
@@ -195,7 +200,7 @@ class Test extends PHPUnit_Framework_TestCase
                 )
             ),
             array(
-                'test' => 
+                'test' =>
                     function(&$headers){
                         $headers->strictMode();
                         $headers->csp('default', 'http://some-cdn.org');
@@ -240,5 +245,5 @@ class Test extends PHPUnit_Framework_TestCase
             }
         }
       }
-}   
+}
 ?>
