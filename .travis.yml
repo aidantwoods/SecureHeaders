@@ -9,6 +9,8 @@ php:
   - hhvm
   - nightly
 
+dist: trusty
+
 cache:
   directories:
     - $HOME/.composer/cache
