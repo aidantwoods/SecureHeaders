@@ -9,9 +9,6 @@ php:
   - hhvm
   - nightly
 
-env:
-- STYLE=false
-
 cache:
   directories:
     - $HOME/.composer/cache
@@ -19,16 +16,15 @@ cache:
 matrix:
   include:
     - php: 7.1
-      env: STYLE=true FIXER="vendor/bin/php-cs-fixer fix --config=.php_cs.dist -v --using-cache=no --path-mode=intersection"
+      env: STYLE
+      install: travis_retry composer install --prefer-dist --no-interaction --no-suggest
+      script: vendor/bin/php-cs-fixer fix . --dry-run --diff
+
   allow_failures:
     - php: nightly
 
-before_install:
-  - if [ $STYLE = false ]; then travis_retry composer remove friendsofphp/php-cs-fixer --dev --no-interaction --no-update; fi
-
 install:
+  - composer remove friendsofphp/php-cs-fixer --dev --no-update --no-interaction
   - travis_retry composer install --prefer-dist --no-interaction --no-suggest
 
-script:
- - if [ $STYLE = false ]; then vendor/bin/phpunit; fi
- - if [ $STYLE = true ]; then $FIXER --dry-run . ; if [ $? != 0 ]; then $FIXER . ; git diff; exit 1; fi ; fi
+script: vendor/bin/phpunit
