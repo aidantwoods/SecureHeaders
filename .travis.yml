@@ -28,6 +28,7 @@ matrix:
     - php: nightly
 
 install:
+  - composer config repositories.0 --unset --no-interaction
   - composer remove friendsofphp/php-cs-fixer --dev --no-update --no-interaction
   - travis_retry composer install --prefer-dist --no-interaction --no-suggest
 
