@@ -19,7 +19,9 @@ matrix:
   include:
     - php: 7.1
       env: STYLE
-      install: travis_retry composer install --prefer-dist --no-interaction --no-suggest
+      install:
+        - composer config github-oauth.github.com $GITHUB_OAUTH
+        - travis_retry composer install --prefer-dist --no-interaction --no-suggest
       script: vendor/bin/php-cs-fixer fix . --dry-run --diff
 
   allow_failures:
