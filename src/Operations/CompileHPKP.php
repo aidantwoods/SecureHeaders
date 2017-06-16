@@ -29,8 +29,10 @@ class CompileHPKP implements Operation
             'Public-Key-Pins-Report-Only' => $this->compilePKPRO(),
         ];
 
-        foreach ($hpkpHeaders as $header => $value) {
-            if (empty($value)) {
+        foreach ($hpkpHeaders as $header => $value)
+        {
+            if (empty($value))
+            {
                 continue;
             }
 
@@ -50,7 +52,8 @@ class CompileHPKP implements Operation
 
     private function compile($config)
     {
-        if (empty($config) or empty($config['pins'])) {
+        if (empty($config) or empty($config['pins']))
+        {
             return '';
         }
 
@@ -58,17 +61,20 @@ class CompileHPKP implements Operation
 
         $pieces = ["max-age=$maxAge"];
 
-        foreach ($config['pins'] as $pinAlg) {
+        foreach ($config['pins'] as $pinAlg)
+        {
             list($pin, $alg) = $pinAlg;
 
             $pieces[] = "pin-$alg=\"$pin\"";
         }
 
-        if ($config['includesubdomains']) {
+        if ($config['includesubdomains'])
+        {
             $pieces[] = 'includeSubDomains';
         }
 
-        if ($config['report-uri']) {
+        if ($config['report-uri'])
+        {
             $pieces[] = 'report-uri="' . $config['report-uri'] . '"';
         }
 

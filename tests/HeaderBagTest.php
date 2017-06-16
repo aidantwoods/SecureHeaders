@@ -17,7 +17,8 @@ class HeaderBagTest extends PHPUnit_Framework_TestCase
         $this->assertTrue($headers->has('Content-Type'));
         $this->assertTrue($headers->has('Content-Length'));
 
-        $export = array_map(function ($header) {
+        $export = array_map(function ($header)
+        {
             return (string) $header;
         }, $headers->get());
 
@@ -40,7 +41,8 @@ class HeaderBagTest extends PHPUnit_Framework_TestCase
         $this->assertTrue($headers->has('Content-Type'));
         $this->assertTrue($headers->has('Content-Length'));
 
-        $export = array_map(function ($header) {
+        $export = array_map(function ($header)
+        {
             return (string) $header;
         }, $headers->get());
 
@@ -62,7 +64,8 @@ class HeaderBagTest extends PHPUnit_Framework_TestCase
 
         $this->assertTrue($headers->has('content-type'));
 
-        $export = array_map(function ($header) {
+        $export = array_map(function ($header)
+        {
             return (string) $header;
         }, $headers->get());
 

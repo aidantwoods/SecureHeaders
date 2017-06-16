@@ -19,10 +19,12 @@ class HeaderFactory
     {
         $namespace = __NAMESPACE__.'\\Headers';
 
-        foreach (self::$memberClasses as $class => $headerNames) {
+        foreach (self::$memberClasses as $class => $headerNames)
+        {
             $class = "$namespace\\$class";
 
-            if (in_array(strtolower($name), $headerNames, true)) {
+            if (in_array(strtolower($name), $headerNames, true))
+            {
                 return new $class($name, $value);
             }
         }

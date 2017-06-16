@@ -12,7 +12,8 @@ class HeaderBag
     {
         # Send all headers through `add` to make sure they are properly
         # lower-cased
-        foreach ($headers as $name => $value) {
+        foreach ($headers as $name => $value)
+        {
             $this->add($name, $value);
         }
     }
@@ -21,7 +22,8 @@ class HeaderBag
     {
         $bag = new static;
 
-        foreach ($lines as $line) {
+        foreach ($lines as $line)
+        {
             preg_match('/^([^:]++)(?|(?:[:][ ]?+)(.*+)|())/', $line, $matches);
             array_shift($matches);
 
@@ -45,7 +47,8 @@ class HeaderBag
         Types::assert(['string' => [$name, $value]]);
 
         $key = strtolower($name);
-        if (! array_key_exists($key, $this->headers)) {
+        if ( ! array_key_exists($key, $this->headers))
+        {
             $this->headers[$key] = [];
         }
 
@@ -79,7 +82,8 @@ class HeaderBag
     {
         return array_reduce(
             $this->headers,
-            function ($all, $item) {
+            function ($all, $item)
+            {
                 return array_merge($all, $item);
             },
             []
@@ -90,7 +94,8 @@ class HeaderBag
     {
         $name = strtolower($name);
 
-        if (! array_key_exists($name, $this->headers)) {
+        if ( ! array_key_exists($name, $this->headers))
+        {
             return [];
         }
 
@@ -101,8 +106,10 @@ class HeaderBag
     {
         $type = strtolower($type);
 
-        if (isset($this->headers[$type])) {
-            foreach ($this->headers[$type] as $header) {
+        if (isset($this->headers[$type]))
+        {
+            foreach ($this->headers[$type] as $header)
+            {
                 $callback($header);
             }
         }

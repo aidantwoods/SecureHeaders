@@ -14,7 +14,8 @@ class AddHeader implements Operation
     {
         $this->name = $name;
 
-        if (! is_array($value)) {
+        if ( ! is_array($value))
+        {
             $value = [$value];
         }
 
@@ -29,8 +30,10 @@ class AddHeader implements Operation
      */
     public function modify(HeaderBag &$headers)
     {
-        if (! $headers->has($this->name)) {
-            foreach ($this->value as $value) {
+        if ( ! $headers->has($this->name))
+        {
+            foreach ($this->value as $value)
+            {
                 $headers->add($this->name, $value);
             }
         }

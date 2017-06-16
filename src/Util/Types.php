@@ -7,17 +7,21 @@ class Types
     public static function assert(array $typeList, array $argNums = null)
     {
         $i = 0;
-        foreach ($typeList as $type => $vars) {
+        foreach ($typeList as $type => $vars)
+        {
             $type = self::normalizeType($type);
 
-            foreach ($vars as $var) {
+            foreach ($vars as $var)
+            {
                 $allowedTypes = array_merge(
                     ['NULL'],
                     explode('|', $type)
                 );
 
-                if (! in_array(($varType = gettype($var)), $allowedTypes)) {
-                    if (! isset($argNums)) {
+                if ( ! in_array(($varType = gettype($var)), $allowedTypes))
+                {
+                    if ( ! isset($argNums))
+                    {
                         $argNums = self::generateArgNums($typeList);
                     }
 
@@ -32,7 +36,8 @@ class Types
     private static function generateArgNums(array $typeList)
     {
         $n = array_sum(array_map(
-            function ($vars) {
+            function ($vars)
+            {
                 return count((array) $vars);
             },
             $typeList

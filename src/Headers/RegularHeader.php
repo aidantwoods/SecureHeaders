@@ -57,7 +57,8 @@ class RegularHeader implements Header
 
     public function getAttributeValue($name)
     {
-        if (! $this->hasAttribute($name)) {
+        if ( ! $this->hasAttribute($name))
+        {
             throw new InvalidArgumentException(
                 "Attribute '$name' was not found"
             );
@@ -83,9 +84,12 @@ class RegularHeader implements Header
 
     public function ensureAttributeMaximum($name, $maxValue)
     {
-        if (isset($this->attributes[$name])) {
-            foreach ($this->attributes[$name] as &$attribute) {
-                if (intval($attribute['value']) > $maxValue) {
+        if (isset($this->attributes[$name]))
+        {
+            foreach ($this->attributes[$name] as &$attribute)
+            {
+                if (intval($attribute['value']) > $maxValue)
+                {
                     $attribute['value'] = $maxValue;
                 }
             }
@@ -105,7 +109,8 @@ class RegularHeader implements Header
             ]
         ];
 
-        if ($value === false) {
+        if ($value === false)
+        {
             unset($this->attributes[$key]);
         }
 
@@ -114,8 +119,10 @@ class RegularHeader implements Header
 
     public function forEachAttribute($callback)
     {
-        foreach ($this->attributes as $attributes) {
-            foreach ($attributes as $attribute) {
+        foreach ($this->attributes as $attributes)
+        {
+            foreach ($attributes as $attribute)
+            {
                 $callback($attribute['name'], $attribute['value']);
             }
         }
@@ -132,12 +139,14 @@ class RegularHeader implements Header
 
         $this->attributes = [];
 
-        foreach ($parts as $part) {
+        foreach ($parts as $part)
+        {
             $attrParts = explode('=', $part, 2);
 
             $type = strtolower($attrParts[0]);
 
-            if (! isset($this->attributes[$type])) {
+            if ( ! isset($this->attributes[$type]))
+            {
                 $this->attributes[$type] = [];
             }
 
@@ -152,16 +161,23 @@ class RegularHeader implements Header
     {
         $attributeStrings = [];
 
-        foreach ($this->attributes as $attributes) {
-            foreach ($attributes as $attrInfo) {
+        foreach ($this->attributes as $attributes)
+        {
+            foreach ($attributes as $attrInfo)
+            {
                 $key = $attrInfo['name'];
                 $value = $attrInfo['value'];
 
-                if ($value === true) {
+                if ($value === true)
+                {
                     $string = $key;
-                } elseif ($value === false) {
+                }
+                elseif ($value === false)
+                {
                     continue;
-                } else {
+                }
+                else
+                {
                     $string = "$key=$value";
                 }
 

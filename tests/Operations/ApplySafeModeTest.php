@@ -20,7 +20,8 @@ class ApplySafeModeTest extends PHPUnit_Framework_TestCase
         $operation = new ApplySafeMode();
         $operation->modify($headers);
 
-        foreach ($headers->get() as $header) {
+        foreach ($headers->get() as $header)
+        {
             $this->assertEquals(
                 'max-age=86400',
                 $header->getValue()

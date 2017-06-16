@@ -26,10 +26,12 @@ class RemoveCookies implements Operation
 
         $headers->remove('set-cookie');
 
-        foreach ($cookies as $key => $cookie) {
+        foreach ($cookies as $key => $cookie)
+        {
             $cookieName = $cookie->getFirstAttributeName();
 
-            if (! in_array(strtolower($cookieName), $this->removedCookies)) {
+            if ( ! in_array(strtolower($cookieName), $this->removedCookies))
+            {
                 $headers->add('Set-Cookie', $cookie->getValue());
             }
         }
