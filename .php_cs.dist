@@ -1,0 +1,17 @@
+<?php
+
+use PhpCsFixer\Config;
+use PhpCsFixer\Finder;
+
+$finder = Finder::create()->in(__DIR__);
+
+$rules = [
+    '@PSR2' => true,
+    'array_syntax' => [
+        'syntax' => 'short',
+    ],
+];
+return Config::create()
+    ->setRules($rules)
+    ->setFinder($finder)
+    ->setUsingCache(true);
