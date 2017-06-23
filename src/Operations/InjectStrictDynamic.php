@@ -26,14 +26,18 @@ class InjectStrictDynamic extends OperationWithErrors implements Operation, Expo
     {
         $CSPHeaders = $headers->getByName('content-security-policy');
 
-        if (isset($CSPHeaders[0])) {
+        if (isset($CSPHeaders[0]))
+        {
             $header = $CSPHeaders[0];
 
             $directive = $this->canInjectStrictDynamic($header);
 
-            if (is_string($directive)) {
+            if (is_string($directive))
+            {
                 $header->setAttribute($directive, "'strict-dynamic'");
-            } elseif ($directive !== -1) {
+            }
+            elseif ($directive !== -1)
+            {
                 $this->addError(
                     "<b>Strict-Mode</b> is enabled, but <b>'strict-dynamic'</b>
                         could not be added to the Content-Security-Policy
@@ -75,7 +79,8 @@ class InjectStrictDynamic extends OperationWithErrors implements Operation, Expo
                 $header->getAttributeValue($directive)
             );
 
-            if ($containsNonceOrHash) {
+            if ($containsNonceOrHash)
+            {
                 return $directive;
             }
         }

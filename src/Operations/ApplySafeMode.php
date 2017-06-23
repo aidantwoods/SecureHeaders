@@ -29,13 +29,15 @@ class ApplySafeMode extends OperationWithErrors implements Operation, ExposesErr
      */
     public function modify(HeaderBag &$headers)
     {
-        foreach ($headers->get() as $header) {
+        foreach ($headers->get() as $header)
+        {
             $headerName = $header->getName();
 
             $isUnsafe = array_key_exists($headerName, self::$unsafeHeaders);
             $hasException = array_key_exists($headerName, $this->exceptions);
 
-            if ($isUnsafe && !$hasException) {
+            if ($isUnsafe && ! $hasException)
+            {
                 $method = self::$unsafeHeaders[$headerName];
 
                 $this->$method($header);
@@ -52,7 +54,8 @@ class ApplySafeMode extends OperationWithErrors implements Operation, ExposesErr
         $header->removeAttribute('includeSubDomains');
         $header->removeAttribute('preload');
 
-        if ($header->getValue() !== $origValue) {
+        if ($header->getValue() !== $origValue)
+        {
             $this->addError(
                 'HSTS settings were overridden because Safe-Mode is enabled.
                 <a href="https://scotthelme.co.uk/death-by-copy-paste/\
@@ -74,7 +77,8 @@ class ApplySafeMode extends OperationWithErrors implements Operation, ExposesErr
         $header->ensureAttributeMaximum('max-age', 10);
         $header->removeAttribute('includeSubDomains');
 
-        if ($header->getValue() !== $origValue) {
+        if ($header->getValue() !== $origValue)
+        {
             $this->addError(
                 'Some HPKP settings were overridden because Safe-Mode is enabled.'
             );

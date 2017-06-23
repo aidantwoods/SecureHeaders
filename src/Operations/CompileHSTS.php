@@ -32,11 +32,13 @@ class CompileHSTS implements Operation
     {
         $pieces = ['max-age=' . $this->config['max-age']];
 
-        if ($this->config['subdomains']) {
+        if ($this->config['subdomains'])
+        {
             $pieces[] = 'includeSubDomains';
         }
 
-        if ($this->config['preload']) {
+        if ($this->config['preload'])
+        {
             $pieces[] = 'preload';
         }
 

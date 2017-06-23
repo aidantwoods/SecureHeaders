@@ -35,12 +35,15 @@ class CSPBadFlags implements ValidatorDelegate
      */
     private static function validateSrcAttribute(Header $header, $attributeName)
     {
-        if ($header->hasAttribute($attributeName)) {
+        if ($header->hasAttribute($attributeName))
+        {
             $value = $header->getAttributeValue($attributeName);
 
             $badFlags = ["'unsafe-inline'", "'unsafe-eval'"];
-            foreach ($badFlags as $badFlag) {
-                if (strpos($value, $badFlag) !== false) {
+            foreach ($badFlags as $badFlag)
+            {
+                if (strpos($value, $badFlag) !== false)
+                {
                     $friendlyHeader = $header->getFriendlyName();
 
                     return new Error(

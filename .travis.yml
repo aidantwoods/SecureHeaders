@@ -19,13 +19,16 @@ matrix:
   include:
     - php: 7.1
       env: STYLE
-      install: travis_retry composer install --prefer-dist --no-interaction --no-suggest
+      install:
+        - composer config github-oauth.github.com $GITHUB_OAUTH
+        - travis_retry composer install --prefer-dist --no-interaction --no-suggest
       script: vendor/bin/php-cs-fixer fix . --dry-run --diff
 
   allow_failures:
     - php: nightly
 
 install:
+  - composer config repositories.0 --unset --no-interaction
   - composer remove friendsofphp/php-cs-fixer --dev --no-update --no-interaction
   - travis_retry composer install --prefer-dist --no-interaction --no-suggest
 

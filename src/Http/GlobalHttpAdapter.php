@@ -16,7 +16,8 @@ class GlobalHttpAdapter implements HttpAdapter
     {
         header_remove();
 
-        foreach ($headers->get() as $header) {
+        foreach ($headers->get() as $header)
+        {
             header(
                 (string) $header,
                 false

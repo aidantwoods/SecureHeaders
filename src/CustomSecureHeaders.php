@@ -70,7 +70,8 @@ class CustomSecureHeaders extends SecureHeaders
 
     public function www_if_not_localhost()
     {
-        if ($_SERVER['SERVER_NAME'] !== 'localhost' and substr($_SERVER['HTTP_HOST'], 0, 4) !== 'www.') {
+        if ($_SERVER['SERVER_NAME'] !== 'localhost' and substr($_SERVER['HTTP_HOST'], 0, 4) !== 'www.')
+        {
             $this->header('HTTP/1.1 301 Moved Permanently');
             $this->header('Location', 'https://www.'.$_SERVER['SERVER_NAME'].$_SERVER['REQUEST_URI']);
         }

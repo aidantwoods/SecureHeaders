@@ -65,16 +65,21 @@ class CSPTest extends PHPUnit_Framework_TestCase
 
     public function assertEquivalentCSP($policy, $headersString)
     {
-        foreach ($policy as $directive => $sources) {
+        foreach ($policy as $directive => $sources)
+        {
             $directive = preg_quote($directive, '/');
 
-            if ($sources !== true) {
-                foreach ($sources as $source) {
+            if ($sources !== true)
+            {
+                foreach ($sources as $source)
+                {
                     $source = preg_quote($source, '/');
 
                     $this->assertRegexp('/Content-Security-Policy:.*?'.$directive.'[^;]+'.$source.'/', $headersString);
                 }
-            } else {
+            }
+            else
+            {
                 $this->assertRegexp('/Content-Security-Policy:.*?'.$directive.';/', $headersString);
             }
         }

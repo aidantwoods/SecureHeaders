@@ -41,13 +41,16 @@ class CompileCSP implements Operation
             'Content-Security-Policy-Report-Only' => 'cspro',
         ];
 
-        foreach ($cspHeaders as $header => $type) {
-            if ($this->combine) {
+        foreach ($cspHeaders as $header => $type)
+        {
+            if ($this->combine)
+            {
                 $otherPolicyHeaders = $headers->getByName($header);
 
                 $policies = [$this->{$type.'Config'}];
 
-                foreach ($otherPolicyHeaders as $otherPolicy) {
+                foreach ($otherPolicyHeaders as $otherPolicy)
+                {
                     $policies[]
                         = self::deconstructCSP($otherPolicy->getValue());
                 }
@@ -57,13 +60,15 @@ class CompileCSP implements Operation
 
             $value = $this->{'compile'.strtoupper($type)}();
 
-            if (empty($value)) {
+            if (empty($value))
+            {
                 continue;
             }
 
             $headers->{($this->combine ? 'replace' : 'add')}($header, $value);
 
-            if ($this->sendLegacyHeaders) {
+            if ($this->sendLegacyHeaders)
+            {
                 $headers->{($this->combine ? 'replace' : 'add')}("X-$header", $value);
             }
         }
@@ -89,15 +94,19 @@ class CompileCSP implements Operation
     {
         $pieces = [];
 
-        foreach ($config as $directive => $sources) {
-            if (is_array($sources)) {
+        foreach ($config as $directive => $sources)
+        {
+            if (is_array($sources))
+            {
                 self::removeEmptySources($sources);
                 self::removeDuplicateSources($sources);
 
                 array_unshift($sources, $directive);
 
                 $pieces[] = implode(' ', $sources);
-            } else {
+            }
+            else
+            {
                 $pieces[] = $directive;
             }
         }
@@ -111,24 +120,29 @@ class CompileCSP implements Operation
 
         $directivesAndSources = explode(';', $cspString);
 
-        foreach ($directivesAndSources as $directiveAndSources) {
+        foreach ($directivesAndSources as $directiveAndSources)
+        {
             $directiveAndSources = ltrim($directiveAndSources);
 
             $list = explode(' ', $directiveAndSources, 2);
 
             $directive = strtolower($list[0]);
 
-            if (isset($csp[$directive])) {
+            if (isset($csp[$directive]))
+            {
                 continue;
             }
 
-            if (isset($list[1]) and trim($list[1]) !== '') {
+            if (isset($list[1]) and trim($list[1]) !== '')
+            {
                 $sourcesString = $list[1];
 
                 $sources = explode(' ', $sourcesString);
 
                 self::removeEmptySources($sources);
-            } else {
+            }
+            else
+            {
                 $sources = true;
             }
 
@@ -142,7 +156,8 @@ class CompileCSP implements Operation
     {
         $sources = array_filter(
             $sources,
-            function ($source) {
+            function ($source)
+            {
                 return $source !== '';
             }
         );
@@ -157,15 +172,22 @@ class CompileCSP implements Operation
     {
         $finalCSP = [];
 
-        foreach ($cspList as $csp) {
-            foreach ($csp as $directive => $sources) {
-                if (! isset($finalCSP[$directive])) {
+        foreach ($cspList as $csp)
+        {
+            foreach ($csp as $directive => $sources)
+            {
+                if ( ! isset($finalCSP[$directive]))
+                {
                     $finalCSP[$directive] = $sources;
 
                     continue;
-                } elseif ($finalCSP[$directive] === true) {
+                }
+                elseif ($finalCSP[$directive] === true)
+                {
                     continue;
-                } else {
+                }
+                else
+                {
                     $finalCSP[$directive] = array_merge(
                         $finalCSP[$directive],
                         $sources

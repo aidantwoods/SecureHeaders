@@ -54,7 +54,8 @@ class CSPWildcards implements ValidatorDelegate
         $errors = [];
 
         $header->forEachAttribute(
-            function ($directive, $sources) use ($header, &$errors) {
+            function ($directive, $sources) use ($header, &$errors)
+            {
                 $errors[] = self::enumerateWildcards(
                     $header,
                     $directive,
@@ -85,16 +86,20 @@ class CSPWildcards implements ValidatorDelegate
         $directive,
         $sources
     ) {
-        if (preg_match_all(self::CSP_SOURCE_WILDCARD_RE, $sources, $matches)) {
-            if (! in_array($directive, self::$cspSensitiveDirectives)) {
+        if (preg_match_all(self::CSP_SOURCE_WILDCARD_RE, $sources, $matches))
+        {
+            if ( ! in_array($directive, self::$cspSensitiveDirectives))
+            {
                 # if we're not looking at one of the above, we'll
                 # be a little less strict with data:
-                if (($key = array_search('data:', $matches[0])) !== false) {
+                if (($key = array_search('data:', $matches[0])) !== false)
+                {
                     unset($matches[0][$key]);
                 }
             }
 
-            if (! empty($matches[0])) {
+            if ( ! empty($matches[0]))
+            {
                 $friendlyHeader = $header->getFriendlyName();
 
                 return new Error(
@@ -129,7 +134,8 @@ class CSPWildcards implements ValidatorDelegate
         $directive,
         $sources
     ) {
-        if (preg_match_all('/(?:[ ]|^)\Khttp[:][^ ]*/', $sources, $matches)) {
+        if (preg_match_all('/(?:[ ]|^)\Khttp[:][^ ]*/', $sources, $matches))
+        {
             $friendlyHeader = $header->getFriendlyName();
 
             return new Error(

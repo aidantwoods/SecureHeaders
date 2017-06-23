@@ -13,8 +13,10 @@ class CSPHeader extends RegularHeader implements Header
 
         $policy = CompileCSP::deconstructCSP($this->value);
 
-        foreach ($policy as $directive => $sources) {
-            if (! isset($this->attributes[$directive])) {
+        foreach ($policy as $directive => $sources)
+        {
+            if ( ! isset($this->attributes[$directive]))
+            {
                 $this->attributes[$directive] = [];
             }
 
@@ -29,16 +31,23 @@ class CSPHeader extends RegularHeader implements Header
     {
         $policies = [];
 
-        foreach ($this->attributes as $attributes) {
-            foreach ($attributes as $attrInfo) {
+        foreach ($this->attributes as $attributes)
+        {
+            foreach ($attributes as $attrInfo)
+            {
                 $directive = $attrInfo['name'];
                 $value = $attrInfo['value'];
 
-                if ($value === true) {
+                if ($value === true)
+                {
                     $string = $directive;
-                } elseif (! is_string($value) or trim($value) === '') {
+                }
+                elseif ( ! is_string($value) or trim($value) === '')
+                {
                     continue;
-                } else {
+                }
+                else
+                {
                     $string = "$directive $value";
                 }
 
@@ -57,7 +66,8 @@ class CSPHeader extends RegularHeader implements Header
     {
         $key = strtolower($name);
 
-        if (! isset($this->attributes[$key])) {
+        if ( ! isset($this->attributes[$key]))
+        {
             $this->attributes[$key] = [];
         }
 

@@ -39,7 +39,8 @@ class StringHttpAdapter implements HttpAdapter
     {
         $compiledHeaders = [];
 
-        foreach ($this->headers as $header) {
+        foreach ($this->headers as $header)
+        {
             $compiledHeaders[] = (string) $header;
         }
 

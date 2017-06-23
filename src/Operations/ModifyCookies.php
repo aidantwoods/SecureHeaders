@@ -41,10 +41,12 @@ class ModifyCookies implements Operation
      */
     public function modify(HeaderBag &$headers)
     {
-        foreach ($headers->getByName('set-cookie') as $cookieHeader) {
+        foreach ($headers->getByName('set-cookie') as $cookieHeader)
+        {
             $cookieName = $cookieHeader->getFirstAttributeName();
 
-            if (! $cookieHeader->hasAttribute($this->field) and $this->matches($cookieName)) {
+            if ( ! $cookieHeader->hasAttribute($this->field) and $this->matches($cookieName))
+            {
                 $cookieHeader->setAttribute($this->field, $this->value);
             }
         }
@@ -52,17 +54,22 @@ class ModifyCookies implements Operation
 
     private function matches($cookieName)
     {
-        if ($this->matchSubstring) {
+        if ($this->matchSubstring)
+        {
             return $this->matchesSubstring($cookieName);
-        } else {
+        }
+        else
+        {
             return $this->matchesFully($cookieName);
         }
     }
 
     private function matchesSubstring($cookieName)
     {
-        foreach ($this->blacklist as $forbidden) {
-            if (strpos(strtolower($cookieName), $forbidden) !== false) {
+        foreach ($this->blacklist as $forbidden)
+        {
+            if (strpos(strtolower($cookieName), $forbidden) !== false)
+            {
                 return true;
             }
         }

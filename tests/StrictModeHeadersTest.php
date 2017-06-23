@@ -21,7 +21,8 @@ class StrictModeHeadersTest extends PHPUnit_Framework_TestCase
         return [
             [
                 'test' =>
-                    function (&$headers) {
+                    function (&$headers)
+                    {
                         $headers->strictMode();
                     },
                 'assertions' => [
@@ -31,7 +32,8 @@ class StrictModeHeadersTest extends PHPUnit_Framework_TestCase
             ],
             [
                 'test' =>
-                    function (&$headers) {
+                    function (&$headers)
+                    {
                         $headers->strictMode();
                         $headers->cspNonce('script');
                     },
@@ -42,7 +44,8 @@ class StrictModeHeadersTest extends PHPUnit_Framework_TestCase
             ],
             [
                 'test' =>
-                    function (&$headers) {
+                    function (&$headers)
+                    {
                         $headers->strictMode();
                         $headers->cspNonce('default');
                     },
@@ -53,7 +56,8 @@ class StrictModeHeadersTest extends PHPUnit_Framework_TestCase
             ],
             [
                 'test' =>
-                    function (&$headers) {
+                    function (&$headers)
+                    {
                         $headers->strictMode();
                         $headers->cspNonce('default');
                         $headers->cspNonce('script');
@@ -67,7 +71,8 @@ class StrictModeHeadersTest extends PHPUnit_Framework_TestCase
             ],
             [
                 'test' =>
-                    function (&$headers) {
+                    function (&$headers)
+                    {
                         $headers->strictMode();
                         $headers->cspHash('default', 'abcd');
                     },
@@ -78,7 +83,8 @@ class StrictModeHeadersTest extends PHPUnit_Framework_TestCase
             ],
             [
                 'test' =>
-                    function (&$headers) {
+                    function (&$headers)
+                    {
                         $headers->strictMode();
                         $headers->cspHash('script', 'abcd');
                     },
@@ -89,7 +95,8 @@ class StrictModeHeadersTest extends PHPUnit_Framework_TestCase
             ],
             [
                 'test' =>
-                    function (&$headers) {
+                    function (&$headers)
+                    {
                         $headers->strictMode();
                         $headers->cspHash('default', 'abcd');
                         $headers->cspHash('script', 'abcd');
@@ -103,7 +110,8 @@ class StrictModeHeadersTest extends PHPUnit_Framework_TestCase
             ],
             [
                 'test' =>
-                    function (&$headers) {
+                    function (&$headers)
+                    {
                         $headers->strictMode();
                         $headers->csp('default', 'http://some-cdn.org');
                         $headers->csp('script', 'http://other-cdn.net');
@@ -130,12 +138,16 @@ class StrictModeHeadersTest extends PHPUnit_Framework_TestCase
 
         $headersString = $headerStrings->getSentHeaders();
 
-        foreach ($this->assertions as $assertion) {
-            if (isset($assertions[$assertion])) {
-                if (! is_array($assertions[$assertion])) {
+        foreach ($this->assertions as $assertion)
+        {
+            if (isset($assertions[$assertion]))
+            {
+                if ( ! is_array($assertions[$assertion]))
+                {
                     $assertions[$assertion] = [$assertions[$assertion]];
                 }
-                foreach ($assertions[$assertion] as $assertionString) {
+                foreach ($assertions[$assertion] as $assertionString)
+                {
                     $this->{'assert'.$assertion}(
                         $assertionString,
                         $headersString
