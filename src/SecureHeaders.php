@@ -180,6 +180,7 @@ class SecureHeaders
     ];
 
     private $reportMissingHeaders   = [
+        'Expect-CT',
         'Strict-Transport-Security',
         'Content-Security-Policy',
         'X-Permitted-Cross-Domain-Policies',
