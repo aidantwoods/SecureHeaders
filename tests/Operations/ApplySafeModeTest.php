@@ -29,7 +29,7 @@ class ApplySafeModeTest extends PHPUnit_Framework_TestCase
         }
     }
 
-    public function testPKPMaxAgeWillBeReducedToOneDay()
+    public function testPKPMaxAgeWillBeReducedTo10Seconds()
     {
         $headers = HeaderBag::fromHeaderLines([
             'Public-Key-Pins: pin-sha256="abc"; pin-sha256="def"; max-age=5184000; includeSubDomains; report-uri="www"',
