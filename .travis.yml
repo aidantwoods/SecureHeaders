@@ -33,7 +33,7 @@ matrix:
         - travis_retry composer install --prefer-dist --no-interaction --no-suggest
       script:
         - vendor/bin/markdown-phpdoc -f src/SecureHeaders.php -t docs/v2/ -c docs/complements/ -s docs/supplements/ -v
-        - if [ ! "$(git diff docs/v2/)" = '' ]; then echo 'Please regenerate the documentation'; exit 1; fi
+        - if [ ! "$(git diff docs/v2/)" = '' ]; then echo -e 'Please regenerate the documentation.\nObtain a copy of markdown-phpdoc from (https://github.com/aidantwoods/MarkdownPhpDocs) or (https://packagist.org/packages/aidantwoods/markdownphpdocs)\nThen use the following command to auto-generate the documentation:\n  markdown-phpdoc -f src/SecureHeaders.php -t docs/v2/ -c docs/complements/ -s docs/supplements/ -v'; exit 1; fi
 
   allow_failures:
     - php: nightly
