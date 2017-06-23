@@ -2,7 +2,7 @@
 Hi there! Thanks for considering making a contribution to SecureHeaders. PRs are
 always welcome! 😀
 
-## Before a Pull-Request is merged
+## Pull-Request Checklist
 Try to complete as many of these as possible before submitting a PR, but none
 are manditory to submit (we can work to get everything checked off before merge
 once the PR is submitted).
