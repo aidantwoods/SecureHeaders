@@ -12,6 +12,7 @@ class ApplySafeMode extends OperationWithErrors implements Operation, ExposesErr
     private static $unsafeHeaders = [
         'strict-transport-security' => 'sanitizeSTS',
         'public-key-pins' => 'sanitizePKP',
+        'expect-ct' => 'sanitizeExpectCT',
     ];
 
     private $exceptions;
@@ -81,6 +82,21 @@ class ApplySafeMode extends OperationWithErrors implements Operation, ExposesErr
         {
             $this->addError(
                 'Some HPKP settings were overridden because Safe-Mode is enabled.'
+            );
+        }
+    }
+
+    private function sanitizeExpectCT(Header $header)
+    {
+        $origValue = $header->getValue();
+
+        # Only do these when the attributes exist
+        $header->removeAttribute('enforce');
+
+        if ($header->getValue() !== $origValue)
+        {
+            $this->addError(
+                'Some ExpectCT settings were overridden because Safe-Mode is enabled.'
             );
         }
     }

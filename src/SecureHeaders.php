@@ -38,6 +38,7 @@ use Aidantwoods\SecureHeaders\Http\HttpAdapter;
 use Aidantwoods\SecureHeaders\Operations\AddHeader;
 use Aidantwoods\SecureHeaders\Operations\ApplySafeMode;
 use Aidantwoods\SecureHeaders\Operations\CompileCSP;
+use Aidantwoods\SecureHeaders\Operations\CompileExpectCT;
 use Aidantwoods\SecureHeaders\Operations\CompileHPKP;
 use Aidantwoods\SecureHeaders\Operations\CompileHSTS;
 use Aidantwoods\SecureHeaders\Operations\InjectStrictDynamic;
@@ -91,6 +92,8 @@ class SecureHeaders
     ];
 
     protected $headerProposals = [
+        'Expect-CT'
+            => 'max-age=0',
         'Referrer-Policy'
             => [
                 'no-referrer',
@@ -123,6 +126,8 @@ class SecureHeaders
         'enforced'      =>  [],
         'reportOnly'    =>  []
     ];
+
+    private $expectCT           = [];
 
     private $hsts               = [];
 
@@ -1031,6 +1036,69 @@ class SecureHeaders
     }
 
     # ~~
+    # public functions: Expect-CT
+
+    /**
+     * Used to add and configure the Expect-CT header.
+     *
+     * Expect-CT makes sure that a user's browser will fill the role of
+     * ensuring that future requests, within $maxAge seconds will have
+     * certificate transparancy.
+     *
+     * If set to enforcement mode, the browser will fail the TLS connection if
+     * the certificate transparency requirement is not met
+     *
+     * @param ?int|string $maxAge
+     *  The length, in seconds either as a string, or an integer – specify the
+     *  length that a user's browser should remember that the application
+     *  should be delivered with a certificate transparency expectation.
+     *
+     * @param ?mixed $enforce
+     *  Loosely casted as a boolean, whether to enforce (by failing the TLS
+     *  connection) that certificate transparency is enabled for the next
+     *  $maxAge seconds, or whether to only report to the console, and to
+     *  $reportUri if an address is defined.
+     *
+     * @param ?string $reportUri
+     *  A reporting address to send violation reports to.
+     *
+     *  Passing `null` indicates that a reporting address should not be modified
+     *  on this call (e.g. can be used to prevent overwriting a previous
+     *  setting).
+     *
+     * @return void
+     */
+    public function expectCT(
+        $maxAge    = 31536000,
+        $enforce   = true,
+        $reportUri = null
+    ) {
+        Types::assert(
+            [
+                'int|string' => [$maxAge],
+                'string' => [$reportUri]
+            ],
+            [1, 3]
+        );
+
+        if (isset($maxAge) or ! isset($this->expectCT['max-age']))
+        {
+            $this->expectCT['max-age'] = $maxAge;
+        }
+
+        if (isset($enforce) or ! isset($this->expectCT['enforce']))
+        {
+            $this->expectCT['enforce']
+                = (isset($enforce) ? ($enforce == true) : null);
+        }
+
+        if (isset($reportUri) or ! isset($this->expectCT['report-uri']))
+        {
+            $this->expectCT['report-uri'] = $reportUri;
+        }
+    }
+
+    # ~~
     # public functions: HSTS
 
     /**
@@ -1385,6 +1453,11 @@ class SecureHeaders
                 'Strict-Transport-Security',
                 'max-age=31536000; includeSubDomains; preload'
             );
+
+            $operations[] = new AddHeader(
+                'Expect-CT',
+                'max-age=31536000; enforce'
+            );
         }
 
         # Apply security headers for all (HTTP and HTTPS) connections
@@ -1460,6 +1533,11 @@ class SecureHeaders
         if ( ! empty($this->hsts))
         {
             $operations[] = new CompileHSTS($this->hsts);
+        }
+
+        if ( ! empty($this->expectCT))
+        {
+            $operations[] = new CompileExpectCT($this->expectCT);
         }
 
         $operations[] = new CompileHPKP($this->hpkp, $this->hpkpro);
