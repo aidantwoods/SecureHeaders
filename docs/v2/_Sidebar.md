@@ -7,12 +7,11 @@
 # Functions
 
 ### General
-* [done](done)
-* [doneOnOutput](doneOnOutput)
+* [apply](apply)
+* [applyOnOutput](applyOnOutput)
 
 ### Settings
 * [auto](auto)
-* [correctHeaderName](correctHeaderName)
 * [cspLegacy](cspLegacy)
 * [errorReporting](errorReporting)
 * [protectedCookie](protectedCookie)
@@ -44,6 +43,5 @@
 * [resetCSP](resetCSP)
 
 ### Headers and Cookies
-* [header](header)
 * [removeCookie](removeCookie)
 * [removeHeader](removeHeader)

@@ -1,20 +1,26 @@
 ## Description
 ```php
-void safeMode ( [ mixed $mode = true ] )
+void safeMode ([ mixed $mode = true ] )
 ```
 
-`->safeMode()` will turn safe mode on or off.
+Used to turn safe mode on or off.
+Safe mode will modify certain headers that may cause lasting effects so
+to limit how long accidental effects can last for.
 
-Safe mode will modify certain headers that may cause lasting effects so to limit how long accidental effects can last for.
-
-Note that exceptions can be made to safe-mode on a header by header basis with [`->safeModeException`](safeModeException)
+Note that exceptions can be made to safe-mode on a header by header
+basis with [`->safeModeException`](safeModeException)
 
 ## Parameters
 ### mode
-Loosely casted to a boolean, `true` turns safe mode on, `false` turns it off. The exception being the string 'off' case-insensitively, which will operate as if it was casted to `false` (this makes the behaviour more similar to the way some values are set in PHP ini files).
+mode is the on/off setting. Any value of type that is loosely castable to a boolean is valid.
+
+ Loosely casted to a boolean, `true` turns safe mode on, `false` turns
+ it off. The exception being the string 'off' case-insensitively, which
+ will operate as if it was casted to `false` (this makes the behaviour
+ more similar to the way some values are set in PHP ini files).
 
 ## Examples
-For example, if the following code was run (safe mode can be called at any point before `->done()` to be effective)
+For example, if the following code was run (safe mode can be called at any point before `->apply()` to be effective)
 ```php
 $headers->hsts();
 $headers->safeMode();

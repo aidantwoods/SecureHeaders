@@ -1,15 +1,17 @@
 ## Description
 ```php
-void auto ( [ int $mode = SecureHeaders::AUTO_ALL ] )
+void auto ([ integer $mode = self::AUTO_ALL ] )
 ```
 
-`->auto()` is used to enable or disable certain automatically applied header functions
-
-If unconfigured, the default setting for `->auto` is `SecureHeaders::AUTO_ALL`.
+Enable or disable certain automatically applied header functions
+If unconfigured, the default setting for `SecureHeaders::AUTO_ALL` is
+`SecureHeaders::AUTO_ALL`.
 
 ## Parameters
 ### mode
-`mode` accepts one or more of the following constants. Multiple constants may be specified by combination using [bitwise operators](https://secure.php.net/manual/language.operators.bitwise.php)
+`mode` accepts one or more of the following constants. Multiple
+ constants may be specified by combination using
+ [bitwise operators](https://secure.php.net/manual/language.operators.bitwise.php)
 
 ## Valid Constants
 ### AUTO_ALL

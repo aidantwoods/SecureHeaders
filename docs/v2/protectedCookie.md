@@ -1,14 +1,15 @@
 ## Description
 ```php
 void protectedCookie (
-    string | array $name,
-    int $mode = SecureHeaders::COOKIE_DEFAULT
+    string | array $name 
+    [, integer $mode = self::COOKIE_DEFAULT ] 
 )
 ```
 
-`->protectedCookie()` is used to configure which cookies SecureHeaders will regard as protected.
-
-SecureHeaders will consider substrings and names of cookies separately. By default, cookies that case insensitively match the following substrings or names will be regarded as protected.
+Configure which cookies SecureHeaders will regard as protected.
+SecureHeaders will consider substrings and names of cookies separately.
+By default, cookies that case insensitively match the following
+substrings or names will be regarded as protected.
 
 #### Substrings
 ```
@@ -28,14 +29,22 @@ s
 persistent
 ```
 
-If a cookie is protected, then cookie flags will be appended as configured by [`->auto`](auto). The default behaviour is to add `Secure` and `HttpOnly` flags, to ensure cookies are both sent securely, and out of the reach of JavaScript.
+If a cookie is protected, then cookie flags will be appended as
+configured by [`->auto`](auto). The default behaviour is to add `Secure` and
+`HttpOnly` flags, to ensure cookies are both sent securely, and out of
+the reach of JavaScript.
 
 ## Parameters
 ### name
-The name (or substring of the name, depending on mode configuration), of the cookie to add/remove from the protection list (depending on mode configuration). Or a list of cookie names (or substrings of the name to match) as an array of strings.
+The name (or substring of the name, depending on mode configuration),
+ of the cookie to add/remove from the protection list (depending on mode
+ configuration). Or a list of cookie names (or substrings of the name to
+ match) as an array of strings.
 
 ### mode
-`mode` accepts one or more of the following constants. Multiple constants may be specified by combination using [bitwise operators](https://secure.php.net/manual/language.operators.bitwise.php)
+`mode` accepts one or more of the following constants. Multiple
+  constants may be specified by combination using
+ [bitwise operators](https://secure.php.net/manual/language.operators.bitwise.php)
 
 ## Valid Constants
 
@@ -70,4 +79,3 @@ SecureHeaders::COOKIE_ALL = SecureHeaders::COOKIE_NAME
 SecureHeaders::COOKIE_REMOVE
 ```
 `COOKIE_REMOVE` when combined with either `COOKIE_NAME`, `COOKIE_SUBSTR` or `COOKIE_ALL` will cause the string or strings specified in [`$name`](#name) to be removed from the respective lists, if such entries exist.
-
