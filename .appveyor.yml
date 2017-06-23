@@ -5,11 +5,11 @@ clone_folder: C:\projects\secureheaders
 
 environment:
     matrix:
-        - php_ver: 7.1
-        - php_ver: 7.0
-        - php_ver: 5.6
-        - php_ver: 5.5
-        - php_ver: 5.4
+        - php_ver: 7.1.6
+        - php_ver: 7.0.20
+        - php_ver: 5.6.30
+        - php_ver: 5.5.38
+        - php_ver: 5.4.45
         - php_ver: hhvm
 
 cache:
