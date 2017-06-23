@@ -304,10 +304,11 @@ class SecureHeaders
     /**
      * Turn strict mode on or off.
      *
-     * * When enabled, strict mode will auto-enable HSTS with a 1 year duration,
-     *   and the `includeSubDomains` and `preload` flags set. Note that this
-     *   HSTS policy is made as a [header proposal](header-proposals), and can
-     *   thus be removed or modified.
+     * When enabled, strict mode will:
+     * * Auto-enable HSTS with a 1 year duration, and the `includeSubDomains`
+     *   and `preload` flags set. Note that this HSTS policy is made as a
+     *   [header proposal](header-proposals), and can thus be removed or
+     *   modified.
      *
      * * The source keyword `'strict-dynamic'` will also be added to the first
      *   of the following directives that exist: `script-src`, `default-src`;
@@ -330,6 +331,11 @@ class SecureHeaders
      *   See [`->auto`](auto#AUTO_COOKIE_SAMESITE) to enable/disable injection
      *   of `SameSite` and {@see sameSiteCookies} for more on specific behaviour
      *   and to explicitly define this value manually, to override the default.
+     *
+     * * Auto-enable Expect-CT with a 1 year duration, and the `enforce` flag
+     *   set. Note that this Expect-CT policy is made as a
+     *   [header proposal](header-proposals), and can thus be removed or
+     *   modified.
      *
      * @param mixed $mode
      *  Loosely casted to a boolean, `true` enables strict mode, `false` turns
