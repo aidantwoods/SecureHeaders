@@ -39,7 +39,8 @@
         }
     ],
     "suggest": {
-        "psr/http-message": "In case you want to use the PSR-7 adapter"
+        "psr/http-message": "In case you want to use the PSR-7 adapter",
+        "aidantwoods/markdownphpdocs": "Install this on its own and add it to your path, to auto-generate documentation if contributing to this repo."
     },
     "require-dev": {
         "friendsofphp/php-cs-fixer": "dev-feature/braces/position_after_return_type_hint",
