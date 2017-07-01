@@ -9,6 +9,12 @@ class CompileHSTS implements Operation
 {
     private $config;
 
+    /**
+     * Create an Operation to add (in replace mode) an HSTS header,
+     * with $hstsConfig
+     *
+     * @param array $hstsConfig
+     */
     public function __construct(array $hstsConfig)
     {
         $this->config = $hstsConfig;
@@ -28,6 +34,11 @@ class CompileHSTS implements Operation
         );
     }
 
+    /**
+     * Make the HSTS header value
+     *
+     * @return string
+     */
     private function makeHeaderValue()
     {
         $pieces = ['max-age=' . $this->config['max-age']];

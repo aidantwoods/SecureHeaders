@@ -17,6 +17,11 @@ class ApplySafeMode extends OperationWithErrors implements Operation, ExposesErr
 
     private $exceptions;
 
+    /**
+     * Create an operation to apply safe mode with exceptions $exceptions
+     *
+     * @param array $exceptions
+     */
     public function __construct(array $exceptions = [])
     {
         $this->exceptions = $exceptions;
@@ -46,6 +51,12 @@ class ApplySafeMode extends OperationWithErrors implements Operation, ExposesErr
         }
     }
 
+    /**
+     * Apply safe-mode for HSTS to $header
+     *
+     * @param Header $header
+     * @return void
+     */
     private function sanitizeSTS(Header $header)
     {
         $origValue = $header->getValue();
@@ -70,6 +81,12 @@ class ApplySafeMode extends OperationWithErrors implements Operation, ExposesErr
         }
     }
 
+    /**
+     * Apply safe-mode for HPKP to $header
+     *
+     * @param Header $header
+     * @return void
+     */
     private function sanitizePKP(Header $header)
     {
         $origValue = $header->getValue();
@@ -86,6 +103,12 @@ class ApplySafeMode extends OperationWithErrors implements Operation, ExposesErr
         }
     }
 
+    /**
+     * Apply safe-mode for Expect-CT to $header
+     *
+     * @param Header $header
+     * @return void
+     */
     private function sanitizeExpectCT(Header $header)
     {
         $origValue = $header->getValue();

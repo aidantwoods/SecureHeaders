@@ -5,7 +5,7 @@ namespace Aidantwoods\SecureHeaders;
 interface ExposesErrors
 {
     /**
-     * Return an array of errors, clearing any stored errors
+     * Return an array of Errors, clearing any stored Errors
      *
      * @param void
      * @return Error[]

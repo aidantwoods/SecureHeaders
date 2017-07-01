@@ -13,6 +13,24 @@ class CompileCSP implements Operation
     private $sendLegacyHeaders;
     private $combine;
 
+    /**
+     * Create an operation to compile and add given CSPs from $cspConfig,
+     * $csproConfig, with $csproBlacklist.
+     *
+     * $sendLegacyHeaders will duplicate the policies to legacy headers and
+     * add those too.
+     *
+     * $combineMultiplePolicies will decide whether to merge (combine) multiple
+     * policies (policies already in headers from the HeaderBag given to
+     * {@see modify}) with the given policies, or whether to simply send
+     * additional policy headers.
+     *
+     * @param array $cspConfig
+     * @param array $csproConfig
+     * @param array $csproBlacklist
+     * @param bool $sendLegacyHeaders
+     * @param bool $combineMultiplePolicies
+     */
     public function __construct(
         array $cspConfig,
         array $csproConfig,
@@ -74,11 +92,21 @@ class CompileCSP implements Operation
         }
     }
 
+    /**
+     * Compile internal CSP config into a CSP header-value string
+     *
+     * @return string
+     */
     private function compileCSP()
     {
         return self::compile($this->cspConfig);
     }
 
+    /**
+     * Compile internal CSPRO config into a CSP header-value string
+     *
+     * @return string
+     */
     private function compileCSPRO()
     {
         # Filter out the blacklisted directives
@@ -90,7 +118,13 @@ class CompileCSP implements Operation
         return self::compile($filteredConfig);
     }
 
-    public static function compile($config)
+    /**
+     * Compile CSP $config into a CSP header-value string
+     *
+     * @param array $config
+     * @return string
+     */
+    public static function compile(array $config)
     {
         $pieces = [];
 
@@ -114,6 +148,12 @@ class CompileCSP implements Operation
         return implode('; ', $pieces);
     }
 
+    /**
+     * Deconstruct $cspString into a CSP config array
+     *
+     * @param string $cspString
+     * @return array
+     */
     public static function deconstructCSP($cspString)
     {
         $csp = [];
@@ -152,6 +192,12 @@ class CompileCSP implements Operation
         return $csp;
     }
 
+    /**
+     * Remove empty sources from $sources
+     *
+     * @param array $sources
+     * @return void
+     */
     private static function removeEmptySources(array &$sources)
     {
         $sources = array_filter(
@@ -163,11 +209,23 @@ class CompileCSP implements Operation
         );
     }
 
+    /**
+     * Remove duplicate sources from $sources
+     *
+     * @param array $sources
+     * @return void
+     */
     private static function removeDuplicateSources(array &$sources)
     {
         $sources = array_unique($sources, SORT_REGULAR);
     }
 
+    /**
+     * Merge a multiple CSP configs together into a single CSP
+     *
+     * @param array $cspList
+     * @return array
+     */
     public static function mergeCSPList(array $cspList)
     {
         $finalCSP = [];

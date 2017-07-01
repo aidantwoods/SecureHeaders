@@ -15,6 +15,12 @@ class HeaderFactory
         ]
     ];
 
+    /**
+     * Create a Header with name $name, and value $value
+     *
+     * @param string $name
+     * @param string $value
+     */
     public static function build($name, $value = '')
     {
         $namespace = __NAMESPACE__.'\\Headers';

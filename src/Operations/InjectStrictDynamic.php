@@ -11,6 +11,13 @@ class InjectStrictDynamic extends OperationWithErrors implements Operation, Expo
 {
     private $allowedCSPHashAlgs;
 
+    /**
+     * Create an Operation to inject `'strict-dynamic'` into an appropriate
+     * CSP directive, $allowedCSPHashAlgs supplies a list of allowed CSP
+     * hashing algorithms.
+     *
+     * @param array $hstsConfig
+     */
     public function __construct(array $allowedCSPHashAlgs)
     {
         $this->allowedCSPHashAlgs = $allowedCSPHashAlgs;
@@ -48,6 +55,14 @@ class InjectStrictDynamic extends OperationWithErrors implements Operation, Expo
         }
     }
 
+    /**
+     * Determine which directive `'strict-dynamic'` may be injected into, if
+     * any.
+     * If Safe-Mode conflicts, `-1` will be returned.
+     * If `'strict-dynamic'` cannot be injected, `false` will be returned.
+     *
+     * @return string|int|bool
+     */
     private function canInjectStrictDynamic(Header $header)
     {
         # check if a relevant directive exists

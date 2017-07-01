@@ -7,6 +7,9 @@ use Aidantwoods\SecureHeaders\Operations\CompileCSP;
 
 class CSPHeader extends RegularHeader implements Header
 {
+    /**
+     * {@inheritDoc}
+     */
     protected function parseAttributes()
     {
         $this->attributes = [];
@@ -27,6 +30,9 @@ class CSPHeader extends RegularHeader implements Header
         }
     }
 
+    /**
+     * {@inheritDoc}
+     */
     protected function writeAttributesToValue()
     {
         $policies = [];
@@ -62,6 +68,9 @@ class CSPHeader extends RegularHeader implements Header
         $this->value = CompileCSP::compile($policy);
     }
 
+    /**
+     * {@inheritDoc}
+     */
     public function setAttribute($name, $value = true)
     {
         $key = strtolower($name);
