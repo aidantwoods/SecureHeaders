@@ -45,4 +45,25 @@ class ApplySafeModeTest extends PHPUnit_Framework_TestCase
             $allHeaders[0]->getValue()
         );
     }
+
+    public function testEnforcedExpectCTWillBecomeNonEnforced()
+    {
+        $headers = HeaderBag::fromHeaderLines([
+            'Expect-CT: max-age=31536000; enforce',
+            'Expect-CT: max-age=31536000; Enforce',
+            'Expect-CT: max-age=31536000; ENFORCE',
+            'Expect-CT: eNFORcE; max-age=31536000',
+        ]);
+
+        $operation = new ApplySafeMode();
+        $operation->modify($headers);
+
+        foreach ($headers->get() as $header)
+        {
+            $this->assertEquals(
+                false,
+                $header->hasAttribute('enforce')
+            );
+        }
+    }
 }

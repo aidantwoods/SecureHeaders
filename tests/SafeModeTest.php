@@ -71,7 +71,46 @@ class SafeModeTest extends PHPUnit_Framework_TestCase
                     'Contains' =>
                         'Public-Key-Pins: max-age=10; pin-sha256="abcd"'
                 ]
-            ]
+            ],
+            [
+                'test' =>
+                    function (&$headers)
+                    {
+                        $headers->expectCT(31536000, true, 'https://report.exampe.com');
+                    },
+                'assertions' => [
+                    'Contains' =>
+                        'Expect-CT: max-age=31536000; enforce; report-uri="https://report.exampe.com"'
+                ]
+            ],
+            [
+                'test' =>
+                    function (&$headers)
+                    {
+                        $headers->safeMode();
+                        $headers->expectCT(31536000, true, 'https://report.exampe.com');
+                    },
+                'assertions' => [
+                    'NotContains' =>
+                        'Expect-CT: max-age=31536000; enforce; report-uri="https://report.exampe.com"',
+                    'Contains' =>
+                        'Expect-CT: max-age=31536000; report-uri="https://report.exampe.com"'
+                ]
+            ],
+            [
+                'test' =>
+                    function (&$headers)
+                    {
+                        $headers->safeMode();
+                        $headers->strictMode();
+                    },
+                'assertions' => [
+                    'NotContains' =>
+                        'Expect-CT: max-age=31536000; enforce',
+                    'Contains' =>
+                        'Expect-CT: max-age=31536000',
+                ]
+            ],
         ];
     }
 

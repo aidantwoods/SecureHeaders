@@ -35,6 +35,17 @@ class StrictModeHeadersTest extends PHPUnit_Framework_TestCase
                     function (&$headers)
                     {
                         $headers->strictMode();
+                    },
+                'assertions' => [
+                    'Contains' =>
+                        'Expect-CT: max-age=31536000; enforce'
+                ]
+            ],
+            [
+                'test' =>
+                    function (&$headers)
+                    {
+                        $headers->strictMode();
                         $headers->cspNonce('script');
                     },
                 'assertions' => [
