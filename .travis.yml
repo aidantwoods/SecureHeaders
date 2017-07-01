@@ -23,6 +23,17 @@ matrix:
         - composer config github-oauth.github.com $GITHUB_OAUTH
         - travis_retry composer install --prefer-dist --no-interaction --no-suggest
       script: vendor/bin/php-cs-fixer fix . --dry-run --diff
+    - php: 7.1
+      env: DOCUMENTATION
+      install:
+        - composer config github-oauth.github.com $GITHUB_OAUTH
+        - composer config repositories.0 --unset --no-interaction
+        - composer remove friendsofphp/php-cs-fixer --dev --no-update --no-interaction
+        - composer require aidantwoods/markdownphpdocs ^0.2.1 --dev --no-update --no-interaction
+        - travis_retry composer install --prefer-dist --no-interaction --no-suggest
+      script:
+        - vendor/bin/markdown-phpdoc -f src/SecureHeaders.php -t docs/v2/ -c docs/complements/ -s docs/supplements/ -v
+        - if [ ! "$(git diff docs/v2/)" = '' ]; then echo -e 'Please regenerate the documentation.\nObtain a copy of markdown-phpdoc from (https://github.com/aidantwoods/MarkdownPhpDocs) or (https://packagist.org/packages/aidantwoods/markdownphpdocs)\nThen use the following command to auto-generate the documentation:\n  markdown-phpdoc -f src/SecureHeaders.php -t docs/v2/ -c docs/complements/ -s docs/supplements/ -v'; exit 1; fi
 
   allow_failures:
     - php: nightly
