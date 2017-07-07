@@ -498,7 +498,12 @@ For full documentation, please see the
 The SecureHeaders project will follow [Semantic Versioning 2], with
 the following declared public API:
 
-* Every public method in `src/SecureHeaders.php`
+Any method baring the [`@api`](https://phpdoc.org/docs/latest/references/phpdoc/tags/api.html)
+phpdoc tag.
+
+Roughtly speaking
+
+* Every public method in `src/SecureHeaders.php` (except `returnBuffer`)
 * Every public method in `src/Http`
 
 This allows the main SecureHeaders class to be used as expected by [semver], and

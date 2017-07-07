@@ -220,6 +220,8 @@ class SecureHeaders
      *
      * If unconfigured, the default setting for {@see applyOnOutput} is off.
      *
+     * @api
+     *
      * @param HttpAdapter $http
      * @param mixed $mode
      *  mode is the on/off setting. Any value of type that is loosely castable to a boolean is valid.
@@ -264,6 +266,8 @@ class SecureHeaders
      * Note that exceptions can be made to safe-mode on a header by header
      * basis with {@see safeModeException}
      *
+     * @api
+     *
      * @param mixed $mode
      *  mode is the on/off setting. Any value of type that is loosely castable to a boolean is valid.
      *
@@ -281,6 +285,8 @@ class SecureHeaders
 
     /**
      * Used to add an exception to {@see safeMode}.
+     *
+     * @api
      *
      * @param string $name
      *  Specify the name of the header that you wish to be exempt from
@@ -337,6 +343,8 @@ class SecureHeaders
      *   [header proposal](header-proposals), and can thus be removed or
      *   modified.
      *
+     * @api
+     *
      * @param mixed $mode
      *  Loosely casted to a boolean, `true` enables strict mode, `false` turns
      *  it off.
@@ -359,6 +367,8 @@ class SecureHeaders
      * would like to specifically turn off errors from only SecureHeaders then
      * use this function.
      *
+     * @api
+     *
      * @param mixed $mode
      *  Loosely casted as a boolean, `true` will enable error reporting
      *  (the default), `false` will disable it.
@@ -374,6 +384,8 @@ class SecureHeaders
      *
      * Selectively disable 'Missing security header: ...' reports for a
      * specific header.
+     *
+     * @api
      *
      * @param string $name
      *  The (case-insensitive) name of the header to disable missing reports
@@ -396,6 +408,8 @@ class SecureHeaders
      *
      * If unconfigured, the default setting for {@see auto} is
      * {@see AUTO_ALL}.
+     *
+     * @api
      *
      * @param int $mode
      *  `mode` accepts one or more of the following constants. Multiple
@@ -424,6 +438,8 @@ class SecureHeaders
      *
      * If not explicitly set, the default mode for this setting is enabled.
      *
+     * @api
+     *
      * @param mixed $mode
      *  Loosely casted to a boolean, `true` enables the behaviour, `false`
      *  turns it off.
@@ -449,6 +465,8 @@ class SecureHeaders
      * will be `SameSite=Strict` under the same criteria for set value. If you
      * wish to disable making cookies as same site,
      * see [`->auto`](auto#AUTO_COOKIE_SAMESITE).
+     *
+     * @api
      *
      * @param string $mode
      *  Valid values for `$mode` are either (case-insensitively) the strings
@@ -486,6 +504,8 @@ class SecureHeaders
      *
      * Upon calling {@see apply} the header will be removed. This function can
      * be used to manually prevent [automatic headers](auto) from being sent.
+     *
+     * @api
      *
      * @param string $name
      *  Case insensitive name of the header to remove.
@@ -532,6 +552,8 @@ class SecureHeaders
      * configured by {@see auto}. The default behaviour is to add `Secure` and
      * `HttpOnly` flags, to ensure cookies are both sent securely, and out of
      * the reach of JavaScript.
+     *
+     * @api
      *
      * @param string|array $name
      *  The name (or substring of the name, depending on mode configuration),
@@ -611,6 +633,8 @@ class SecureHeaders
      * (either programatically or globally, depending on where this is
      * configured).
      *
+     * @api
+     *
      * @param string $name
      *  The (case-insensitive) name of the cookie to remove.
      *
@@ -627,6 +651,8 @@ class SecureHeaders
     # public functions: Content-Security-Policy (CSP)
 
     /**
+     * @api
+     *
      * @ignore Polymorphic variadic function
      */
     public function csp()
@@ -699,6 +725,8 @@ class SecureHeaders
     }
 
     /**
+     * @api
+     *
      * @ignore Polymorphic variadic function
      */
     public function cspro()
@@ -736,6 +764,8 @@ class SecureHeaders
      *
      * If this setting is unconfigured, the default is off.
      *
+     * @api
+     *
      * @param mixed $mode
      *  Loosely casted as a boolean, `true` enables the legacy headers, `false`
      *  disables them.
@@ -751,6 +781,8 @@ class SecureHeaders
 
     /**
      * Remove a previously added source from a CSP directive.
+     *
+     * @api
      *
      * @param string $directive
      *  The directive (case insensitive) in which the source to be removed
@@ -786,6 +818,8 @@ class SecureHeaders
     /**
      * Remove a previously added directive from CSP.
      *
+     * @api
+     *
      * @param string $directive
      *  The directive (case insensitive) to remove.
      * @param mixed $reportOnly
@@ -816,6 +850,8 @@ class SecureHeaders
     /**
      * Reset the CSP.
      *
+     * @api
+     *
      * @param mixed $reportOnly
      *  Loosely casted to a boolean, `true` resets the policy configured by
      * {@see cspro}, `false` resets the policy configured by {@see csp}.
@@ -834,6 +870,8 @@ class SecureHeaders
     /**
      * Generate a hash of the provided [`$string`](#string) value, and have it
      * added to the [`$friendlyDirective`](#friendlyDirective) directive in CSP.
+     *
+     * @api
      *
      * @param string $friendlyDirective
      *  The (case insensitive)
@@ -890,6 +928,8 @@ class SecureHeaders
      * An alias for {@see cspHash} with [reportOnly](cspHash#reportOnly)
      * set to true.
      *
+     * @api
+     *
      * @param string $friendlyDirective
      * @param string $string
      * @param ?string $algo = 'sha256'
@@ -918,6 +958,8 @@ class SecureHeaders
 
     /**
      * An alias for {@see cspHash} with [isFile](cspHash#isFile) set to `true`.
+     *
+     * @api
      *
      * @param string $friendlyDirective
      * @param string $string
@@ -948,6 +990,8 @@ class SecureHeaders
     /**
      * An alias for {@see cspHash} with [reportOnly](cspHash#reportOnly) set
      * to true, and [isFile](cspHash#isFile) set to true.
+     *
+     * @api
      *
      * @param string $friendlyDirective
      * @param string $string
@@ -983,6 +1027,8 @@ class SecureHeaders
      * **Make sure not to use nonces where the content given the nonce is
      * partially of user origin! This would allow an attacker to bypass the
      * protections of CSP!**
+     *
+     * @api
      *
      * @param string $friendlyDirective
      *  The (case insensitive)
@@ -1031,6 +1077,8 @@ class SecureHeaders
      * partially of user origin! This would allow an attacker to bypass the
      * protections of CSP!**
      *
+     * @api
+     *
      * @param string $friendlyDirective
      *
      * @return string
@@ -1054,6 +1102,8 @@ class SecureHeaders
      *
      * If set to enforcement mode, the browser will fail the TLS connection if
      * the certificate transparency requirement is not met
+     *
+     * @api
      *
      * @param ?int|string $maxAge
      *  The length, in seconds either as a string, or an integer – specify the
@@ -1115,6 +1165,8 @@ class SecureHeaders
      * them from HTTP to HTTPS so that they need not trust an insecure response
      * from the network.
      *
+     * @api
+     *
      * @param int|string $maxAge
      *  The length, in seconds either as a string, or an integer – specify the
      *  length that a user's browser should remember that the application is
@@ -1152,6 +1204,8 @@ class SecureHeaders
      * Add or remove the `includeSubDomains` flag from the [HSTS](hsts) policy
      * (note this can be done with the {@see hsts} function too).
      *
+     * @api
+     *
      * @param mixed $mode
      *  Loosely casted to a boolean, `true` adds the `includeSubDomains` flag,
      *  `false` removes it.
@@ -1166,6 +1220,8 @@ class SecureHeaders
     /**
      * Add or remove the `preload` flag from the [HSTS](hsts) policy (note this
      * can be done with the {@see hsts} function too).
+     *
+     * @api
      *
      * @param mixed $mode
      *  Loosely casted to a boolean, `true` adds the `preload` flag, `false`
@@ -1205,6 +1261,8 @@ class SecureHeaders
      *  The above will add `pin1`, `pin2`, and `pin3` with the associated hash
      *  label `sha256`. This is the only valid *  HPKP hashing algorithm at
      *  time of writing.
+     *
+     * @api
      *
      * @param ?integer|string $maxAge
      *  The length, in seconds that a browser should enforce the policy after
@@ -1314,6 +1372,8 @@ class SecureHeaders
      * Add and configure the HTTP Public Key Pins header in report-only mode.
      * This is an alias for {@see hpkp} with `$reportOnly` set to `true`.
      *
+     * @api
+     *
      * @param string|array $pins
      * @param ?integer|string $maxAge
      * @param ?mixed $subdomains
@@ -1343,6 +1403,8 @@ class SecureHeaders
      * Add or remove the `includeSubDomains` flag from the [HPKP](hpkp) policy
      * (note this can be done with the {@see hpkp} function too).
      *
+     * @api
+     *
      * @param mixed $mode
      *  Loosely casted to a boolean, `true` adds the `includeSubDomains` flag,
      *  `false` removes it.
@@ -1360,6 +1422,8 @@ class SecureHeaders
 
     /**
      * An alias for {@see hpkpSubdomains} with `$reportOnly` set to `true`
+     *
+     * @api
      *
      * @param mixed $mode
      *
@@ -1402,6 +1466,8 @@ class SecureHeaders
      *  you're not sure when the first byte of output might occur, or simply
      *  don't want to have to call this every time – take a look at
      *  {@see applyOnOutput} to have SecureHeaders take care of this for you.
+     *
+     * @api
      *
      * @param ?HttpAdapter $http = new GlobalHttpAdapter
      *  An implementation of the {@see HttpAdapter} interface, to which
@@ -1447,6 +1513,8 @@ class SecureHeaders
      * Return an array of header operations, depending on current configuration.
      *
      * These can then be applied to e.g. the current set of headers.
+     *
+     * @api
      *
      * @return Operation[]
      */
@@ -1572,7 +1640,12 @@ class SecureHeaders
     #
     # These aren't documented because they aren't meant to be used directly,
     # but still need to have public visability.
+    #
+    # This function is NOT part of the public API guarenteed by symver
 
+    /**
+     * @ignore
+     */
     public function returnBuffer($buffer = null)
     {
         if ($this->isBufferReturned)

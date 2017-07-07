@@ -9,6 +9,8 @@ class GlobalHttpAdapter implements HttpAdapter
     /**
      * Send the given headers, overwriting all previously send headers
      *
+     * @api
+     *
      * @param HeaderBag $headers
      * @return void
      */
@@ -27,6 +29,8 @@ class GlobalHttpAdapter implements HttpAdapter
 
     /**
      * Retrieve the current list of already-sent (or planned-to-be-sent) headers
+     *
+     * @api
      *
      * @return HeaderBag
      */
