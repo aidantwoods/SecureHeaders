@@ -8,6 +8,11 @@ class HeaderBag
 {
     protected $headers = [];
 
+    /**
+     * Create a HeaderBag containing the headers, $headers.
+     *
+     * @param array $headers
+     */
     public function __construct(array $headers = [])
     {
         # Send all headers through `add` to make sure they are properly
@@ -18,6 +23,12 @@ class HeaderBag
         }
     }
 
+    /**
+     * Create a HeaderBag from an array of header lines, $lines.
+     *
+     * @param string[] $lines
+     * @return static
+     */
     public static function fromHeaderLines(array $lines)
     {
         $bag = new static;
@@ -35,6 +46,13 @@ class HeaderBag
         return $bag;
     }
 
+    /**
+     * Determine whether the HeaderBag contains a header with $name,
+     * case-insensitively.
+     *
+     * @param string name
+     * @return bool
+     */
     public function has($name)
     {
         Types::assert(['string' => [$name]]);
@@ -42,6 +60,13 @@ class HeaderBag
         return array_key_exists(strtolower($name), $this->headers);
     }
 
+    /**
+     * Add a header with $name and value $value
+     *
+     * @param string $name
+     * @param string $value
+     * @return void
+     */
     public function add($name, $value = '')
     {
         Types::assert(['string' => [$name, $value]]);
@@ -55,6 +80,13 @@ class HeaderBag
         $this->headers[$key][] = HeaderFactory::build($name, $value);
     }
 
+    /**
+     * Add (in replace mode) a header with $name and value $value
+     *
+     * @param string $name
+     * @param string $value
+     * @return void
+     */
     public function replace($name, $value = '')
     {
         Types::assert(['string' => [$name, $value]]);
@@ -63,6 +95,12 @@ class HeaderBag
         $this->headers[strtolower($name)] = [$header];
     }
 
+    /**
+     * Remove header(s) with $name
+     *
+     * @param string $name
+     * @return void
+     */
     public function remove($name)
     {
         Types::assert(['string' => [$name]]);
@@ -70,12 +108,19 @@ class HeaderBag
         unset($this->headers[strtolower($name)]);
     }
 
+    /**
+     * Remove all headers from the HeaderBag.
+     *
+     * @return void
+     */
     public function removeAll()
     {
         $this->headers = [];
     }
 
     /**
+     * Get all Headers from the HeaderBag
+     *
      * @return Header[]
      */
     public function get()
@@ -90,6 +135,11 @@ class HeaderBag
         );
     }
 
+    /**
+     * Get Headers from the HeaderBag with name, $name
+     *
+     * @return Header[]
+     */
     public function getByName($name)
     {
         $name = strtolower($name);
@@ -102,13 +152,19 @@ class HeaderBag
         return $this->headers[$name];
     }
 
-    public function forEachNamed($type, $callback)
+    /**
+     * Let a header named $name be $header.
+     * Apply $callback($header) to every header named $name.
+     *
+     * @return void
+     */
+    public function forEachNamed($name, $callback)
     {
-        $type = strtolower($type);
+        $name = strtolower($name);
 
-        if (isset($this->headers[$type]))
+        if (isset($this->headers[$name]))
         {
-            foreach ($this->headers[$type] as $header)
+            foreach ($this->headers[$name] as $header)
             {
                 $callback($header);
             }

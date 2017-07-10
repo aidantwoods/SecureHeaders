@@ -9,6 +9,11 @@ class RemoveHeaders implements Operation
 {
     private $headersToRemove;
 
+    /**
+     * Create an Operation to remove $headersToRemove
+     *
+     * @param array $headersToRemove
+     */
     public function __construct(array $headersToRemove)
     {
         $this->headersToRemove = $headersToRemove;

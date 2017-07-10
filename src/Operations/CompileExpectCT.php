@@ -9,6 +9,12 @@ class CompileExpectCT implements Operation
 {
     private $config;
 
+    /**
+     * Create an Operation to add (in replace mode) an Expect-CT header
+     * with $expectCTConfig
+     *
+     * @param array $expectCTConfig
+     */
     public function __construct(array $expectCTConfig)
     {
         $this->config = $expectCTConfig;
@@ -28,6 +34,11 @@ class CompileExpectCT implements Operation
         );
     }
 
+    /**
+     * Make the ExpectCT header value
+     *
+     * @return string
+     */
     private function makeHeaderValue()
     {
         $pieces = ['max-age=' . (int) $this->config['max-age']];

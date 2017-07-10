@@ -10,6 +10,14 @@ class CompileHPKP implements Operation
     private $pkpConfig;
     private $pkproConfig;
 
+    /**
+     * Create an Operation to add (in replace mode) an HPKP header with
+     * $pkpConfig, and an HPKPRO header with $pkproConfig. If configs are
+     * empty, no header will be added.
+     *
+     * @param array $pkpConfig
+     * @param array $pkpConfig
+     */
     public function __construct(array $pkpConfig, array $pkproConfig)
     {
         $this->pkpConfig = $pkpConfig;
@@ -40,16 +48,32 @@ class CompileHPKP implements Operation
         }
     }
 
+    /**
+     * Compile internal HPKP config into a HPKP header-value string
+     *
+     * @return string
+     */
     private function compilePKP()
     {
         return $this->compile($this->pkpConfig);
     }
 
+    /**
+     * Compile internal HPKPRO config into a HPKPRO header-value string
+     *
+     * @return string
+     */
     private function compilePKPRO()
     {
         return $this->compile($this->pkproConfig);
     }
 
+    /**
+     * Compile HPKP $config into a HPKP header-value string
+     *
+     * @param array $config
+     * @return string
+     */
     private function compile($config)
     {
         if (empty($config) or empty($config['pins']))

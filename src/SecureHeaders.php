@@ -1645,6 +1645,11 @@ class SecureHeaders
 
     /**
      * @ignore
+     *
+     * Method given to `ob_start` when using {@see applyOnOutput)
+     *
+     * @param string $buffer
+     * @return string
      */
     public function returnBuffer($buffer = null)
     {
@@ -1675,6 +1680,12 @@ class SecureHeaders
     # ~~
     # private functions: validation
 
+    /**
+     * Validate headers in the HeaderBag and store any errors internally.
+     *
+     * @param HeaderBag $headers
+     * @return void
+     */
     private function validateHeaders(HeaderBag $headers)
     {
         $this->errors = array_merge(
@@ -1688,6 +1699,15 @@ class SecureHeaders
 
     # Content-Security-Policy: Policy string additions
 
+    /**
+     * Add a CSP friendly source $friendlySource to a CSP directive
+     * $friendlyDirective in either enforcement or report only mode.
+     *
+     * @param string $friendlyDirective
+     * @param string $friendlySource
+     * @param bool $reportOnly
+     * @return void
+     */
     private function cspAllow(
         $friendlyDirective,
         $friendlySource = null,
@@ -1704,12 +1724,15 @@ class SecureHeaders
         $this->addCSPSource($directive, $source, $reportOnly);
     }
 
+    /**
+     * Takes friendly directive $friendlyDirective and returns the
+     * corresponding long (proper) directive.
+     *
+     * @param string $friendlyDirective
+     * @return string
+     */
     private function longDirective($friendlyDirective)
     {
-        # takes directive A and returns the corresponding long directive, if the
-        # directive A is friendly directive. Otherwise, directive A will be
-        # returned
-
         Types::assert(['string' => [$friendlyDirective]]);
 
         $friendlyDirective = strtolower($friendlyDirective);
@@ -1726,11 +1749,15 @@ class SecureHeaders
         return $directive;
     }
 
+    /**
+     * Takes friendly source $friendlySource and returns the
+     * corresponding long (proper) source.
+     *
+     * @param string $friendlySource
+     * @return string
+     */
     private function longSource($friendlySource)
     {
-        # takes source A and returns the corresponding long source, if the
-        # source A is friendly source. Otherwise, source A will be returned
-
         Types::assert(['string' => [$friendlySource]]);
 
         $lowerFriendlySource = strtolower($friendlySource);
@@ -1747,6 +1774,18 @@ class SecureHeaders
         return $source;
     }
 
+    /**
+     * Add a CSP source $source to a CSP directive $directive in either
+     * enforcement or report only mode. Both $directive and $source must be
+     * long (defined in CSP spec).
+     *
+     * Will return false on error, true on success.
+     *
+     * @param string $directive
+     * @param string $source
+     * @param bool $reportOnly
+     * @return bool
+     */
     private function addCSPSource(
         $directive,
         $source = null,
@@ -1782,6 +1821,14 @@ class SecureHeaders
 
     # Content-Security-Policy: Policy as array
 
+    /**
+     * Add a CSP array $csp of friendly sources to corresponding
+     * firendly directives in either enforcement or report only mode.
+     *
+     * @param array $csp
+     * @param bool $reportOnly
+     * @return void
+     */
     private function cspArray(array $csp, $reportOnly = false)
     {
         foreach ($csp as $friendlyDirective => $sources)
@@ -1815,6 +1862,13 @@ class SecureHeaders
         }
     }
 
+    /**
+     * Retrieve a reference to either the CSP enforcement, or CSP report only
+     * array.
+     *
+     * @param bool $reportOnly
+     * @return &array
+     */
     private function &getCSPObject($reportOnly)
     {
         if ( ! isset($reportOnly) or ! $reportOnly)
@@ -1829,6 +1883,18 @@ class SecureHeaders
         return $csp;
     }
 
+    /**
+     * Add a CSP directive $directive in either enforcement or report only mode.
+     * $directive must be long (defined in CSP spec). Set $isFlag to true if
+     * adding a directive that should not hold source values.
+     *
+     * Will return false on error, true on success.
+     *
+     * @param string $directive
+     * @param bool $isFlag
+     * @param bool $reportOnly
+     * @return bool
+     */
     private function addCSPDirective(
         $directive,
         $isFlag = null,
@@ -1860,6 +1926,16 @@ class SecureHeaders
         return true;
     }
 
+    /**
+     * Generate a hash with algorithm $algo for insertion in a CSP either of
+     * $string, or of the contents of a file at path $string iff $isFile is
+     * truthy.
+     *
+     * @param string $string
+     * @param string $algo
+     * @param bool $isFile
+     * @return string
+     */
     private function cspDoHash(
         $string,
         $algo = null,
@@ -1901,6 +1977,11 @@ class SecureHeaders
         return base64_encode($hash);
     }
 
+    /**
+     * Generate a nonce for insertion in a CSP.
+     *
+     * @return string
+     */
     private function cspGenerateNonce()
     {
         $nonce = base64_encode(
@@ -1924,6 +2005,13 @@ class SecureHeaders
     # ~~
     # private functions: HPKP
 
+    /**
+     * Retrieve a reference to either the HPKP enforcement, or HPKP report only
+     * array.
+     *
+     * @param bool $reportOnly
+     * @return &array
+     */
     private function &getHPKPObject($reportOnly)
     {
         if ( ! isset($reportOnly) or ! $reportOnly)
@@ -1941,6 +2029,13 @@ class SecureHeaders
     # ~~
     # private functions: general
 
+    /**
+     * Add and store an error internally.
+     *
+     * @param string $message
+     * @param int $level
+     * @return void
+     */
     private function addError($message, $level = E_USER_NOTICE)
     {
         Types::assert(
@@ -1950,6 +2045,14 @@ class SecureHeaders
         $this->errors[] = new Error($message, $level);
     }
 
+    /**
+     * Use PHPs `trigger_error` function to trigger all internally stored
+     * errors if error reporting is enabled for $this. The error handler will
+     * be temporarily set to {@see errorHandler} while errors are dispatched via
+     * `trigger_error`.
+     *
+     * @return void
+     */
     private function reportErrors()
     {
         if ( ! $this->errorReporting)
@@ -1972,6 +2075,11 @@ class SecureHeaders
         restore_error_handler();
     }
 
+    /**
+     * Determine the appropriate sameSite value to inject.
+     *
+     * @return string
+     */
     private function injectableSameSiteValue()
     {
         if ( ! isset($this->sameSiteCookies) and $this->strictMode)
@@ -1990,6 +2098,15 @@ class SecureHeaders
         return $sameSite;
     }
 
+    /**
+     * Echo an error iff PHPs settings allow error reporting, at the level of
+     * errors given, and PHPs display_errors setting is on. Will return `true`
+     * if an error is echoed, `false` otherwise.
+     *
+     * @param int $level
+     * @param string $message
+     * @return bool
+     */
     private function errorHandler($level, $message)
     {
         Types::assert(
@@ -2019,6 +2136,14 @@ class SecureHeaders
         return false;
     }
 
+    /**
+     * If $headers is missing certain headers of security value that are not on
+     * the user-defined exception to reporting list then internally store an
+     * error warning that the header is not present.
+     *
+     * @param HeaderBag $headers
+     * @return void
+     */
     private function reportMissingHeaders(HeaderBag $headers)
     {
         foreach ($this->reportMissingHeaders as $header)
@@ -2036,6 +2161,10 @@ class SecureHeaders
     }
 
     /**
+     * Determine whether the given $operation may be executed based on the
+     * user-controllable automatic settings.
+     *
+     * @param int $operation
      * @return bool
      */
     private function automatic($operation)

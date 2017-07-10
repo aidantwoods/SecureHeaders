@@ -9,6 +9,11 @@ class RemoveCookies implements Operation
 {
     private $removedCookies;
 
+    /**
+     * Create an Operation to remove $removedCookies
+     *
+     * @param array $removedCookies
+     */
     public function __construct(array $removedCookies)
     {
         $this->removedCookies = $removedCookies;

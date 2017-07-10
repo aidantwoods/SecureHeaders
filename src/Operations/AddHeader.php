@@ -10,6 +10,14 @@ class AddHeader implements Operation
     private $name;
     private $value;
 
+    /**
+     * Create an operation to add a header with name $name and value $value,
+     * if a header with $name does not already exist in the HeaderBag provided
+     * to {@see modify}
+     *
+     * @param string $name
+     * @param string $value
+     */
     public function __construct($name, $value)
     {
         $this->name = $name;

@@ -12,6 +12,12 @@ class RegularHeader implements Header
 
     protected $attributes = [];
 
+    /**
+     * Create a header with name $name and value $value
+     *
+     * @param string $name
+     * @param string $value
+     */
     public function __construct($name, $value = '')
     {
         $this->name = $name;
@@ -20,27 +26,42 @@ class RegularHeader implements Header
         $this->parseAttributes();
     }
 
+    /**
+     * {@inheritDoc}
+     */
     public function getName()
     {
         return strtolower($this->name);
     }
 
+    /**
+     * {@inheritDoc}
+     */
     public function getFriendlyName()
     {
         $friendlyHeader = str_replace('-', ' ', $this->getName());
         return ucwords($friendlyHeader);
     }
 
+    /**
+     * {@inheritDoc}
+     */
     public function is($name)
     {
         return strtolower($name) === strtolower($this->name);
     }
 
+    /**
+     * {@inheritDoc}
+     */
     public function getValue()
     {
         return $this->value;
     }
 
+    /**
+     * {@inheritDoc}
+     */
     public function setValue($newValue)
     {
         $this->value = $newValue;
@@ -48,6 +69,9 @@ class RegularHeader implements Header
         $this->parseAttributes();
     }
 
+    /**
+     * {@inheritDoc}
+     */
     public function getFirstAttributeName()
     {
         reset($this->attributes);
@@ -55,6 +79,9 @@ class RegularHeader implements Header
         return key($this->attributes);
     }
 
+    /**
+     * {@inheritDoc}
+     */
     public function getAttributeValue($name)
     {
         if ( ! $this->hasAttribute($name))
@@ -67,6 +94,9 @@ class RegularHeader implements Header
         return $this->attributes[strtolower($name)][0]['value'];
     }
 
+    /**
+     * {@inheritDoc}
+     */
     public function hasAttribute($name)
     {
         $name = strtolower($name);
@@ -74,6 +104,9 @@ class RegularHeader implements Header
         return array_key_exists($name, $this->attributes);
     }
 
+    /**
+     * {@inheritDoc}
+     */
     public function removeAttribute($name)
     {
         $name = strtolower($name);
@@ -82,6 +115,9 @@ class RegularHeader implements Header
         $this->writeAttributesToValue();
     }
 
+    /**
+     * {@inheritDoc}
+     */
     public function ensureAttributeMaximum($name, $maxValue)
     {
         if (isset($this->attributes[$name]))
@@ -98,6 +134,9 @@ class RegularHeader implements Header
         }
     }
 
+    /**
+     * {@inheritDoc}
+     */
     public function setAttribute($name, $value = true)
     {
         $key = strtolower($name);
@@ -117,6 +156,9 @@ class RegularHeader implements Header
         $this->writeAttributesToValue();
     }
 
+    /**
+     * {@inheritDoc}
+     */
     public function forEachAttribute($callback)
     {
         foreach ($this->attributes as $attributes)
@@ -128,11 +170,19 @@ class RegularHeader implements Header
         }
     }
 
+    /**
+     * {@inheritDoc}
+     */
     public function __toString()
     {
         return $this->name . ':' .(empty($this->value) ? '' : ' ' . $this->value);
     }
 
+    /**
+     * Parse and store attributes from the internal header value
+     *
+     * @return void
+     */
     protected function parseAttributes()
     {
         $parts = explode('; ', $this->value);
@@ -157,6 +207,11 @@ class RegularHeader implements Header
         }
     }
 
+    /**
+     * Write internal attributes to the internal header value
+     *
+     * @return void
+     */
     protected function writeAttributesToValue()
     {
         $attributeStrings = [];
