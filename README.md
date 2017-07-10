@@ -493,3 +493,27 @@ structures a Content-Security-Policy can be communicated in.
 ## More on Usage
 For full documentation, please see the
 [Wiki](https://github.com/aidantwoods/SecureHeaders/wiki)
+
+## Versioning
+The SecureHeaders project will follow [Semantic Versioning 2], with
+the following declared public API:
+
+Any method baring the [`@api`](https://phpdoc.org/docs/latest/references/phpdoc/tags/api.html)
+phpdoc tag.
+
+Roughtly speaking
+
+* Every public method in `src/SecureHeaders.php` (except `returnBuffer`)
+* Every public method in `src/Http`
+
+This allows the main SecureHeaders class to be used as expected by [semver], and
+also the HttpAdapter interface/implementation (for integration with anything)
+to be used as expected by [semver].
+
+All other methods and properties are therefore non-public for the purposes of
+[semver]. That means that, e.g. methods with public visibility that are not in
+the above scope are subject to change in a backwards incompatible way, without
+a major version bump.
+
+[Semantic Versioning 2]: http://semver.org/
+[semver]: http://semver.org/

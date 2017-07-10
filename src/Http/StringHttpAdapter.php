@@ -9,6 +9,9 @@ class StringHttpAdapter implements HttpAdapter
     private $headers = [];
     private $initialHeaders;
 
+    /**
+     * @api
+     */
     public function __construct(array $initialHeaders = [])
     {
         $this->initialHeaders = $initialHeaders;
@@ -16,6 +19,8 @@ class StringHttpAdapter implements HttpAdapter
 
     /**
      * Send the given headers, overwriting all previously send headers
+     *
+     * @api
      *
      * @param HeaderBag $headers
      * @return void
@@ -28,6 +33,8 @@ class StringHttpAdapter implements HttpAdapter
     /**
      * Retrieve the current list of already-sent (or planned-to-be-sent) headers
      *
+     * @api
+     *
      * @return HeaderBag
      */
     public function getHeaders()
@@ -35,6 +42,9 @@ class StringHttpAdapter implements HttpAdapter
         return HeaderBag::fromHeaderLines($this->initialHeaders);
     }
 
+    /**
+     * @api
+     */
     public function getSentHeaders()
     {
         $compiledHeaders = [];

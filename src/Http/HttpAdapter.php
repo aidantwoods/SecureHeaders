@@ -19,6 +19,8 @@ interface HttpAdapter
      * properties that are not yet implemeted by the cookie-jar, e.g. (at time
      * of writing) the `SameSite` cookie attribute).
      *
+     * @api
+     *
      * @param HeaderBag $headers
      * @return void
      */
