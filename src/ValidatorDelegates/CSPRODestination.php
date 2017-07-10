@@ -28,7 +28,8 @@ class CSPRODestination implements ValidatorDelegate
         ) {
             $friendlyHeader = $header->getFriendlyName();
 
-            $errors[] = new Error($friendlyHeader.' header was sent,
+            $errors[] = new Error(
+                $friendlyHeader.' header was sent,
                 but an invalid, or no reporting address was given.
                 This header will not enforce violations, and with no
                 reporting address specified, the browser can only

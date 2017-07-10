@@ -1,5 +1,6 @@
 * text=auto
 
+/release export-ignore
 /docs export-ignore
 /tests export-ignore
 .editorconfig export-ignore

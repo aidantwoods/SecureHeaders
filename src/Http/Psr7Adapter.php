@@ -12,6 +12,9 @@ class Psr7Adapter implements HttpAdapter
      */
     private $response;
 
+    /**
+     * @api
+     */
     public function __construct(ResponseInterface $response)
     {
         $this->response = $response;
@@ -19,6 +22,8 @@ class Psr7Adapter implements HttpAdapter
 
     /**
      * Send the given headers, overwriting all previously send headers
+     *
+     * @api
      *
      * @param HeaderBag $headers
      * @return void
@@ -45,6 +50,8 @@ class Psr7Adapter implements HttpAdapter
     /**
      * Retrieve the current list of already-sent (or planned-to-be-sent) headers
      *
+     * @api
+     *
      * @return HeaderBag
      */
     public function getHeaders()
@@ -63,6 +70,8 @@ class Psr7Adapter implements HttpAdapter
 
     /**
      * Retrieve the new PSR-7 response object, with security headers applied
+     *
+     * @api
      *
      * @return ResponseInterface
      */
