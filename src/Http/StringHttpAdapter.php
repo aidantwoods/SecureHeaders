@@ -10,7 +10,13 @@ class StringHttpAdapter implements HttpAdapter
     private $initialHeaders;
 
     /**
+     * Create a HttpAdapter for output as a string, with initial headers
+     * $initialHeaders, an array with each item a header string
+     *
      * @api
+     *
+     * @param array $initialHeaders
+     * @return void
      */
     public function __construct(array $initialHeaders = [])
     {
