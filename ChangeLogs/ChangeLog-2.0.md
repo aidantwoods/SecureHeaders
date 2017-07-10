@@ -54,13 +54,32 @@ this file using the [Keep a CHANGELOG](http://keepachangelog.com/) principles.
   enforce mode, or just reporting with some `report-uri` specified.
 
 ### Changed
-* SecureHeaders is now intended to only be a composer library, meaning that the
-  single `SecureHeaders.php` will no longer contain the whole library.
+* SecureHeaders is now intended to be a composer library, meaning that the
+  single `SecureHeaders.php` will no longer contain the whole library. However,
+  you may now instead download and include/require the entire library via
+  the `SecureHeaders.phar` release.
+
 * The SecureHeaders class is now namespaced to
   `Aidantwoods\SecureHeaders\SecureHeaders;`
+
 * Strict Mode now includes injecting the `SameSite` cookie attribute.
+
 * Strict Mode now includes the `Expect-CT: max-age=31536000; enforce`
   as a header proposal.
+
 * If SecureHeaders throws an exception, it'll only auto-send the headers when
   emitting that exception if `applyOnOutput` has been enabled (it is not on
   by default).
+
+### Removed
+* `doneOnOutput` and `done` are now `applyOnOutput` and `apply`. These new
+  methods allow custom HttpAdapters to be used (so you can integrate more
+  easily with frameworks), but if you supply no arguements the "global"
+  HttpAdaper will be used (i.e. interact directly with PHPs `header()` and
+  similar functions).
+
+* `addHeader` has been removed. You should add headers with `header()` or via
+  your framework now.
+
+* `correctHeaderName` has been removed. Please ensure your header names are
+  correct
