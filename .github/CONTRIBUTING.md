@@ -20,6 +20,8 @@ once the PR is submitted).
    discrepancies can be fixed by running `vendor/bin/php-cs-fixer fix .`, but
    please take a look at the [Code Styling](#Code-Styling) guide anyway.
 4. Make sure [Coding Conventions](#Coding-Conventions) are followed.
+5. Optionally, include a summary of your work in the upcoming changelog file
+   located in `ChangeLogs/`.
 
 
 ### Code Styling

@@ -517,3 +517,9 @@ a major version bump.
 
 [Semantic Versioning 2]: http://semver.org/
 [semver]: http://semver.org/
+
+## ChangeLog
+The SecureHeaders project will follow
+[Keep a CHANGELOG](http://keepachangelog.com/) principles
+
+Check out the `ChangeLogs/` folder, to see these.
