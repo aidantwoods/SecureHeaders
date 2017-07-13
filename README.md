@@ -503,8 +503,9 @@ phpdoc tag.
 
 Roughtly speaking
 
-* Every public method in `src/SecureHeaders.php` (except `returnBuffer`)
-* Every public method in `src/Http`
+* Every public method in `Aidantwoods\SecureHeaders\SecureHeaders` (except `Aidantwoods\SecureHeaders\SecureHeaders::returnBuffer`)
+* Every public method in `Aidantwoods\SecureHeaders\Http`
+* Every public method in `Aidantwoods\SecureHeaders\HeaderBag`
 
 This allows the main SecureHeaders class to be used as expected by [semver], and
 also the HttpAdapter interface/implementation (for integration with anything)

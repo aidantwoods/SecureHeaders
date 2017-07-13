@@ -11,7 +11,9 @@ class HeaderBag
     /**
      * Create a HeaderBag containing the headers, $headers.
      *
-     * @param array $headers
+     * @api
+     *
+     * @param array<string, string> $headers
      */
     public function __construct(array $headers = [])
     {
@@ -25,6 +27,8 @@ class HeaderBag
 
     /**
      * Create a HeaderBag from an array of header lines, $lines.
+     *
+     * @api
      *
      * @param string[] $lines
      * @return static
@@ -50,7 +54,9 @@ class HeaderBag
      * Determine whether the HeaderBag contains a header with $name,
      * case-insensitively.
      *
-     * @param string name
+     * @api
+     *
+     * @param string $name
      * @return bool
      */
     public function has($name)
@@ -62,6 +68,8 @@ class HeaderBag
 
     /**
      * Add a header with $name and value $value
+     *
+     * @api
      *
      * @param string $name
      * @param string $value
@@ -83,6 +91,8 @@ class HeaderBag
     /**
      * Add (in replace mode) a header with $name and value $value
      *
+     * @api
+     *
      * @param string $name
      * @param string $value
      * @return void
@@ -98,6 +108,8 @@ class HeaderBag
     /**
      * Remove header(s) with $name
      *
+     * @api
+     *
      * @param string $name
      * @return void
      */
@@ -111,6 +123,8 @@ class HeaderBag
     /**
      * Remove all headers from the HeaderBag.
      *
+     * @api
+     *
      * @return void
      */
     public function removeAll()
@@ -120,6 +134,8 @@ class HeaderBag
 
     /**
      * Get all Headers from the HeaderBag
+     *
+     * @api
      *
      * @return Header[]
      */
@@ -138,6 +154,9 @@ class HeaderBag
     /**
      * Get Headers from the HeaderBag with name, $name
      *
+     * @api
+     *
+     * @param string $name
      * @return Header[]
      */
     public function getByName($name)
@@ -156,6 +175,10 @@ class HeaderBag
      * Let a header named $name be $header.
      * Apply $callback($header) to every header named $name.
      *
+     * @api
+     *
+     * @param string $name
+     * @param callback $callback
      * @return void
      */
     public function forEachNamed($name, $callback)
