@@ -7,7 +7,6 @@ use Aidantwoods\SecureHeaders\HeaderBag;
 class StringHttpAdapter implements HttpAdapter
 {
     private $headers = [];
-    private $initialHeaders;
 
     /**
      * Create a HttpAdapter for output as a string, with initial headers
@@ -20,7 +19,7 @@ class StringHttpAdapter implements HttpAdapter
      */
     public function __construct(array $initialHeaders = [])
     {
-        $this->initialHeaders = $initialHeaders;
+        $this->headers = $initialHeaders;
     }
 
     /**
@@ -45,11 +44,13 @@ class StringHttpAdapter implements HttpAdapter
      */
     public function getHeaders()
     {
-        return HeaderBag::fromHeaderLines($this->initialHeaders);
+        return HeaderBag::fromHeaderLines($this->headers);
     }
 
     /**
      * @api
+     *
+     * @return string
      */
     public function getSentHeaders()
     {
