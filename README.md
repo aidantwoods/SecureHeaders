@@ -55,7 +55,7 @@ $headers = new SecureHeaders();
 $headers->hsts();
 $headers->csp('default', 'self');
 $headers->csp('script', 'https://my.cdn.org');
-$headers->done();
+$headers->apply();
 ```
 
 These few lines of code will take an application from a grade F, to a grade A
@@ -68,7 +68,7 @@ Let's break down the example above.
 following code)
 ```php
 $headers = new SecureHeaders();
-$headers->done();
+$headers->apply();
 ```
 
 #### Automatic Headers and Errors
@@ -96,13 +96,13 @@ jurisdiction)
 
 #### Cookies
 
-Additionally, if any cookies have been set (at any time before `->done()` is
+Additionally, if any cookies have been set (at any time before `->apply()` is
 called) e.g.
 ```php
 setcookie('auth', 'supersecretauthenticationstring');
 
 $headers = new SecureHeaders();
-$headers->done();
+$headers->apply();
 ```
 
 Even though in the current PHP configuration, cookie flags `Secure` and
@@ -134,7 +134,7 @@ Okay, SecureHeaders has got you covered – use `$headers->safeMode();` to
 prevent headers being sent that will cause lasting effects.
 
 So for example, if the following code was run (safe mode can be called at any
-point before `->done()` to be effective)
+point before `->apply()` to be effective)
 ```php
 $headers->hsts();
 $headers->safeMode();
@@ -194,14 +194,14 @@ some more on that take a look at [Using CSP](#using-csp)
 
 ## Sending the headers
 In order to apply anything added through SecureHeaders, you'll need to call
-`->done()`. By design, SecureHeaders doesn't have a construct function – so
-everything up until `->done()` is called is just configuration. However, if you
+`->apply()`. By design, SecureHeaders doesn't have a construct function – so
+everything up until `->apply()` is called is just configuration. However, if you
 don't want to have to remember to call this function, you can call
-`->doneOnOutput()` instead, at any time. This will utilise PHP's `ob_start()`
+`->applyOnOutput()` instead, at any time. This will utilise PHP's `ob_start()`
 function to start output buffering. This lets SecureHeaders attatch itself to
 the first instance of any piece of code that generates output – and prior to
 actually sending that output to the user, make sure all headers are sent, by
-calling `->done()` for you.
+calling `->apply()` for you.
 
 Because SecureHeaders doesn't have a construct function, you can easily
 implement your own, via a simple class extension, e.g.
@@ -209,7 +209,7 @@ implement your own, via a simple class extension, e.g.
 class CustomSecureHeaders extends SecureHeaders{
     public function __construct()
     {
-        $this->doneOnOutput();
+        $this->applyOnOutput();
         $this->hsts();
         $this->csp('default', 'self');
         $this->csp('script', 'https://my.cdn.org');
