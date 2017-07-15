@@ -16,7 +16,9 @@ especially to implement well.
 * Add/remove and manage headers easily
 * Build a Content Security Policy, or combine multiple together
 * Content Security Policy analysis
+* Easy integeration with arbitrary frameworks (take a look at the HttpAdapter)
 * Protect incorrectly set cookies
+* Strict mode
 * Safe mode prevents accidental long-term self-DOS when using HSTS, or HPKP
 * Receive warnings about missing, or misconfigured security headers
 
@@ -55,7 +57,7 @@ $headers = new SecureHeaders();
 $headers->hsts();
 $headers->csp('default', 'self');
 $headers->csp('script', 'https://my.cdn.org');
-$headers->done();
+$headers->apply();
 ```
 
 These few lines of code will take an application from a grade F, to a grade A
@@ -68,7 +70,7 @@ Let's break down the example above.
 following code)
 ```php
 $headers = new SecureHeaders();
-$headers->done();
+$headers->apply();
 ```
 
 #### Automatic Headers and Errors
@@ -82,8 +84,12 @@ With such code, the following will occur:
 * The following headers will be automatically added
 
   ```
+  Expect-CT: max-age=0
+  Referrer-Policy: no-referrer
+  Referrer-Policy: strict-origin-when-cross-origin
   X-Content-Type-Options:nosniff
   X-Frame-Options:Deny
+  X-Permitted-Cross-Domain-Policies: none
   X-XSS-Protection:1; mode=block
   ```
 * The following header will also be removed (SecureHeaders will also attempt to
@@ -96,20 +102,21 @@ jurisdiction)
 
 #### Cookies
 
-Additionally, if any cookies have been set (at any time before `->done()` is
+Additionally, if any cookies have been set (at any time before `->apply()` is
 called) e.g.
 ```php
 setcookie('auth', 'supersecretauthenticationstring');
 
 $headers = new SecureHeaders();
-$headers->done();
+$headers->apply();
 ```
 
 Even though in the current PHP configuration, cookie flags `Secure` and
-`HTTPOnly` do **not** default to on, the end result of the `Set-Cookie` header
-will be
+`HTTPOnly` do **not** default to on, and despite the fact that
+PHP does not support the `SameSite` cookie attribute, the end result of the
+`Set-Cookie` header will be
 ```
-Set-Cookie:auth=supersecretauthenticationstring; secure; HttpOnly
+Set-Cookie:auth=supersecretauthenticationstring; Secure; HttpOnly; SameSite=Lax
 ```
 
 These flags were inserted by SecureHeaders because the cookie name contained
@@ -117,6 +124,9 @@ the substring `auth`. Of course if that was a bad assumption, you can correct
 SecureHeaders' behaviour, or conversely you can tell SecureHeaders about some
 of your cookies that have less obvious names – but may need protecting in case
 of accidental missing flags.
+
+If you enable [`->strictMode()`](#Strict-Mode) then the `SameSite` setting will
+be set to strict (you can also upgrade this without using strict mode).
 
 Let's take a look at those other three lines, the first of which was
 ```php
@@ -128,13 +138,50 @@ of 1 year.
 *That sounds like something that might break things – I wouldn't want to
 accidentally enable that.*
 
+#### Strict Mode
+
+Strict mode will enable settings that you **should** be using. It is highly
+advisable to adjust your application to work with strict mode enabled.
+
+When enabled, strict mode will:
+* Auto-enable HSTS with a 1 year duration, and the `includeSubDomains`
+  and `preload` flags set. Note that this HSTS policy is made as a
+  header proposal, and can thus be removed or modified.
+
+* The source keyword `'strict-dynamic'` will also be added to the first
+  of the following directives that exist: `script-src`, `default-src`;
+  only if that directive also contains a nonce or hash source value, and
+  not otherwise.
+
+  This will disable the source whitelist in `script-src` in CSP3
+  compliant browsers. The use of whitelists in script-src is
+  [considered not to be an ideal practice][1], because they are often
+  trivial to bypass.
+
+  [1]: https://research.google.com/pubs/pub45542.html "The Insecurity of
+  Whitelists and the Future of Content Security Policy"
+
+  Don't forget to [manually submit](https://hstspreload.appspot.com/)
+  your domain to the HSTS preload list if you are using this option.
+
+* The default `SameSite` value injected into `->protectedCookie` will
+  be changed from `SameSite=Lax` to `SameSite=Strict`.
+  See documentation on `->auto` to enable/disable injection
+  of `SameSite` and documentation on `->sameSiteCookies` for more on specific
+  behaviour and to explicitly define this value manually, to override the
+  default.
+
+* Auto-enable Expect-CT with a 1 year duration, and the `enforce` flag
+  set. Note that this Expect-CT policy is made as a
+  header proposal, and can thus be removed or modified.
+
 #### Safe Mode
 
 Okay, SecureHeaders has got you covered – use `$headers->safeMode();` to
 prevent headers being sent that will cause lasting effects.
 
 So for example, if the following code was run (safe mode can be called at any
-point before `->done()` to be effective)
+point before `->apply()` to be effective)
 ```php
 $headers->hsts();
 $headers->safeMode();
@@ -194,14 +241,14 @@ some more on that take a look at [Using CSP](#using-csp)
 
 ## Sending the headers
 In order to apply anything added through SecureHeaders, you'll need to call
-`->done()`. By design, SecureHeaders doesn't have a construct function – so
-everything up until `->done()` is called is just configuration. However, if you
+`->apply()`. By design, SecureHeaders doesn't have a construct function – so
+everything up until `->apply()` is called is just configuration. However, if you
 don't want to have to remember to call this function, you can call
-`->doneOnOutput()` instead, at any time. This will utilise PHP's `ob_start()`
+`->applyOnOutput()` instead, at any time. This will utilise PHP's `ob_start()`
 function to start output buffering. This lets SecureHeaders attatch itself to
 the first instance of any piece of code that generates output – and prior to
 actually sending that output to the user, make sure all headers are sent, by
-calling `->done()` for you.
+calling `->apply()` for you.
 
 Because SecureHeaders doesn't have a construct function, you can easily
 implement your own, via a simple class extension, e.g.
@@ -209,7 +256,7 @@ implement your own, via a simple class extension, e.g.
 class CustomSecureHeaders extends SecureHeaders{
     public function __construct()
     {
-        $this->doneOnOutput();
+        $this->applyOnOutput();
         $this->hsts();
         $this->csp('default', 'self');
         $this->csp('script', 'https://my.cdn.org');
@@ -252,7 +299,7 @@ Content-Security-Policy-Report-Only:report-uri whatisthis;
 ```
 
 The following messages will be issued with regard to CSP:
-(`level E_USER_WARNING` and `level E_USER_NOTICE`)
+(level `E_USER_WARNING` and level `E_USER_NOTICE`)
 
 * The default-src directive contains a wildcard (so is a CSP bypass)
 
@@ -444,30 +491,16 @@ $headers->csp(
 
 #### Behaviour when a CSP header has already been set
 ```php
-header("Content-Security-Policy: default-src 'self'; script-src http://insecure.cdn.org 'self'");
-$headers->addHeader(
-    'Content-Security-Policy',
-    "block-all-mixed-content; img-src 'self' https://cdn.net"
-);
+header("Content-Security-Policy: default-src 'self'; script-src https://cdn.org 'self'");
 $headers->csp('script', 'https://another.domain.example.com');
 ```
 
-The above code will perform a merge on the two set CSP headers, and will also
-merge in the additional `script-src` value set in the final line. Producing
-the following merged CSP header
+The above code will perform a merge the set CSP header, and the additional
+`script-src` value set in the final line. Producing the following merged
+CSP header
 ```
-Content-Security-Policy:block-all-mixed-content; img-src 'self' https://cdn.net;
-script-src https://another.domain.example.com http://insecure.cdn.org 'self';
-default-src 'self';
+Content-Security-Policy: script-src https://another.domain.example.com https://cdn.org 'self'; default-src 'self'
 ```
-
-This merge capability is fully supported by `->addHeader` (so that if two
-calls to add header are made – the CSPs will be extracted and merged).
-
-However, because `header` is part of PHP, this will continue to behave as
-normal (i.e. overwrite the last header if called again). Because of this, only
-the last called CSP within `header` can be merged with with any additions to
-the CSP.
 
 #### Content-Security-Policy-Report-Only
 All of the above is applicable to report only policies in exactly the same way.
