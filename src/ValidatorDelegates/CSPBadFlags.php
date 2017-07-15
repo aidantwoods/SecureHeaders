@@ -17,12 +17,15 @@ class CSPBadFlags implements ValidatorDelegate
      */
     public static function validate(Header $header)
     {
-        $errors = [];
+        $Errors = [];
 
-        $errors[] = self::validateSrcAttribute($header, 'default-src');
-        $errors[] = self::validateSrcAttribute($header, 'script-src');
+        $Errors = array_merge(
+            $Errors,
+            self::validateSrcAttribute($header, 'default-src'),
+            self::validateSrcAttribute($header, 'script-src')
+        );
 
-        return array_filter($errors);
+        return array_values(array_filter($Errors));
     }
 
     /**
@@ -31,10 +34,12 @@ class CSPBadFlags implements ValidatorDelegate
      * @param Header $header
      * @param $attributeName
      *
-     * @return ?Error
+     * @return Error[]
      */
     private static function validateSrcAttribute(Header $header, $attributeName)
     {
+        $Errors = [];
+
         if ($header->hasAttribute($attributeName))
         {
             $value = $header->getAttributeValue($attributeName);
@@ -46,7 +51,7 @@ class CSPBadFlags implements ValidatorDelegate
                 {
                     $friendlyHeader = $header->getFriendlyName();
 
-                    return new Error(
+                    $Errors[] = new Error(
                         $friendlyHeader . ' contains the <b>'
                         . $badFlag . '</b> keyword in <b>' . $attributeName
                         . '</b>, which prevents CSP protecting
@@ -59,6 +64,6 @@ class CSPBadFlags implements ValidatorDelegate
             }
         }
 
-        return null;
+        return $Errors;
     }
 }
