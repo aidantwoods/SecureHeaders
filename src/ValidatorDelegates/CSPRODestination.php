@@ -30,7 +30,7 @@ class CSPRODestination implements ValidatorDelegate
 
             $errors[] = new Error(
                 $friendlyHeader.' header was sent,
-                but an invalid, or no reporting address was given.
+                but an invalid, unsafe, or no reporting address was given.
                 This header will not enforce violations, and with no
                 reporting address specified, the browser can only
                 report them locally in its console. Consider adding
