@@ -15,6 +15,7 @@
 * [cspLegacy](cspLegacy)
 * [errorReporting](errorReporting)
 * [protectedCookie](protectedCookie)
+* [reportMissingException](reportMissingException)
 * [safeMode](safeMode)
 * [safeModeException](safeModeException)
 * [strictMode](strictMode)
@@ -24,6 +25,7 @@
 * [cspro](cspro)
 * [hpkp](hpkp)
 * [hsts](hsts)
+* [expectCT](expectCT)
 
 ### CSP Hashes and Nonces
 * [cspHash](cspHash)
@@ -45,3 +47,4 @@
 ### Headers and Cookies
 * [removeCookie](removeCookie)
 * [removeHeader](removeHeader)
+* [sameSiteCookies](sameSiteCookies)
