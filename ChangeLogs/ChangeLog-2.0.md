@@ -83,3 +83,5 @@ this file using the [Keep a CHANGELOG](http://keepachangelog.com/) principles.
 
 * `correctHeaderName` has been removed. Please ensure your header names are
   correct
+
+* PHP 5.3 is no longer supported.
