@@ -2,8 +2,6 @@
 
 namespace Aidantwoods\SecureHeaders\Tests;
 
-use Aidantwoods\SecureHeaders\Headers\CSPHeader;
-use Aidantwoods\SecureHeaders\Headers\RegularHeader;
 use Aidantwoods\SecureHeaders\HeaderFactory;
 use PHPUnit_Framework_TestCase;
 
@@ -28,7 +26,10 @@ class HeaderFactoryTest extends PHPUnit_Framework_TestCase
     {
         $Header = HeaderFactory::build($name, $value);
 
-        $this->assertInstanceOf(CSPHeader::class, $Header);
+        $this->assertInstanceOf(
+            'Aidantwoods\SecureHeaders\Headers\CSPHeader',
+            $Header
+        );
     }
 
     public function provideRegularHeaders()
@@ -48,6 +49,9 @@ class HeaderFactoryTest extends PHPUnit_Framework_TestCase
     {
         $Header = HeaderFactory::build($name, $value);
 
-        $this->assertInstanceOf(RegularHeader::class, $Header);
+        $this->assertInstanceOf(
+            'Aidantwoods\SecureHeaders\Headers\RegularHeader',
+            $Header
+        );
     }
 }
