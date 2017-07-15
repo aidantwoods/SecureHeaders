@@ -50,7 +50,7 @@
     },
     "autoload-dev": {
         "psr-4": {
-            "Tests\\": "tests/"
+            "Aidantwoods\\SecureHeaders\\Tests\\": "tests/"
         }
     },
     "config": {

@@ -1,6 +1,6 @@
 <?php
 
-namespace Tests\Http;
+namespace Aidantwoods\SecureHeaders\Tests\Http;
 
 use Aidantwoods\SecureHeaders\HeaderBag;
 use Aidantwoods\SecureHeaders\Http\Psr7Adapter;

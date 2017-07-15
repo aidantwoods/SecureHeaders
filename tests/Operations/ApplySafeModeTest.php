@@ -1,6 +1,6 @@
 <?php
 
-namespace Tests\Operations;
+namespace Aidantwoods\SecureHeaders\Tests\Operations;
 
 use Aidantwoods\SecureHeaders\HeaderBag;
 use Aidantwoods\SecureHeaders\Operations\ApplySafeMode;
