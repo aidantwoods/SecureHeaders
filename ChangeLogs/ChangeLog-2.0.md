@@ -3,7 +3,7 @@
 All notable changes of the SecureHeaders 2.0 release series are documented in
 this file using the [Keep a CHANGELOG](http://keepachangelog.com/) principles.
 
-## [2.0] - *Unreleased*
+## [2.0] - *2017-07-16*
 
 ### Added
 * Better cookie upgrades:
