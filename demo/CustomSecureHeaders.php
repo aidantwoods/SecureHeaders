@@ -10,7 +10,7 @@ class CustomSecureHeaders extends SecureHeaders
         $this->applyOnOutput();
 
         # content headers
-        $this->header('Content-type', 'text/html; charset=utf-8');
+        header('Content-type: text/html; charset=utf-8');
 
         # Custom function added in this extenstion:
         # redirect to www subdomain if not on localhost
@@ -72,8 +72,8 @@ class CustomSecureHeaders extends SecureHeaders
     {
         if ($_SERVER['SERVER_NAME'] !== 'localhost' and substr($_SERVER['HTTP_HOST'], 0, 4) !== 'www.')
         {
-            $this->header('HTTP/1.1 301 Moved Permanently');
-            $this->header('Location', 'https://www.'.$_SERVER['SERVER_NAME'].$_SERVER['REQUEST_URI']);
+            header('HTTP/1.1 301 Moved Permanently');
+            header('Location: https://www.'.$_SERVER['SERVER_NAME'].$_SERVER['REQUEST_URI']);
         }
     }
 
