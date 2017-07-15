@@ -2,64 +2,52 @@
 
 namespace Aidantwoods\SecureHeaders\Tests;
 
+use Aidantwoods\SecureHeaders\Headers\CSPHeader;
+use Aidantwoods\SecureHeaders\Headers\RegularHeader;
 use Aidantwoods\SecureHeaders\HeaderFactory;
 use PHPUnit_Framework_TestCase;
 
 class HeaderFactoryTest extends PHPUnit_Framework_TestCase
 {
-    public function testCSPHeaders()
+    public function provideCSPHeaders()
     {
-        $CSPHeader = HeaderFactory::build(
-            'Content-SECURITY-Policy',
-            "default-src 'none'"
-        );
-
-        $CSPROHeader = HeaderFactory::build(
-            'ConTeNt-Security-Policy-Report-Only',
-            "default-src 'none'"
-        );
-
-        $XCSPHeader = HeaderFactory::build(
-            'x-Content-Security-POLICY',
-            "default-src 'none'"
-        );
-
-        $XCSPROHeader = HeaderFactory::build(
-            'X-content-security-policy-report-only',
-            "default-src 'none'"
-        );
-
-        $Headers = [$CSPHeader, $CSPROHeader, $XCSPHeader, $XCSPROHeader];
-
-        foreach ($Headers as $Header)
-        {
-            $this->assertSame(
-                'Aidantwoods\SecureHeaders\Headers\CSPHeader',
-                get_class($Header)
-            );
-        }
+        return [
+            ['Content-SECURITY-Policy', "default-src 'none'"],
+            ['ConTeNt-Security-Policy-Report-Only', "default-src 'none'"],
+            ['x-Content-Security-POLICY', "default-src 'none'"],
+            ['X-content-security-policy-report-only', "default-src 'none'"],
+        ];
     }
 
-    public function testRegularHeaders()
+    /**
+     * @dataProvider provideCSPHeaders
+     * @param $name
+     * @param $value
+     */
+    public function testCSPHeaders($name, $value)
     {
-        $Header1 = HeaderFactory::build(
-            'Set-Cookie',
-            'foo=bar'
-        );
+        $Header = HeaderFactory::build($name, $value);
 
-        $Header2 = HeaderFactory::build(
-            'FooBar',
-            'baz boo'
-        );
+        $this->assertInstanceOf(CSPHeader::class, $Header);
+    }
 
-        $Headers = [$Header1, $Header2];
+    public function provideRegularHeaders()
+    {
+        return [
+            ['Set-Cookie', 'foo=bar'],
+            ['FooBar', 'baz boo'],
+        ];
+    }
 
-        foreach ($Headers as $Header)
-        {
-            $this->assertSame(
-                'Aidantwoods\SecureHeaders\Headers\RegularHeader',
-                get_class($Header)
-            );
-        }
+    /**
+     * @dataProvider provideRegularHeaders
+     * @param $name
+     * @param $value
+     */
+    public function testRegularHeaders($name, $value)
+    {
+        $Header = HeaderFactory::build($name, $value);
+
+        $this->assertInstanceOf(RegularHeader::class, $Header);
     }
 }
