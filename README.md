@@ -299,7 +299,7 @@ Content-Security-Policy-Report-Only:report-uri whatisthis;
 ```
 
 The following messages will be issued with regard to CSP:
-(`level E_USER_WARNING` and `level E_USER_NOTICE`)
+(level `E_USER_WARNING` and level `E_USER_NOTICE`)
 
 * The default-src directive contains a wildcard (so is a CSP bypass)
 
@@ -491,30 +491,16 @@ $headers->csp(
 
 #### Behaviour when a CSP header has already been set
 ```php
-header("Content-Security-Policy: default-src 'self'; script-src http://insecure.cdn.org 'self'");
-$headers->addHeader(
-    'Content-Security-Policy',
-    "block-all-mixed-content; img-src 'self' https://cdn.net"
-);
+header("Content-Security-Policy: default-src 'self'; script-src https://cdn.org 'self'");
 $headers->csp('script', 'https://another.domain.example.com');
 ```
 
-The above code will perform a merge on the two set CSP headers, and will also
-merge in the additional `script-src` value set in the final line. Producing
-the following merged CSP header
+The above code will perform a merge the set CSP header, and the additional
+`script-src` value set in the final line. Producing the following merged
+CSP header
 ```
-Content-Security-Policy:block-all-mixed-content; img-src 'self' https://cdn.net;
-script-src https://another.domain.example.com http://insecure.cdn.org 'self';
-default-src 'self';
+Content-Security-Policy: script-src https://another.domain.example.com https://cdn.org 'self'; default-src 'self'
 ```
-
-This merge capability is fully supported by `->addHeader` (so that if two
-calls to add header are made – the CSPs will be extracted and merged).
-
-However, because `header` is part of PHP, this will continue to behave as
-normal (i.e. overwrite the last header if called again). Because of this, only
-the last called CSP within `header` can be merged with with any additions to
-the CSP.
 
 #### Content-Security-Policy-Report-Only
 All of the above is applicable to report only policies in exactly the same way.
