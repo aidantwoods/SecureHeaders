@@ -69,7 +69,7 @@ class CSPWildcards implements ValidatorDelegate
             }
         );
 
-        return array_filter($errors);
+        return array_values(array_filter($errors));
     }
 
     /**
