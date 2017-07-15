@@ -16,7 +16,9 @@ especially to implement well.
 * Add/remove and manage headers easily
 * Build a Content Security Policy, or combine multiple together
 * Content Security Policy analysis
+* Easy integeration with arbitrary frameworks (take a look at the HttpAdapter)
 * Protect incorrectly set cookies
+* Strict mode
 * Safe mode prevents accidental long-term self-DOS when using HSTS, or HPKP
 * Receive warnings about missing, or misconfigured security headers
 
@@ -82,8 +84,12 @@ With such code, the following will occur:
 * The following headers will be automatically added
 
   ```
+  Expect-CT: max-age=0
+  Referrer-Policy: no-referrer
+  Referrer-Policy: strict-origin-when-cross-origin
   X-Content-Type-Options:nosniff
   X-Frame-Options:Deny
+  X-Permitted-Cross-Domain-Policies: none
   X-XSS-Protection:1; mode=block
   ```
 * The following header will also be removed (SecureHeaders will also attempt to
@@ -106,10 +112,11 @@ $headers->apply();
 ```
 
 Even though in the current PHP configuration, cookie flags `Secure` and
-`HTTPOnly` do **not** default to on, the end result of the `Set-Cookie` header
-will be
+`HTTPOnly` do **not** default to on, and despite the fact that
+PHP does not support the `SameSite` cookie attribute, the end result of the
+`Set-Cookie` header will be
 ```
-Set-Cookie:auth=supersecretauthenticationstring; secure; HttpOnly
+Set-Cookie:auth=supersecretauthenticationstring; Secure; HttpOnly; SameSite=Lax
 ```
 
 These flags were inserted by SecureHeaders because the cookie name contained
@@ -117,6 +124,9 @@ the substring `auth`. Of course if that was a bad assumption, you can correct
 SecureHeaders' behaviour, or conversely you can tell SecureHeaders about some
 of your cookies that have less obvious names – but may need protecting in case
 of accidental missing flags.
+
+If you enable [`->strictMode()`](#Strict-Mode) then the `SameSite` setting will
+be set to strict (you can also upgrade this without using strict mode).
 
 Let's take a look at those other three lines, the first of which was
 ```php
@@ -127,6 +137,43 @@ of 1 year.
 
 *That sounds like something that might break things – I wouldn't want to
 accidentally enable that.*
+
+#### Strict Mode
+
+Strict mode will enable settings that you **should** be using. It is highly
+advisable to adjust your application to work with strict mode enabled.
+
+When enabled, strict mode will:
+* Auto-enable HSTS with a 1 year duration, and the `includeSubDomains`
+  and `preload` flags set. Note that this HSTS policy is made as a
+  header proposal, and can thus be removed or modified.
+
+* The source keyword `'strict-dynamic'` will also be added to the first
+  of the following directives that exist: `script-src`, `default-src`;
+  only if that directive also contains a nonce or hash source value, and
+  not otherwise.
+
+  This will disable the source whitelist in `script-src` in CSP3
+  compliant browsers. The use of whitelists in script-src is
+  [considered not to be an ideal practice][1], because they are often
+  trivial to bypass.
+
+  [1]: https://research.google.com/pubs/pub45542.html "The Insecurity of
+  Whitelists and the Future of Content Security Policy"
+
+  Don't forget to [manually submit](https://hstspreload.appspot.com/)
+  your domain to the HSTS preload list if you are using this option.
+
+* The default `SameSite` value injected into `->protectedCookie` will
+  be changed from `SameSite=Lax` to `SameSite=Strict`.
+  See documentation on `->auto` to enable/disable injection
+  of `SameSite` and documentation on `->sameSiteCookies` for more on specific
+  behaviour and to explicitly define this value manually, to override the
+  default.
+
+* Auto-enable Expect-CT with a 1 year duration, and the `enforce` flag
+  set. Note that this Expect-CT policy is made as a
+  header proposal, and can thus be removed or modified.
 
 #### Safe Mode
 
