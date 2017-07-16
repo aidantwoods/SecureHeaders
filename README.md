@@ -1,4 +1,4 @@
-# SecureHeaders [![Build Status](https://travis-ci.org/aidantwoods/SecureHeaders.svg?branch=master)](https://travis-ci.org/aidantwoods/SecureHeaders)
+# SecureHeaders [![Build Status](https://travis-ci.org/aidantwoods/SecureHeaders.svg?branch=legacy-1.0.x-master)](https://travis-ci.org/aidantwoods/SecureHeaders)
 A PHP class aiming to make the use of browser security features more accessible.
 
 For full documentation, please see the
