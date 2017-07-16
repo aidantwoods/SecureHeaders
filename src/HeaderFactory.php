@@ -4,7 +4,7 @@ namespace Aidantwoods\SecureHeaders;
 
 use Aidantwoods\SecureHeaders\Headers\RegularHeader;
 
-class HeaderFactory
+abstract class HeaderFactory
 {
     private static $memberClasses = [
         'CSPHeader' => [

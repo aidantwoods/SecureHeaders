@@ -5,7 +5,7 @@ namespace Aidantwoods\SecureHeaders\Headers;
 use Aidantwoods\SecureHeaders\Header;
 use Aidantwoods\SecureHeaders\Operations\CompileCSP;
 
-class CSPHeader extends RegularHeader implements Header
+class CSPHeader extends AbstractHeader implements Header
 {
     /**
      * {@inheritDoc}

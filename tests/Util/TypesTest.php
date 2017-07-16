@@ -1,6 +1,6 @@
 <?php
 
-namespace Tests\Util;
+namespace Aidantwoods\SecureHeaders\Tests\Util;
 
 use Aidantwoods\SecureHeaders\Util\Types;
 use PHPUnit_Framework_TestCase;

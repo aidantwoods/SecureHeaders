@@ -1,6 +1,6 @@
 <?php
 
-namespace Tests;
+namespace Aidantwoods\SecureHeaders\Tests;
 
 use Aidantwoods\SecureHeaders\Http\StringHttpAdapter;
 use Aidantwoods\SecureHeaders\SecureHeaders;
