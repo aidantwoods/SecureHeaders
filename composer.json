@@ -1,8 +1,20 @@
 {
     "name": "aidantwoods/secureheaders",
     "description": "A PHP class aiming to make the use of browser security features more accessible.",
-    "keywords": ["secure", "headers", "csp", "content-security-policy", "hsts", "cookie"],
+    "keywords": [
+        "content-security-policy",
+        "cookie",
+        "csp",
+        "headers",
+        "hsts",
+        "secure",
+        "secureheaders"
+    ],
     "homepage": "https://github.com/aidantwoods/SecureHeaders/wiki",
+    "support": {
+        "issues": "https://github.com/aidantwoods/secureheaders/issues",
+        "source": "https://github.com/aidantwoods/secureheaders"
+    },
     "type": "library",
     "license": "MIT",
     "authors": [
@@ -13,9 +25,35 @@
         }
     ],
     "require": {
-        "php": ">=5.3.0"
+        "php": ">=5.4.0"
     },
     "autoload": {
-        "psr-0": {"SecureHeaders": ""}
+        "psr-4": {
+            "Aidantwoods\\SecureHeaders\\": "src/"
+        }
+    },
+    "repositories": [
+        {
+            "type": "vcs",
+            "url": "https://github.com/aidantwoods/PHP-CS-Fixer"
+        }
+    ],
+    "suggest": {
+        "psr/http-message": "In case you want to use the PSR-7 adapter",
+        "aidantwoods/markdownphpdocs": "Install this on its own and add it to your path, to auto-generate documentation if contributing to this repo."
+    },
+    "require-dev": {
+        "friendsofphp/php-cs-fixer": "dev-feature/braces/position_after_return_type_hint",
+        "phpunit/phpunit": "^4.0",
+        "psr/http-message": "^1.0",
+        "zendframework/zend-diactoros": "^1.0"
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "Aidantwoods\\SecureHeaders\\Tests\\": "tests/"
+        }
+    },
+    "config": {
+        "sort-packages": true
     }
 }

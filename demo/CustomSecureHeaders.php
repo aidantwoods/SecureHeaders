@@ -1,14 +1,18 @@
 <?php
-class CustomSecureHeaders extends SecureHeaders{
+
+namespace Aidantwoods\SecureHeaders;
+
+class CustomSecureHeaders extends SecureHeaders
+{
     public function __construct()
     {
-        # implicitly call $this->done() on first byte of output
-        $this->doneOnOutput();
+        # implicitly call $this->apply() on first byte of output
+        $this->applyOnOutput();
 
         # content headers
-        $this->header('Content-type', 'text/html; charset=utf-8');
+        header('Content-type: text/html; charset=utf-8');
 
-        # Custom function added in this extenstion: 
+        # Custom function added in this extenstion:
         # redirect to www subdomain if not on localhost
         $this->www_if_not_localhost();
 
@@ -31,11 +35,11 @@ class CustomSecureHeaders extends SecureHeaders{
         # add some cookies
         setcookie('auth1', 'not a secret');
         setcookie('sId', 'secret');
-        $this->protectedCookie('auth', self::COOKIE_SUBSTR | self::CCOOKIE_REMOVE);
+        $this->protectedCookie('auth', self::COOKIE_SUBSTR | self::COOKIE_REMOVE);
 
         setcookie('sess1', 'secret');
         setcookie('notasessioncookie', 'not a secret');
-        $this->protectedCookie('sess', self::COOKIE_SUBSTR | self::CCOOKIE_REMOVE);
+        $this->protectedCookie('sess', self::COOKIE_SUBSTR | self::COOKIE_REMOVE);
         $this->protectedCookie('sess1', self::COOKIE_NAME);
 
         setcookie('preference', 'not a secret');
@@ -43,12 +47,12 @@ class CustomSecureHeaders extends SecureHeaders{
 
         # add a hpkp policy
         $this->hpkp(
-            array(
-                'pin1', 
+            [
+                'pin1',
                 ['pin2', 'sha256'],
                 ['sha256', 'pin3'],
                 ['pin4']
-            ),
+            ],
             1500,
             1
         );
@@ -62,19 +66,18 @@ class CustomSecureHeaders extends SecureHeaders{
 
         # uncomment the next line to allow HSTS in safe mode
         // $this->safeModeException('Strict-Transport-Security');
-
     }
 
     public function www_if_not_localhost()
     {
         if ($_SERVER['SERVER_NAME'] !== 'localhost' and substr($_SERVER['HTTP_HOST'], 0, 4) !== 'www.')
         {
-            $this->header('HTTP/1.1 301 Moved Permanently');
-            $this->header('Location', 'https://www.'.$_SERVER['SERVER_NAME'].$_SERVER['REQUEST_URI']);
+            header('HTTP/1.1 301 Moved Permanently');
+            header('Location: https://www.'.$_SERVER['SERVER_NAME'].$_SERVER['REQUEST_URI']);
         }
     }
 
-    private $base = array(
+    private $base = [
         "default-src" => ["'self'"],
         "script-src" => [
             "'self'",
@@ -112,6 +115,5 @@ class CustomSecureHeaders extends SecureHeaders{
         "frame-ancestors" => ["'none'"],
         "object-src" => ["'none'"],
         'block-all-mixed-content' => [null]
-    );
+    ];
 }
-?>

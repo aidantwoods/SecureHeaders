@@ -1,17 +1,46 @@
 language: php
+
 php:
   - 7.1
   - 7.0
   - 5.6
   - 5.5
   - 5.4
-  - 5.3
   - hhvm
   - nightly
 
+dist: trusty
+
+cache:
+  directories:
+    - $HOME/.composer/cache
+
 matrix:
+  include:
+    - php: 7.1
+      env: STYLE
+      install:
+        - composer config github-oauth.github.com $GITHUB_OAUTH
+        - travis_retry composer install --prefer-dist --no-interaction --no-suggest
+      script: vendor/bin/php-cs-fixer fix src/ --dry-run --diff
+    - php: 7.1
+      env: DOCUMENTATION
+      install:
+        - composer config github-oauth.github.com $GITHUB_OAUTH
+        - composer config repositories.0 --unset --no-interaction
+        - composer remove friendsofphp/php-cs-fixer --dev --no-update --no-interaction
+        - composer require aidantwoods/markdownphpdocs ^0.2.1 --dev --no-update --no-interaction
+        - travis_retry composer install --prefer-dist --no-interaction --no-suggest
+      script:
+        - vendor/bin/markdown-phpdoc -f src/SecureHeaders.php -t docs/v2/ -c docs/complements/ -s docs/supplements/ -v
+        - if [ ! "$(git diff docs/v2/)" = '' ]; then echo -e 'Please regenerate the documentation.\nObtain a copy of markdown-phpdoc from (https://github.com/aidantwoods/MarkdownPhpDocs) or (https://packagist.org/packages/aidantwoods/markdownphpdocs)\nThen use the following command to auto-generate the documentation:\n  markdown-phpdoc -f src/SecureHeaders.php -t docs/v2/ -c docs/complements/ -s docs/supplements/ -v'; exit 1; fi
+
   allow_failures:
     - php: nightly
 
-script: phpunit tests/test.php
+install:
+  - composer config repositories.0 --unset --no-interaction
+  - composer remove friendsofphp/php-cs-fixer --dev --no-update --no-interaction
+  - travis_retry composer install --prefer-dist --no-interaction --no-suggest
 
+script: vendor/bin/phpunit
