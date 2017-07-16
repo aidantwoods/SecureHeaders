@@ -11,22 +11,10 @@ this file using the [Keep a CHANGELOG](http://keepachangelog.com/) principles.
 
 * Better cookie upgrades:
   Specifically incorporating the[`SameSite`](https://tools.ietf.org/html/draft-west-first-party-cookies-07#section-4.1)
-  cookie attribute. The plan is for `SameSite=Lax` to be added in alongside the
-  `HttpOnly` and `Secure` flags to sensitive looking cookies by default, and for
-  this to be upgraded to `SameSite=Strict` if operating in
+  cookie attribute. `SameSite=Lax` will be added in alongside the
+  `HttpOnly` and `Secure` flags to sensitive looking cookies by default, and will
+  be upgraded to `SameSite=Strict` if operating in
   [`strictMode`](https://github.com/aidantwoods/SecureHeaders/wiki/strictMode).
-
-  `SameSite=Lax` already offers pretty good CSRF protection by preventing non
-  GET requests or non top-level requests from sending cookies when coming from
-  a cross-origin source. In other words cookies will not be sent when the
-  request originates from a cross-origin unless request can be seen in the URL
-  bar and any request data is also in the URL bar.
-
-  Obviously this isn't a complete solution, so for those that want it stricter,
-  I'll include the upgrade to `SameSite=Strict`. This is be able to be
-  configured granularly similarly to how
-  `HttpOnly` and `Secure` are [currently configured](https://github.com/aidantwoods/SecureHeaders/wiki/auto#auto_cookie_secure)
-  or just by enabling `strictMode` to use `SameSite=Strict` (as said above).
 
 * Add a new header by default:
   The new header being [`X-Permitted-Cross-Domain-Policies: none`](https://www.owasp.org/index.php/OWASP_Secure_Headers_Project#X-Permitted-Cross-Domain-Policies).
@@ -42,19 +30,17 @@ this file using the [Keep a CHANGELOG](http://keepachangelog.com/) principles.
   (currently) supported by both Chrome and FF which guarantees that the full
   query string will remain private on cross-origin requests, and that no URL is
   leaked over the network on insecure requests (to the same origin).
-  At time of writing latest stable on both Chrome and FF do not understand
-  `strict-origin-when-cross-origin` and will use the fallback. Firefox is due to
-  add support in v52. Chrome has a
-  [bug report](https://bugs.chromium.org/p/chromium/issues/detail?id=627968)
-  open.
-  [Safari and other browsers](https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Referrer-Policy#Browser_compatibility)
-  appear to offer no support. This is unfortunate. Hopefully there will be
-  progress.
 
 * Add a new header by default: `Expect-CT: max-age=0`.
   [Spec here](https://datatracker.ietf.org/doc/draft-stark-expect-ct/).
   This defaults to reporting mode, but will be configurable to operate in
   enforce mode, or just reporting with some `report-uri` specified.
+  
+  I think it's a good idea to initially set `Expect-CT: max-age=0` so that
+  (when browsers support it) they will start to warn if the CT requirements
+  are not met (presumably in the browser console). Note that by not including
+  the enforce directive here, browsers will not `enforce` and only warn – so
+  there's no risk of causing sites downtime if they don't meet the requirements.
 
 ### Changed
 * SecureHeaders is now intended to be a composer library, meaning that the
