@@ -6,6 +6,9 @@ this file using the [Keep a CHANGELOG](http://keepachangelog.com/) principles.
 ## [2.0] - *2017-07-16*
 
 ### Added
+* You can now easily integrate SecureHeaders with arbitrary frameworks by
+  implementing the HttpAdapter (`Aidantwoods\SecureHeaders\Http\HttpAdapter`).
+
 * Better cookie upgrades:
   Specifically incorporating the[`SameSite`](https://tools.ietf.org/html/draft-west-first-party-cookies-07#section-4.1)
   cookie attribute. The plan is for `SameSite=Lax` to be added in alongside the
