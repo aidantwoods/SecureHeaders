@@ -1,5 +1,6 @@
 # Information
-* [Getting Started](Getting Started)
+* [Getting Started](Getting-Started)
+* [Framework Integration](Framework-Integration)
 * [Changing Defaults and Extending the Class](Changing-Defaults-and-Extending-the-Class)
 * [Friendly Names](friendly_directives_and_sources)
 * [Header Proposals](header-proposals)
