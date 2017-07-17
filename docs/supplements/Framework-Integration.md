@@ -1,5 +1,5 @@
 To get going with a custom framework, you'll want SecureHeaders to deal
-directly with the framework's way of method of managing response headers.
+directly with the framework's method of managing response headers.
 
 To do this, you'll need to implement the `HttpAdapter` (don't worry, it's
 only two methods!). It's located in `Aidantwoods\SecureHeaders\Http\HttpAdapter`
