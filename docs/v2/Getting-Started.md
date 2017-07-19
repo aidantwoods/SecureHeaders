@@ -43,8 +43,12 @@ When `->apply` was called, SecureHeaders analysed all the headers already loaded
 As part of this process, the following headers will be sent. This provided they don't already have values (and are not explicitly removed using [`->removeHeader`](removeHeader)).
 
 ```
+Expect-CT: max-age=0
+Referrer-Policy: no-referrer
+Referrer-Policy: strict-origin-when-cross-origin
 X-Content-Type-Options:nosniff
 X-Frame-Options:Deny
+X-Permitted-Cross-Domain-Policies: none
 X-XSS-Protection:1; mode=block
 ```
 
@@ -83,9 +87,12 @@ setcookie('auth', generateSuperSecretAuthenticationString());
 </html>
 ```
 
-Even though in the current PHP configuration, cookie flags `Secure` and `HTTPOnly` do **not** default to on, the end result of the `Set-Cookie` header will be
+Even though in the current PHP configuration, cookie flags `Secure` and
+`HTTPOnly` do **not** default to on, and despite the fact that
+PHP does not support the `SameSite` cookie attribute, the end result of the
+`Set-Cookie` header will be
 ```
-Set-Cookie:auth=supersecretauthenticationstring; secure; HttpOnly
+Set-Cookie:auth=supersecretauthenticationstring; Secure; HttpOnly; SameSite=Lax
 ```
 
 These flags were inserted by SecureHeaders because the cookie name contained the substring `auth`. Of course if that was a bad assumption, you can correct SecureHeaders' behaviour ([`->protectedCookie`](protectedCookie)), conversely you can tell SecureHeaders about some of your cookies that have less obvious names – but may need protecting in case of accidental missing flags.
