@@ -549,9 +549,9 @@ class SecureHeaders
      * ```
      *
      * If a cookie is protected, then cookie flags will be appended as
-     * configured by {@see auto}. The default behaviour is to add `Secure` and
-     * `HttpOnly` flags, to ensure cookies are both sent securely, and out of
-     * the reach of JavaScript.
+     * configured by {@see auto}. The default behaviour is to add `Secure`,
+     * `HttpOnly`, and `SameSite=Lax` to ensure cookies are both sent securely,
+     * out of the reach of JavaScript, and fairly resistant to csrf attacks.
      *
      * @api
      *
@@ -1443,8 +1443,9 @@ class SecureHeaders
      * 1. Existing headers from the HttpAdapter's source will be imported into
      *    SecureHeaders' internal list, parsed
      * 2. [Automatic header functions](auto) will be applied
-     * 3. [CSP](csp), [HSTS](hsts), and [HPKP](hpkp) policies will be compiled
-     *    and added to SecureHeaders' internal header list
+     * 3. [Expect CT](expectCT), [CSP](csp), [HSTS](hsts), and [HPKP](hpkp)
+     *    policies will be compiled and added to SecureHeaders' internal header
+     *    list.
      * 4. Headers queued for [removal](removeHeader) will be deleted from
      *    SecureHeaders' internal header list
      * 5. [Safe Mode](safeMode) will examine the list of headers, and make any

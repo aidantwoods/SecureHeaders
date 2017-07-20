@@ -15,8 +15,12 @@ SecureHeaders::AUTO_ADD
 ```
 `AUTO_ADD` will make the following [header proposals](header-proposals):
 ```
+Expect-CT: max-age=0
+Referrer-Policy: no-referrer
+Referrer-Policy: strict-origin-when-cross-origin
 X-Content-Type-Options:nosniff
 X-Frame-Options:Deny
+X-Permitted-Cross-Domain-Policies: none
 X-XSS-Protection:1; mode=block
 ```
 

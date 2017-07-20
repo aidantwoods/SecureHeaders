@@ -30,9 +30,9 @@ persistent
 ```
 
 If a cookie is protected, then cookie flags will be appended as
-configured by [`->auto`](auto). The default behaviour is to add `Secure` and
-`HttpOnly` flags, to ensure cookies are both sent securely, and out of
-the reach of JavaScript.
+configured by [`->auto`](auto). The default behaviour is to add `Secure`,
+`HttpOnly`, and `SameSite=Lax` to ensure cookies are both sent securely,
+out of the reach of JavaScript, and fairly resistant to csrf attacks.
 
 ## Parameters
 ### name

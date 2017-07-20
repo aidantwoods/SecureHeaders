@@ -7,8 +7,9 @@ Calling this function will initiate the following
 1. Existing headers from the HttpAdapter's source will be imported into
    SecureHeaders' internal list, parsed
 2. [Automatic header functions](auto) will be applied
-3. [CSP](csp), [HSTS](hsts), and [HPKP](hpkp) policies will be compiled
-   and added to SecureHeaders' internal header list
+3. [Expect CT](expectCT), [CSP](csp), [HSTS](hsts), and [HPKP](hpkp)
+   policies will be compiled and added to SecureHeaders' internal header
+   list.
 4. Headers queued for [removal](removeHeader) will be deleted from
    SecureHeaders' internal header list
 5. [Safe Mode](safeMode) will examine the list of headers, and make any
