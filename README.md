@@ -128,16 +128,6 @@ of accidental missing flags.
 If you enable [`->strictMode()`](#Strict-Mode) then the `SameSite` setting will
 be set to strict (you can also upgrade this without using strict mode).
 
-Let's take a look at those other three lines, the first of which was
-```php
-$headers->hsts();
-```
-This enabled HSTS (Strict-Transport-Security) on the application for a duration
-of 1 year.
-
-*That sounds like something that might break things – I wouldn't want to
-accidentally enable that.*
-
 #### Strict Mode
 
 Strict mode will enable settings that you **should** be using. It is highly
@@ -174,6 +164,18 @@ When enabled, strict mode will:
 * Auto-enable Expect-CT with a 1 year duration, and the `enforce` flag
   set. Note that this Expect-CT policy is made as a
   header proposal, and can thus be removed or modified.
+
+#### Back to the example
+
+Let's take a look at those other three lines, the first of which was
+```php
+$headers->hsts();
+```
+This enabled HSTS (Strict-Transport-Security) on the application for a duration
+of 1 year.
+
+*That sounds like something that might break things – I wouldn't want to
+accidentally enable that.*
 
 #### Safe Mode
 
