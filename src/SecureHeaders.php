@@ -406,8 +406,7 @@ class SecureHeaders
     /**
      * Enable or disable certain automatically applied header functions
      *
-     * If unconfigured, the default setting for {@see auto} is
-     * {@see AUTO_ALL}.
+     * If unconfigured, the default setting is {@see AUTO_ALL}.
      *
      * @api
      *

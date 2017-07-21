@@ -4,8 +4,7 @@ void auto ([ integer $mode = self::AUTO_ALL ] )
 ```
 
 Enable or disable certain automatically applied header functions
-If unconfigured, the default setting for `SecureHeaders::AUTO_ALL` is
-`SecureHeaders::AUTO_ALL`.
+If unconfigured, the default setting is `SecureHeaders::AUTO_ALL`.
 
 ## Parameters
 ### mode
