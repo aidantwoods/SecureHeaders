@@ -2,7 +2,10 @@
 A PHP class aiming to make the use of browser security features more accessible.
 
 For full documentation, please see the
-[Wiki](https://github.com/aidantwoods/SecureHeaders/wiki)
+[Wiki](https://github.com/aidantwoods/SecureHeaders/wiki).
+
+A [demonstration](https://www.secureheaders.com/) with a sample configuration
+is also available.
 
 ## What is a 'secure header'?
 Secure headers, are a
