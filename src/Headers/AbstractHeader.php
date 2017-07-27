@@ -175,7 +175,7 @@ abstract class AbstractHeader implements Header
      */
     public function __toString()
     {
-        return $this->name . ':' .(empty($this->value) ? '' : ' ' . $this->value);
+        return $this->name . ':' .($this->value === '' ? '' : ' ' . $this->value);
     }
 
     /**
