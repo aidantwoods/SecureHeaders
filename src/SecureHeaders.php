@@ -161,7 +161,8 @@ class SecureHeaders
         'none'              =>  "'none'",
         'unsafe-inline'     =>  "'unsafe-inline'",
         'unsafe-eval'       =>  "'unsafe-eval'",
-        'strict-dynamic'    =>  "'strict-dynamic'"
+        'strict-dynamic'    =>  "'strict-dynamic'",
+        'report-sample'     =>  "'report-sample'",
     ];
 
     protected $csproBlacklist       = [
