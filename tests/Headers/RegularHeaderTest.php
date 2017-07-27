@@ -120,4 +120,11 @@ class RegularHeaderTest extends PHPUnit_Framework_TestCase
             (string) $Header
         );
     }
+
+    public function testNumericHeaderValueNotLost()
+    {
+        $Header = new RegularHeader('X-XSS-Protection', '0');
+
+        $this->assertSame('X-XSS-Protection: 0', (string) $Header);
+    }
 }
