@@ -48,7 +48,7 @@ changes to certain headers, or even add new ones if they're missing.
 composer require aidantwoods/secureheaders
 ```
 ### Other
-Download [`SecureHeaders.phar`](https://github.com/aidantwoods/SecureHeaders/releases/download/latest/SecureHeaders.phar), then
+Download [`SecureHeaders.phar`](https://github.com/aidantwoods/SecureHeaders/releases/latest), then
 ```php
 require_once('SecureHeaders.phar');
 ```
