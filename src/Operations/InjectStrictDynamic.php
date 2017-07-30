@@ -16,7 +16,7 @@ class InjectStrictDynamic extends OperationWithErrors implements Operation, Expo
      * CSP directive, $allowedCSPHashAlgs supplies a list of allowed CSP
      * hashing algorithms.
      *
-     * @param array $hstsConfig
+     * @param array $allowedCSPHashAlgs
      */
     public function __construct(array $allowedCSPHashAlgs)
     {
@@ -26,29 +26,31 @@ class InjectStrictDynamic extends OperationWithErrors implements Operation, Expo
     /**
      * Transform the given set of headers
      *
-     * @param HeaderBag $headers
+     * @param HeaderBag $HeaderBag
      * @return void
      */
-    public function modify(HeaderBag &$headers)
+    public function modify(HeaderBag &$HeaderBag)
     {
-        $CSPHeaders = $headers->getByName('content-security-policy');
+        $CSPHeaders = array_merge(
+            $HeaderBag->getByName('content-security-policy'),
+            $HeaderBag->getByName('content-security-policy-report-only')
+        );
 
-        if (isset($CSPHeaders[0]))
+        foreach ($CSPHeaders as $Header)
         {
-            $header = $CSPHeaders[0];
-
-            $directive = $this->canInjectStrictDynamic($header);
+            $directive = $this->canInjectStrictDynamic($Header);
 
             if (is_string($directive))
             {
-                $header->setAttribute($directive, "'strict-dynamic'");
+                $Header->setAttribute($directive, "'strict-dynamic'");
             }
             elseif ($directive !== -1)
             {
                 $this->addError(
-                    "<b>Strict-Mode</b> is enabled, but <b>'strict-dynamic'</b>
-                        could not be added to the Content-Security-Policy
-                        because no hash or nonce was used.",
+                    "<b>Strict-Mode</b> is enabled, but
+                    <b>'strict-dynamic'</b> could not be added to <b>"
+                    . $Header->getFriendlyName()
+                    . '</b> because no hash or nonce was used.',
                     E_USER_WARNING
                 );
             }
