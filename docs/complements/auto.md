@@ -6,6 +6,9 @@ SecureHeaders::AUTO_ALL = SecureHeaders::AUTO_ADD
                         | SecureHeaders::AUTO_COOKIE_SECURE
                         | SecureHeaders::AUTO_COOKIE_HTTPONLY
                         | SecureHeaders::AUTO_COOKIE_SAMESITE
+                        | SecureHeaders::AUTO_STRICTDYNAMIC_ENFORCE
+                        | SecureHeaders::AUTO_STRICTDYNAMIC_REPORT
+                        | SecureHeaders::AUTO_STRICTDYNAMIC
 ```
 `AUTO_ALL` will enable everything listed below.
 
@@ -60,3 +63,28 @@ SecureHeaders::AUTO_COOKIE_SAMESITE
 `AUTO_COOKIE_SAMESITE` will ensure that cookies considered [protected](protectedCookie), will have the `SameSite` flag when they are sent to the users browser. See [`->sameSiteCookies`](sameSiteCookies) for infomation on whether this will set either `SameSite=Lax` or `SameSite=Strict`. The default is `SameSite=Lax`, though the default will change to `SameSite=Strict` if [`->strictMode`](strictMode) is enabled. Having a `SameSite` setting will ensure that the cookie is not accessible when certain cross-origin requests are made. See the [specification](https://tools.ietf.org/html/draft-west-first-party-cookies-07#section-4.1) for exactly what this means for the different settings.
 
 **A note on forgoing this setting:** Corrections to incorrectly marking cookies as `SameSite`, or additions to the cookies that are automatically marked can be made using [`protectedCookie`](protectedCookie).
+
+### AUTO_STRICTDYNAMIC_ENFORCE
+```php
+SecureHeaders::AUTO_STRICTDYNAMIC_ENFORCE
+```
+`AUTO_STRICTDYNAMIC_ENFORCE` will ensure that strict dynamic is injected into
+the `Content-Security-Policy` header **if** [`->strictMode`](strictMode) is
+also enabled.
+
+### AUTO_STRICTDYNAMIC_REPORT
+```php
+SecureHeaders::AUTO_STRICTDYNAMIC_REPORT
+```
+`AUTO_STRICTDYNAMIC_REPORT` will ensure that strict dynamic is injected into
+the `Content-Security-Policy-Report-Only` header **if**
+[`->strictMode`](strictMode) is also enabled.
+
+### AUTO_STRICTDYNAMIC
+```php
+SecureHeaders::AUTO_STRICTDYNAMIC = SecureHeaders::AUTO_STRICTDYNAMIC_ENFORCE
+                                  | SecureHeaders::AUTO_STRICTDYNAMIC_REPORT
+```
+`AUTO_STRICTDYNAMIC` will ensure that strict dynamic is injected into
+the `Content-Security-Policy` **and** `Content-Security-Policy-Report-Only`
+headers **if** [`->strictMode`](strictMode) is also enabled.
