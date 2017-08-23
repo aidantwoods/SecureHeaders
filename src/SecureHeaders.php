@@ -195,12 +195,20 @@ class SecureHeaders
 
     # auto-headers
 
-    const AUTO_ADD              = 0b00001;
-    const AUTO_REMOVE           = 0b00010;
-    const AUTO_COOKIE_SECURE    = 0b00100;
-    const AUTO_COOKIE_HTTPONLY  = 0b01000;
-    const AUTO_COOKIE_SAMESITE  = 0b10000;
-    const AUTO_ALL              = 0b11111;
+    const AUTO_ADD                   = 0b0000001;
+    const AUTO_REMOVE                = 0b0000010;
+
+    ## cookie attribute injection
+    const AUTO_COOKIE_SECURE         = 0b0000100;
+    const AUTO_COOKIE_HTTPONLY       = 0b0001000;
+    const AUTO_COOKIE_SAMESITE       = 0b0010000;
+
+    ## opportunistic strict-dynamic injection
+    const AUTO_STRICTDYNAMIC_ENFORCE = 0b0100000;
+    const AUTO_STRICTDYNAMIC_REPORT  = 0b1000000;
+    const AUTO_STRICTDYNAMIC         = 0b1100000;
+
+    const AUTO_ALL                   = 0b1111111;
 
     # cookie upgrades
 
@@ -316,6 +324,9 @@ class SecureHeaders
      *   [header proposal](header-proposals), and can thus be removed or
      *   modified.
      *
+     *   Don't forget to [manually submit](https://hstspreload.appspot.com/)
+     *   your domain to the HSTS preload list if you are using this option.
+     *
      * * The source keyword `'strict-dynamic'` will also be added to the first
      *   of the following directives that exist: `script-src`, `default-src`;
      *   only if that directive also contains a nonce or hash source value, and
@@ -328,9 +339,6 @@ class SecureHeaders
      *
      *   [1]: https://research.google.com/pubs/pub45542.html "The Insecurity of
      *   Whitelists and the Future of Content Security Policy"
-     *
-     *   Don't forget to [manually submit](https://hstspreload.appspot.com/)
-     *   your domain to the HSTS preload list if you are using this option.
      *
      * * The default `SameSite` value injected into {@see protectedCookie} will
      *   be changed from `SameSite=Lax` to `SameSite=Strict`.
@@ -1624,7 +1632,11 @@ class SecureHeaders
 
         if ($this->strictMode)
         {
-            $operations[] = new InjectStrictDynamic($this->allowedCSPHashAlgs);
+            $operations[] = new InjectStrictDynamic(
+                $this->allowedCSPHashAlgs,
+                ($this->automaticHeaders & self::AUTO_STRICTDYNAMIC_ENFORCE ? InjectStrictDynamic::ENFORCE : 0)
+                | ($this->automaticHeaders & self::AUTO_STRICTDYNAMIC_REPORT ? InjectStrictDynamic::REPORT : 0)
+            );
         }
 
         if ($this->safeMode)

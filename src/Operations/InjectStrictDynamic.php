@@ -6,10 +6,15 @@ use Aidantwoods\SecureHeaders\ExposesErrors;
 use Aidantwoods\SecureHeaders\Header;
 use Aidantwoods\SecureHeaders\HeaderBag;
 use Aidantwoods\SecureHeaders\Operation;
+use Aidantwoods\SecureHeaders\Util\Types;
 
 class InjectStrictDynamic extends OperationWithErrors implements Operation, ExposesErrors
 {
+    const ENFORCE = 0b01;
+    const REPORT  = 0b10;
+
     private $allowedCSPHashAlgs;
+    private $mode;
 
     /**
      * Create an Operation to inject `'strict-dynamic'` into an appropriate
@@ -18,9 +23,12 @@ class InjectStrictDynamic extends OperationWithErrors implements Operation, Expo
      *
      * @param array $allowedCSPHashAlgs
      */
-    public function __construct(array $allowedCSPHashAlgs)
+    public function __construct(array $allowedCSPHashAlgs, $mode)
     {
+        Types::assert(['int' => [$mode]], [2]);
+
         $this->allowedCSPHashAlgs = $allowedCSPHashAlgs;
+        $this->mode = $mode;
     }
 
     /**
@@ -32,8 +40,10 @@ class InjectStrictDynamic extends OperationWithErrors implements Operation, Expo
     public function modify(HeaderBag &$HeaderBag)
     {
         $CSPHeaders = array_merge(
-            $HeaderBag->getByName('content-security-policy'),
-            $HeaderBag->getByName('content-security-policy-report-only')
+            $this->mode & self::ENFORCE ?
+                $HeaderBag->getByName('content-security-policy') : [],
+            $this->mode & self::REPORT ?
+                $HeaderBag->getByName('content-security-policy-report-only') : []
         );
 
         foreach ($CSPHeaders as $Header)
