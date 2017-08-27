@@ -6,49 +6,61 @@ use Aidantwoods\SecureHeaders\ExposesErrors;
 use Aidantwoods\SecureHeaders\Header;
 use Aidantwoods\SecureHeaders\HeaderBag;
 use Aidantwoods\SecureHeaders\Operation;
+use Aidantwoods\SecureHeaders\Util\Types;
 
 class InjectStrictDynamic extends OperationWithErrors implements Operation, ExposesErrors
 {
+    const ENFORCE = 0b01;
+    const REPORT  = 0b10;
+
     private $allowedCSPHashAlgs;
+    private $mode;
 
     /**
      * Create an Operation to inject `'strict-dynamic'` into an appropriate
      * CSP directive, $allowedCSPHashAlgs supplies a list of allowed CSP
      * hashing algorithms.
      *
-     * @param array $hstsConfig
+     * @param array $allowedCSPHashAlgs
      */
-    public function __construct(array $allowedCSPHashAlgs)
+    public function __construct(array $allowedCSPHashAlgs, $mode)
     {
+        Types::assert(['int' => [$mode]], [2]);
+
         $this->allowedCSPHashAlgs = $allowedCSPHashAlgs;
+        $this->mode = $mode;
     }
 
     /**
      * Transform the given set of headers
      *
-     * @param HeaderBag $headers
+     * @param HeaderBag $HeaderBag
      * @return void
      */
-    public function modify(HeaderBag &$headers)
+    public function modify(HeaderBag &$HeaderBag)
     {
-        $CSPHeaders = $headers->getByName('content-security-policy');
+        $CSPHeaders = array_merge(
+            $this->mode & self::ENFORCE ?
+                $HeaderBag->getByName('content-security-policy') : [],
+            $this->mode & self::REPORT ?
+                $HeaderBag->getByName('content-security-policy-report-only') : []
+        );
 
-        if (isset($CSPHeaders[0]))
+        foreach ($CSPHeaders as $Header)
         {
-            $header = $CSPHeaders[0];
-
-            $directive = $this->canInjectStrictDynamic($header);
+            $directive = $this->canInjectStrictDynamic($Header);
 
             if (is_string($directive))
             {
-                $header->setAttribute($directive, "'strict-dynamic'");
+                $Header->setAttribute($directive, "'strict-dynamic'");
             }
             elseif ($directive !== -1)
             {
                 $this->addError(
-                    "<b>Strict-Mode</b> is enabled, but <b>'strict-dynamic'</b>
-                        could not be added to the Content-Security-Policy
-                        because no hash or nonce was used.",
+                    "<b>Strict-Mode</b> is enabled, but
+                    <b>'strict-dynamic'</b> could not be added to <b>"
+                    . $Header->getFriendlyName()
+                    . '</b> because no hash or nonce was used.',
                     E_USER_WARNING
                 );
             }

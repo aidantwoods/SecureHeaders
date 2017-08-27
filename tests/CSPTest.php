@@ -11,7 +11,8 @@ class CSPTest extends PHPUnit_Framework_TestCase
     public function testStrictDynamicInjectableForNonInternalPolicy()
     {
         $headerStrings = new StringHttpAdapter([
-            "Content-Security-Policy: script-src 'nonce-abcdefg+123456'"
+            "Content-Security-Policy: script-src 'nonce-abcdefg+123456'",
+            "Content-Security-Policy-Report-Only: script-src 'nonce-abcdefg+123456'"
         ]);
 
         $headers = new SecureHeaders;
@@ -24,6 +25,49 @@ class CSPTest extends PHPUnit_Framework_TestCase
         $headersString = $headerStrings->getSentHeaders();
 
         $this->assertContains("Content-Security-Policy: script-src 'nonce-abcdefg+123456' 'strict-dynamic'", $headersString);
+        $this->assertContains("Content-Security-Policy-Report-Only: script-src 'nonce-abcdefg+123456' 'strict-dynamic'", $headersString);
+    }
+
+    public function testStrictDynamicInjectOnlyEnforced()
+    {
+        $headerStrings = new StringHttpAdapter([
+            "Content-Security-Policy: script-src 'nonce-abcdefg+123456'",
+            "Content-Security-Policy-Report-Only: script-src 'nonce-abcdefg+123456'"
+        ]);
+
+        $headers = new SecureHeaders;
+        $headers->errorReporting(false);
+        $headers->auto(SecureHeaders::AUTO_STRICTDYNAMIC_ENFORCE);
+
+        $headers->strictMode();
+
+        $headers->apply($headerStrings);
+
+        $headersString = $headerStrings->getSentHeaders();
+
+        $this->assertContains("Content-Security-Policy: script-src 'nonce-abcdefg+123456' 'strict-dynamic'", $headersString);
+        $this->assertNotContains("Content-Security-Policy-Report-Only: script-src 'nonce-abcdefg+123456' 'strict-dynamic'", $headersString);
+    }
+
+    public function testStrictDynamicInjectOnlyReport()
+    {
+        $headerStrings = new StringHttpAdapter([
+            "Content-Security-Policy: script-src 'nonce-abcdefg+123456'",
+            "Content-Security-Policy-Report-Only: script-src 'nonce-abcdefg+123456'"
+        ]);
+
+        $headers = new SecureHeaders;
+        $headers->errorReporting(false);
+        $headers->auto(SecureHeaders::AUTO_STRICTDYNAMIC_REPORT);
+
+        $headers->strictMode();
+
+        $headers->apply($headerStrings);
+
+        $headersString = $headerStrings->getSentHeaders();
+
+        $this->assertNotContains("Content-Security-Policy: script-src 'nonce-abcdefg+123456' 'strict-dynamic'", $headersString);
+        $this->assertContains("Content-Security-Policy-Report-Only: script-src 'nonce-abcdefg+123456' 'strict-dynamic'", $headersString);
     }
 
     public function testCSPHeaderMerge()

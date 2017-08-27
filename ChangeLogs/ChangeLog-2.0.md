@@ -3,6 +3,11 @@
 All notable changes of the SecureHeaders 2.0 release series are documented in
 this file using the [Keep a CHANGELOG](http://keepachangelog.com/) principles.
 
+## [2.0.1] - *unreleased*
+### Fixed
+* Ensure `strict-dynamic` is also opportunistically injected into the report
+  only CSP; add missing options to control this behaviour
+
 ## [2.0] - *2017-07-16*
 
 ### Added
