@@ -3,8 +3,9 @@
 All notable changes of the SecureHeaders 2.0 release series are documented in
 this file using the [Keep a CHANGELOG](http://keepachangelog.com/) principles.
 
-## [2.0.1] - *unreleased*
+## [2.0.1] - *2017-08-28*
 ### Fixed
+* Fix bug where header with "falsey" value would not be properly set
 * Ensure `strict-dynamic` is also opportunistically injected into the report
   only CSP; add missing options to control this behaviour
 
