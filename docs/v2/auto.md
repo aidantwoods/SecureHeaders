@@ -8,9 +8,13 @@ If unconfigured, the default setting is `SecureHeaders::AUTO_ALL`.
 
 ## Parameters
 ### mode
-`mode` accepts one or more of the following constants. Multiple
+`auto` accepts one or more of the following constants. Multiple
  constants may be specified by combination using
- [bitwise operators](https://secure.php.net/manual/language.operators.bitwise.php)
+ [bitwise operators](https://secure.php.net/manual/language.operators.bitwise.php).
+
+ You are **strongly** advised to make use of the constants by name,
+ and **not** by value. Constant values may be updated at any time
+ without a major version bump.
 
 ## Valid Constants
 ### AUTO_ALL
