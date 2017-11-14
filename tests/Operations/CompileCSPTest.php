@@ -5,9 +5,9 @@ namespace Aidantwoods\SecureHeaders\Tests\Operations;
 use Aidantwoods\SecureHeaders\HeaderBag;
 use Aidantwoods\SecureHeaders\SecureHeaders;
 use Aidantwoods\SecureHeaders\Operations\CompileCSP;
-use PHPUnit_Framework_TestCase;
+use PHPUnit\Framework\TestCase;
 
-class CSPTest extends PHPUnit_Framework_TestCase
+class CSPTest extends TestCase
 {
     public function testStrictDynamicInjectableForNonInternalPolicy()
     {

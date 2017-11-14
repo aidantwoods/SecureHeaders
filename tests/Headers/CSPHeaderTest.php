@@ -3,9 +3,9 @@
 namespace Aidantwoods\SecureHeaders\Tests\Headers;
 
 use Aidantwoods\SecureHeaders\Headers\CSPHeader;
-use PHPUnit_Framework_TestCase;
+use PHPUnit\Framework\TestCase;
 
-class CSPHeaderTest extends PHPUnit_Framework_TestCase
+class CSPHeaderTest extends TestCase
 {
     public function testInjectFlag()
     {

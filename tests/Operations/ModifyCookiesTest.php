@@ -5,9 +5,9 @@ namespace Aidantwoods\SecureHeaders\Tests\Operations;
 use Aidantwoods\SecureHeaders\Header;
 use Aidantwoods\SecureHeaders\HeaderBag;
 use Aidantwoods\SecureHeaders\Operations\ModifyCookies;
-use PHPUnit_Framework_TestCase;
+use PHPUnit\Framework\TestCase;
 
-class ModifyCookiesTest extends PHPUnit_Framework_TestCase
+class ModifyCookiesTest extends TestCase
 {
     public function testFlagsCanBeSetBasedOnFullyMatchingCookieName()
     {

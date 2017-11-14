@@ -4,9 +4,9 @@ namespace Aidantwoods\SecureHeaders\Tests\Operations;
 
 use Aidantwoods\SecureHeaders\HeaderBag;
 use Aidantwoods\SecureHeaders\Operations\ApplySafeMode;
-use PHPUnit_Framework_TestCase;
+use PHPUnit\Framework\TestCase;
 
-class ApplySafeModeTest extends PHPUnit_Framework_TestCase
+class ApplySafeModeTest extends TestCase
 {
     public function testSTSMaxAgeWillBeReducedToOneDay()
     {

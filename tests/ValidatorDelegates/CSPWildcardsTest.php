@@ -5,9 +5,9 @@ namespace Aidantwoods\SecureHeaders\Tests\ValidatorDelegates;
 use Aidantwoods\SecureHeaders\ValidatorDelegates\CSPWildcards;
 use Aidantwoods\SecureHeaders\HeaderFactory;
 use Aidantwoods\SecureHeaders\Error;
-use PHPUnit_Framework_TestCase;
+use PHPUnit\Framework\TestCase;
 
-class CSPWildcardsTest extends PHPUnit_Framework_TestCase
+class CSPWildcardsTest extends TestCase
 {
     public function provideWildcardTestCases()
     {

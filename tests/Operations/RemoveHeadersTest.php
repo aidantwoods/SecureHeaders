@@ -4,9 +4,9 @@ namespace Aidantwoods\SecureHeaders\Tests\Operations;
 
 use Aidantwoods\SecureHeaders\HeaderBag;
 use Aidantwoods\SecureHeaders\Operations\RemoveHeaders;
-use PHPUnit_Framework_TestCase;
+use PHPUnit\Framework\TestCase;
 
-class RemoveHeadersTest extends PHPUnit_Framework_TestCase
+class RemoveHeadersTest extends TestCase
 {
     public function testCorrectHeadersRemoved()
     {

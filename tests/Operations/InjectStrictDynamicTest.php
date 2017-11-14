@@ -4,9 +4,9 @@ namespace Aidantwoods\SecureHeaders\Tests\Operations;
 
 use Aidantwoods\SecureHeaders\HeaderBag;
 use Aidantwoods\SecureHeaders\Operations\InjectStrictDynamic;
-use PHPUnit_Framework_TestCase;
+use PHPUnit\Framework\TestCase;
 
-class InjectStrictDynamicTest extends PHPUnit_Framework_TestCase
+class InjectStrictDynamicTest extends TestCase
 {
     private $algs = ['sha256', 'sha384', 'sha512'];
 

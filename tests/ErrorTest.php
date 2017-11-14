@@ -3,9 +3,9 @@
 namespace Aidantwoods\SecureHeaders\Tests;
 
 use Aidantwoods\SecureHeaders\Error;
-use PHPUnit_Framework_TestCase;
+use PHPUnit\Framework\TestCase;
 
-class ErrorTest extends PHPUnit_Framework_TestCase
+class ErrorTest extends TestCase
 {
     public function testMessagePreserved()
     {

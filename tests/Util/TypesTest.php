@@ -3,10 +3,10 @@
 namespace Aidantwoods\SecureHeaders\Tests\Util;
 
 use Aidantwoods\SecureHeaders\Util\Types;
-use PHPUnit_Framework_TestCase;
+use PHPUnit\Framework\TestCase;
 use stdClass;
 
-class TypesTest extends PHPUnit_Framework_TestCase
+class TypesTest extends TestCase
 {
     /**
      * @dataProvider validValues
@@ -42,11 +42,10 @@ class TypesTest extends PHPUnit_Framework_TestCase
 
     /**
      * @dataProvider invalidValues
+     * @expectedException Aidantwoods\SecureHeaders\Util\TypeError
      */
     public function testInvalidStringsRaiseExceptions($type, $variable)
     {
-        $this->setExpectedException('Aidantwoods\SecureHeaders\Util\TypeError');
-
         Types::assert([
             $type => [$variable]
         ]);

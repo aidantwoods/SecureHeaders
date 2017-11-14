@@ -5,9 +5,9 @@ namespace Aidantwoods\SecureHeaders\Tests\ValidatorDelegates;
 use Aidantwoods\SecureHeaders\ValidatorDelegates\CSPBadFlags;
 use Aidantwoods\SecureHeaders\HeaderFactory;
 use Aidantwoods\SecureHeaders\Error;
-use PHPUnit_Framework_TestCase;
+use PHPUnit\Framework\TestCase;
 
-class CSPBadFlagsTest extends PHPUnit_Framework_TestCase
+class CSPBadFlagsTest extends TestCase
 {
     public function provideBadFlagTestCases()
     {

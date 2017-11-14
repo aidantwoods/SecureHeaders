@@ -3,9 +3,9 @@
 namespace Aidantwoods\SecureHeaders\Tests;
 
 use Aidantwoods\SecureHeaders\HeaderFactory;
-use PHPUnit_Framework_TestCase;
+use PHPUnit\Framework\TestCase;
 
-class HeaderFactoryTest extends PHPUnit_Framework_TestCase
+class HeaderFactoryTest extends TestCase
 {
     public function provideCSPHeaders()
     {

@@ -4,9 +4,9 @@ namespace Aidantwoods\SecureHeaders\Tests\Operations;
 
 use Aidantwoods\SecureHeaders\HeaderBag;
 use Aidantwoods\SecureHeaders\Operations\CompileHSTS;
-use PHPUnit_Framework_TestCase;
+use PHPUnit\Framework\TestCase;
 
-class CompileHSTSTest extends PHPUnit_Framework_TestCase
+class CompileHSTSTest extends TestCase
 {
     public function provideHSTSTestCases()
     {

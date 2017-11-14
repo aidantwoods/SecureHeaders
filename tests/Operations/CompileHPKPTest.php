@@ -4,9 +4,9 @@ namespace Aidantwoods\SecureHeaders\Tests\Operations;
 
 use Aidantwoods\SecureHeaders\HeaderBag;
 use Aidantwoods\SecureHeaders\Operations\CompileHPKP;
-use PHPUnit_Framework_TestCase;
+use PHPUnit\Framework\TestCase;
 
-class CompileHPKPTest extends PHPUnit_Framework_TestCase
+class CompileHPKPTest extends TestCase
 {
     public function provideHPKPTestCases()
     {

@@ -4,9 +4,9 @@ namespace Aidantwoods\SecureHeaders\Tests\Http;
 
 use Aidantwoods\SecureHeaders\HeaderBag;
 use Aidantwoods\SecureHeaders\Http\StringHttpAdapter;
-use PHPUnit_Framework_TestCase;
+use PHPUnit\Framework\TestCase;
 
-class StringHttpAdapterTest extends PHPUnit_Framework_TestCase
+class StringHttpAdapterTest extends TestCase
 {
     protected static $sampleHeaders = [
         'Content-Type: text/html',
