@@ -3,9 +3,9 @@
 namespace Aidantwoods\SecureHeaders\Tests\Headers;
 
 use Aidantwoods\SecureHeaders\Headers\RegularHeader;
-use PHPUnit_Framework_TestCase;
+use PHPUnit\Framework\TestCase;
 
-class RegularHeaderTest extends PHPUnit_Framework_TestCase
+class RegularHeaderTest extends TestCase
 {
     public function testInjectFlag()
     {

@@ -4,10 +4,10 @@ namespace Aidantwoods\SecureHeaders\Tests\Http;
 
 use Aidantwoods\SecureHeaders\HeaderBag;
 use Aidantwoods\SecureHeaders\Http\Psr7Adapter;
-use PHPUnit_Framework_TestCase;
+use PHPUnit\Framework\TestCase;
 use Zend\Diactoros\Response;
 
-class Psr7AdapterTest extends PHPUnit_Framework_TestCase
+class Psr7AdapterTest extends TestCase
 {
     public function testProperlyFillsHeaderBag()
     {

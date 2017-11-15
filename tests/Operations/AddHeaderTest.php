@@ -4,9 +4,9 @@ namespace Aidantwoods\SecureHeaders\Tests\Operations;
 
 use Aidantwoods\SecureHeaders\HeaderBag;
 use Aidantwoods\SecureHeaders\Operations\AddHeader;
-use PHPUnit_Framework_TestCase;
+use PHPUnit\Framework\TestCase;
 
-class AddHeaderTest extends PHPUnit_Framework_TestCase
+class AddHeaderTest extends TestCase
 {
     public function testHeadersCanBeAdded()
     {

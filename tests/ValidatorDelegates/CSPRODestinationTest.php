@@ -5,9 +5,9 @@ namespace Aidantwoods\SecureHeaders\Tests\ValidatorDelegates;
 use Aidantwoods\SecureHeaders\ValidatorDelegates\CSPRODestination;
 use Aidantwoods\SecureHeaders\HeaderFactory;
 use Aidantwoods\SecureHeaders\Error;
-use PHPUnit_Framework_TestCase;
+use PHPUnit\Framework\TestCase;
 
-class CSPRODestinationTest extends PHPUnit_Framework_TestCase
+class CSPRODestinationTest extends TestCase
 {
     protected static $errorMsg =
         'Content Security Policy Report Only header was sent,

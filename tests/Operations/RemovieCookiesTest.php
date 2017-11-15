@@ -4,9 +4,9 @@ namespace Aidantwoods\SecureHeaders\Tests\Operations;
 
 use Aidantwoods\SecureHeaders\HeaderBag;
 use Aidantwoods\SecureHeaders\Operations\RemoveCookies;
-use PHPUnit_Framework_TestCase;
+use PHPUnit\Framework\TestCase;
 
-class RemoveCookiesTest extends PHPUnit_Framework_TestCase
+class RemoveCookiesTest extends TestCase
 {
     public function testCorrectCookiesRemoved()
     {

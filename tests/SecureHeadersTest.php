@@ -4,9 +4,9 @@ namespace Aidantwoods\SecureHeaders\Tests;
 
 use Aidantwoods\SecureHeaders\Http\StringHttpAdapter;
 use Aidantwoods\SecureHeaders\SecureHeaders;
-use PHPUnit_Framework_TestCase;
+use PHPUnit\Framework\TestCase;
 
-class SecureHeadersTest extends PHPUnit_Framework_TestCase
+class SecureHeadersTest extends TestCase
 {
     private $assertions = [
         'Contains',

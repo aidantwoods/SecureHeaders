@@ -4,9 +4,9 @@ namespace Aidantwoods\SecureHeaders\Tests\Operations;
 
 use Aidantwoods\SecureHeaders\HeaderBag;
 use Aidantwoods\SecureHeaders\Operations\CompileExpectCT;
-use PHPUnit_Framework_TestCase;
+use PHPUnit\Framework\TestCase;
 
-class CompileExpectCTTest extends PHPUnit_Framework_TestCase
+class CompileExpectCTTest extends TestCase
 {
     public function provideExpectCTTestCases()
     {
