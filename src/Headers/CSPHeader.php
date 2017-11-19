@@ -4,6 +4,7 @@ namespace Aidantwoods\SecureHeaders\Headers;
 
 use Aidantwoods\SecureHeaders\Header;
 use Aidantwoods\SecureHeaders\Operations\CompileCSP;
+use Aidantwoods\SecureHeaders\Util\Types;
 
 class CSPHeader extends AbstractHeader implements Header
 {
@@ -73,6 +74,8 @@ class CSPHeader extends AbstractHeader implements Header
      */
     public function setAttribute($name, $value = true)
     {
+        Types::assert(['string' => [$name], 'int|bool|string' => [$value]]);
+
         $key = strtolower($name);
 
         if ( ! isset($this->attributes[$key]))

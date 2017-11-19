@@ -4,6 +4,7 @@ namespace Aidantwoods\SecureHeaders\Operations;
 
 use Aidantwoods\SecureHeaders\HeaderBag;
 use Aidantwoods\SecureHeaders\Operation;
+use Aidantwoods\SecureHeaders\Util\Types;
 
 class CompileCSP implements Operation
 {
@@ -38,6 +39,11 @@ class CompileCSP implements Operation
         $sendLegacyHeaders = false,
         $combineMultiplePolicies = true
     ) {
+        Types::assert(
+            ['bool' => [$sendLegacyHeaders, $combineMultiplePolicies]],
+            [4, 5]
+        );
+
         $this->cspConfig = $cspConfig;
         $this->csproConfig = $csproConfig;
         $this->csproBlacklist = $csproBlacklist;

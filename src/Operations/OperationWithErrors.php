@@ -4,6 +4,7 @@ namespace Aidantwoods\SecureHeaders\Operations;
 
 use Aidantwoods\SecureHeaders\Error;
 use Aidantwoods\SecureHeaders\ExposesErrors;
+use Aidantwoods\SecureHeaders\Util\Types;
 
 abstract class OperationWithErrors implements ExposesErrors
 {
@@ -44,6 +45,8 @@ abstract class OperationWithErrors implements ExposesErrors
      */
     protected function addError($message, $level = E_USER_NOTICE)
     {
+        Types::assert(['string' => [$message], 'int' => [$level]]);
+
         $this->errors[] = new Error($message, $level);
     }
 }

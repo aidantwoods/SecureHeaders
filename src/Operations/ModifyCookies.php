@@ -4,6 +4,7 @@ namespace Aidantwoods\SecureHeaders\Operations;
 
 use Aidantwoods\SecureHeaders\HeaderBag;
 use Aidantwoods\SecureHeaders\Operation;
+use Aidantwoods\SecureHeaders\Util\Types;
 
 class ModifyCookies implements Operation
 {
@@ -23,6 +24,8 @@ class ModifyCookies implements Operation
      */
     public function __construct(array $cookieList, $field, $value = true)
     {
+        Types::assert(['string' => [$field]], [2]);
+
         $this->cookieList = $cookieList;
         $this->field = $field;
         $this->value = $value;
@@ -39,6 +42,8 @@ class ModifyCookies implements Operation
      */
     public static function matchingFully(array $cookieNames, $field, $value = true)
     {
+        Types::assert(['string' => [$field]], [2]);
+
         return new static($cookieNames, $field, $value);
     }
 
@@ -53,6 +58,8 @@ class ModifyCookies implements Operation
      */
     public static function matchingPartially(array $cookieSubstrs, $field, $value = true)
     {
+        Types::assert(['string' => [$field]], [2]);
+
         $instance = new static($cookieSubstrs, $field, $value);
         $instance->matchSubstring = true;
 
@@ -87,6 +94,8 @@ class ModifyCookies implements Operation
      */
     private function isCandidateCookie($cookieName)
     {
+        Types::assert(['string' => [$cookieName]]);
+
         if ($this->matchSubstring)
         {
             return $this->matchesSubstring($cookieName);
@@ -106,6 +115,8 @@ class ModifyCookies implements Operation
      */
     private function matchesSubstring($cookieName)
     {
+        Types::assert(['string' => [$cookieName]]);
+
         foreach ($this->cookieList as $forbidden)
         {
             if (strpos(strtolower($cookieName), $forbidden) !== false)
@@ -126,6 +137,8 @@ class ModifyCookies implements Operation
      */
     private function matchesFully($cookieName)
     {
+        Types::assert(['string' => [$cookieName]]);
+
         return in_array(
             strtolower($cookieName),
             $this->cookieList,

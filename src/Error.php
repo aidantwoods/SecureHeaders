@@ -2,6 +2,8 @@
 
 namespace Aidantwoods\SecureHeaders;
 
+use Aidantwoods\SecureHeaders\Util\Types;
+
 class Error
 {
     protected $level;
@@ -15,6 +17,8 @@ class Error
      */
     public function __construct($message, $level = E_USER_NOTICE)
     {
+        Types::assert(['string' => [$message], 'int' => [$level]]);
+
         $message = preg_replace('/[\\\]\n\s*/', '', $message);
         $this->message = preg_replace('/\s+/', ' ', $message);
 
