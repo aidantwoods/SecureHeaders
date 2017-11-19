@@ -479,7 +479,7 @@ class SecureHeaders
      *
      * @api
      *
-     * @param string $mode
+     * @param ?string $mode
      *  Valid values for `$mode` are either (case-insensitively) the strings
      *  `'Lax'` and `'Strict'`. If `null` is passed the setting will revert to
      *  the default as defined above. If another `string` is passed then the
@@ -490,7 +490,7 @@ class SecureHeaders
      */
     public function sameSiteCookies($mode = null)
     {
-        Types::assert(['string' => [$mode]]);
+        Types::assert(['?string' => [$mode]]);
 
         if (isset($mode))
         {
@@ -670,7 +670,7 @@ class SecureHeaders
     {
         $args = func_get_args();
 
-        Types::assert(['string|array|int|bool' => $args]);
+        Types::assert(['string|array|int|bool|NULL' => $args]);
 
         $num = count($args);
 
@@ -744,7 +744,7 @@ class SecureHeaders
     {
         $args = func_get_args();
 
-        Types::assert(['string|array|int|bool' => $args]);
+        Types::assert(['string|array|int|bool|NULL' => $args]);
 
         foreach ($args as $i => $arg)
         {
@@ -1798,7 +1798,7 @@ class SecureHeaders
      * Will return false on error, true on success.
      *
      * @param string $directive
-     * @param string $source
+     * @param ?string $source
      * @param bool $reportOnly
      * @return bool
      */
@@ -1807,7 +1807,7 @@ class SecureHeaders
         $source = null,
         $reportOnly = null
     ) {
-        Types::assert(['string' => [$directive, $source]]);
+        Types::assert(['string' => [$directive], '?string' => [$source]]);
 
         $csp = &$this->getCSPObject($reportOnly);
 
@@ -1957,7 +1957,7 @@ class SecureHeaders
         $algo = null,
         $isFile = null
     ) {
-        Types::assert(['string' => [$string, $algo]]);
+        Types::assert(['string' => [$string], '?string' => [$algo]]);
 
         if ( ! isset($algo))
         {
