@@ -913,7 +913,7 @@ class SecureHeaders
         $reportOnly = null
     ) {
         Types::assert(
-            ['string' => [$friendlyDirective, $string, $algo]]
+            ['string' => [$friendlyDirective, $string], '?string' => [$algo]]
         );
 
         if (
@@ -955,7 +955,7 @@ class SecureHeaders
         $isFile = null
     ) {
         Types::assert(
-            ['string' => [$friendlyDirective, $string, $algo]]
+            ['string' => [$friendlyDirective, $string], '?string' => [$algo]]
         );
 
         return $this->cspHash(
@@ -986,7 +986,7 @@ class SecureHeaders
         $reportOnly = null
     ) {
         Types::assert(
-            ['string' => [$friendlyDirective, $string, $algo]]
+            ['string' => [$friendlyDirective, $string], '?string' => [$algo]]
         );
 
         return $this->cspHash(
@@ -1013,7 +1013,7 @@ class SecureHeaders
     public function csproHashFile($friendlyDirective, $string, $algo = null)
     {
         Types::assert(
-            ['string' => [$friendlyDirective, $string, $algo]]
+            ['string' => [$friendlyDirective, $string], '?string' => [$algo]]
         );
 
         return $this->cspHash($friendlyDirective, $string, $algo, true, true);
@@ -1143,8 +1143,8 @@ class SecureHeaders
     ) {
         Types::assert(
             [
-                'int|string' => [$maxAge],
-                'string' => [$reportUri]
+                '?int|?string' => [$maxAge],
+                '?string' => [$reportUri]
             ],
             [1, 3]
         );
@@ -1317,8 +1317,8 @@ class SecureHeaders
         Types::assert(
             [
                 'string|array' => [$pins],
-                'int|string' => [$maxAge],
-                'string' => [$reportUri]
+                '?int|?string' => [$maxAge],
+                '?string' => [$reportUri]
             ],
             [1, 2, 4]
         );
@@ -1401,8 +1401,8 @@ class SecureHeaders
         Types::assert(
             [
                 'string|array' => [$pins],
-                'int|string' => [$maxAge],
-                'string' => [$reportUri]
+                '?int|?string' => [$maxAge],
+                '?string' => [$reportUri]
             ],
             [1, 2, 4]
         );
