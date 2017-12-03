@@ -161,6 +161,8 @@ class HeaderBag
      */
     public function getByName($name)
     {
+        Types::assert(['string' => [$name]]);
+
         $name = strtolower($name);
 
         if ( ! array_key_exists($name, $this->headers))
@@ -173,23 +175,25 @@ class HeaderBag
 
     /**
      * Let a header named $name be $header.
-     * Apply $callback($header) to every header named $name.
+     * Apply $callable($header) to every header named $name.
      *
      * @api
      *
      * @param string $name
-     * @param callback $callback
+     * @param callable $callable
      * @return void
      */
-    public function forEachNamed($name, $callback)
+    public function forEachNamed($name, callable $callable)
     {
+        Types::assert(['string' => [$name]]);
+
         $name = strtolower($name);
 
         if (isset($this->headers[$name]))
         {
             foreach ($this->headers[$name] as $header)
             {
-                $callback($header);
+                $callable($header);
             }
         }
     }

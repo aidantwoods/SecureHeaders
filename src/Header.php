@@ -98,12 +98,12 @@ interface Header
     public function setAttribute($name, $value = true);
 
     /**
-     * Apply the given callback $callback($attributeName, $attributeValue)
+     * Apply the given callable $callable($attributeName, $attributeValue)
      * to each attribute for each value
      *
-     * @param callback $callback
+     * @param callable $callable
      */
-    public function forEachAttribute($callback);
+    public function forEachAttribute(callable $callable);
 
     /**
      * Return the header string as appropriate for use in a HTTP response

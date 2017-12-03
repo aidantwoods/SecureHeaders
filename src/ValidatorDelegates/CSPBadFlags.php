@@ -5,6 +5,7 @@ namespace Aidantwoods\SecureHeaders\ValidatorDelegates;
 use Aidantwoods\SecureHeaders\Error;
 use Aidantwoods\SecureHeaders\Header;
 use Aidantwoods\SecureHeaders\ValidatorDelegate;
+use Aidantwoods\SecureHeaders\Util\Types;
 
 class CSPBadFlags implements ValidatorDelegate
 {
@@ -32,12 +33,14 @@ class CSPBadFlags implements ValidatorDelegate
      * Find bad flags in the given attribute
      *
      * @param Header $header
-     * @param $attributeName
+     * @param string $attributeName
      *
      * @return Error[]
      */
     private static function validateSrcAttribute(Header $header, $attributeName)
     {
+        Types::assert(['string' => [$attributeName]], [2]);
+
         $Errors = [];
 
         if ($header->hasAttribute($attributeName))

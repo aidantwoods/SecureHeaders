@@ -3,6 +3,7 @@
 namespace Aidantwoods\SecureHeaders;
 
 use Aidantwoods\SecureHeaders\Headers\RegularHeader;
+use Aidantwoods\SecureHeaders\Util\Types;
 
 abstract class HeaderFactory
 {
@@ -23,6 +24,8 @@ abstract class HeaderFactory
      */
     public static function build($name, $value = '')
     {
+        Types::assert(['string' => [$name, $value]]);
+
         $namespace = __NAMESPACE__.'\\Headers';
 
         foreach (self::$memberClasses as $class => $headerNames)

@@ -4,6 +4,7 @@ namespace Aidantwoods\SecureHeaders\Headers;
 
 use InvalidArgumentException;
 use Aidantwoods\SecureHeaders\Header;
+use Aidantwoods\SecureHeaders\Util\Types;
 
 abstract class AbstractHeader implements Header
 {
@@ -20,6 +21,8 @@ abstract class AbstractHeader implements Header
      */
     public function __construct($name, $value = '')
     {
+        Types::assert(['string' => [$name, $value]]);
+
         $this->name = $name;
         $this->value = $value;
 
@@ -48,6 +51,8 @@ abstract class AbstractHeader implements Header
      */
     public function is($name)
     {
+        Types::assert(['string' => [$name]]);
+
         return strtolower($name) === strtolower($this->name);
     }
 
@@ -84,6 +89,8 @@ abstract class AbstractHeader implements Header
      */
     public function getAttributeValue($name)
     {
+        Types::assert(['string' => [$name]]);
+
         if ( ! $this->hasAttribute($name))
         {
             throw new InvalidArgumentException(
@@ -99,6 +106,8 @@ abstract class AbstractHeader implements Header
      */
     public function hasAttribute($name)
     {
+        Types::assert(['string' => [$name]]);
+
         $name = strtolower($name);
 
         return array_key_exists($name, $this->attributes);
@@ -109,6 +118,8 @@ abstract class AbstractHeader implements Header
      */
     public function removeAttribute($name)
     {
+        Types::assert(['string' => [$name]]);
+
         $name = strtolower($name);
         unset($this->attributes[$name]);
 
@@ -120,6 +131,8 @@ abstract class AbstractHeader implements Header
      */
     public function ensureAttributeMaximum($name, $maxValue)
     {
+        Types::assert(['string' => [$name], 'int' => [$maxValue]]);
+
         if (isset($this->attributes[$name]))
         {
             foreach ($this->attributes[$name] as &$attribute)
@@ -139,6 +152,8 @@ abstract class AbstractHeader implements Header
      */
     public function setAttribute($name, $value = true)
     {
+        Types::assert(['string' => [$name], 'int|bool|string' => [$value]]);
+
         $key = strtolower($name);
 
         $this->attributes[$key] = [
@@ -159,13 +174,13 @@ abstract class AbstractHeader implements Header
     /**
      * {@inheritDoc}
      */
-    public function forEachAttribute($callback)
+    public function forEachAttribute(callable $callable)
     {
         foreach ($this->attributes as $attributes)
         {
             foreach ($attributes as $attribute)
             {
-                $callback($attribute['name'], $attribute['value']);
+                $callable($attribute['name'], $attribute['value']);
             }
         }
     }

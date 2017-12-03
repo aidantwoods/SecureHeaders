@@ -5,6 +5,7 @@ namespace Aidantwoods\SecureHeaders\ValidatorDelegates;
 use Aidantwoods\SecureHeaders\Error;
 use Aidantwoods\SecureHeaders\Header;
 use Aidantwoods\SecureHeaders\ValidatorDelegate;
+use Aidantwoods\SecureHeaders\Util\Types;
 
 class CSPWildcards implements ValidatorDelegate
 {
@@ -56,6 +57,12 @@ class CSPWildcards implements ValidatorDelegate
         $header->forEachAttribute(
             function ($directive, $sources) use ($header, &$errors)
             {
+                // $sources may be bool if directive is a CSP flag
+                if ( ! is_string($sources))
+                {
+                    return;
+                }
+
                 $errors[] = self::enumerateWildcards(
                     $header,
                     $directive,
@@ -76,8 +83,8 @@ class CSPWildcards implements ValidatorDelegate
      * Find wildcards in CSP directives
      *
      * @param Header $header
-     * @param $directive
-     * @param $sources
+     * @param string $directive
+     * @param string $sources
      *
      * @return ?Error
      */
@@ -86,6 +93,8 @@ class CSPWildcards implements ValidatorDelegate
         $directive,
         $sources
     ) {
+        Types::assert(['string' => [$directive, $sources]], [2, 3]);
+
         if (preg_match_all(self::CSP_SOURCE_WILDCARD_RE, $sources, $matches))
         {
             if ( ! in_array($directive, self::$cspSensitiveDirectives))
@@ -124,8 +133,8 @@ class CSPWildcards implements ValidatorDelegate
      * Find non secure origins in CSP directives
      *
      * @param Header $header
-     * @param $directive
-     * @param $sources
+     * @param string $directive
+     * @param string $sources
      *
      * @return ?Error
      */
@@ -134,6 +143,8 @@ class CSPWildcards implements ValidatorDelegate
         $directive,
         $sources
     ) {
+        Types::assert(['string' => [$directive, $sources]], [2, 3]);
+
         if (preg_match_all('/(?:[ ]|^)\Khttp[:][^ ]*/', $sources, $matches))
         {
             $friendlyHeader = $header->getFriendlyName();

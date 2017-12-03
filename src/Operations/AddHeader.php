@@ -4,6 +4,7 @@ namespace Aidantwoods\SecureHeaders\Operations;
 
 use Aidantwoods\SecureHeaders\HeaderBag;
 use Aidantwoods\SecureHeaders\Operation;
+use Aidantwoods\SecureHeaders\Util\Types;
 
 class AddHeader implements Operation
 {
@@ -16,10 +17,12 @@ class AddHeader implements Operation
      * to {@see modify}
      *
      * @param string $name
-     * @param string $value
+     * @param string[]|string $value
      */
     public function __construct($name, $value)
     {
+        Types::assert(['string' => [$name], 'string|array' => [$value]]);
+
         $this->name = $name;
 
         if ( ! is_array($value))

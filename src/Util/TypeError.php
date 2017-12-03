@@ -14,12 +14,21 @@ class TypeError extends Exception
      * @param int $argumentNum
      * @param string $actualType
      * @param string $actualType
+     * @param int $bcIndex = 0
      * @throws TypeError
      */
-    public static function fromBacktrace($argumentNum, $expectedType, $actualType)
+    public static function fromBacktrace($argumentNum, $expectedType, $actualType, $bcIndex = 0)
     {
         $backtrace = debug_backtrace();
-        $caller = $backtrace[0];
+        for ($i = $bcIndex; $i > 0; $i--)
+        {
+            if (isset($backtrace[$i]['file']))
+            {
+                break;
+            }
+        }
+
+        $caller = $backtrace[$i];
 
         $typeError = new static(
             "Argument $argumentNum passed to "

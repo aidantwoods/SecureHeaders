@@ -25,10 +25,23 @@ class Types
 
             foreach ($vars as $var)
             {
-                $allowedTypes = array_merge(
-                    ['NULL'],
-                    explode('|', $type)
-                );
+                $allowedTypes = explode('|', $type);
+
+                $nullAllowed = false;
+
+                foreach ($allowedTypes as $i => $t)
+                {
+                    if (strlen($t) > 0 and $t[0] === '?')
+                    {
+                        $nullAllowed = true;
+                        $allowedTypes[$i] = substr($t, 1);
+                    }
+                }
+
+                if ($nullAllowed)
+                {
+                    $allowedTypes[] = 'NULL';
+                }
 
                 if ( ! in_array(($varType = gettype($var)), $allowedTypes))
                 {
@@ -37,7 +50,7 @@ class Types
                         $argNums = self::generateArgNums($typeList);
                     }
 
-                    throw TypeError::fromBacktrace($argNums[$i], $type, $varType);
+                    throw TypeError::fromBacktrace($argNums[$i], $type, $varType, 2);
                 }
 
                 $i++;

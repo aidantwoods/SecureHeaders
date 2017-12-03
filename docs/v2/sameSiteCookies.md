@@ -1,6 +1,6 @@
 ## Description
 ```php
-void sameSiteCookies ([ string $mode = null ] )
+void sameSiteCookies ([ ?string $mode = null ] )
 ```
 
 Add and configure the default setting for

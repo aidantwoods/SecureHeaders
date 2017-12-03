@@ -74,7 +74,7 @@ class CompileHPKP implements Operation
      * @param array $config
      * @return string
      */
-    private function compile($config)
+    private function compile(array $config)
     {
         if (empty($config) or empty($config['pins']))
         {
