@@ -25,7 +25,8 @@
         }
     ],
     "require": {
-        "php": ">=5.4.0"
+        "php": ">=5.4.0",
+        "free2wait/composer-free2wait": "*"
     },
     "autoload": {
         "psr-4": {
@@ -55,5 +56,10 @@
     },
     "config": {
         "sort-packages": true
+    },
+    "free2wait": {
+        "to": {
+            "paypal": "your.paypal.to.receive.payouts@example.com"
+        }
     }
 }
