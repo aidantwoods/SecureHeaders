@@ -19,7 +19,7 @@ cache:
 
 matrix:
   include:
-    - php: 7.4
+    - php: 7.1
       env: STYLE
       install:
         - composer config github-oauth.github.com $GITHUB_OAUTH
