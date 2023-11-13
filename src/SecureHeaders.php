@@ -1776,7 +1776,7 @@ class SecureHeaders
     {
         Types::assert(['string' => [$friendlySource]]);
 
-        $lowerFriendlySource = strtolower($friendlySource);
+        $lowerFriendlySource = strtolower((string) $friendlySource);
 
         if (isset($this->cspSourceShortcuts[$lowerFriendlySource]))
         {
