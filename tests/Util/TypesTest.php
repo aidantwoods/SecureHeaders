@@ -20,7 +20,7 @@ class TypesTest extends TestCase
         $this->assertNull($result);
     }
 
-    public function validValues()
+    public static function validValues()
     {
         return [
             ['string', 'abcde'],
@@ -44,16 +44,16 @@ class TypesTest extends TestCase
 
     /**
      * @dataProvider invalidValues
-     * @expectedException Aidantwoods\SecureHeaders\Util\TypeError
      */
     public function testInvalidStringsRaiseExceptions($type, $variable)
     {
+        $this->expectException(\Aidantwoods\SecureHeaders\Util\TypeError::class);
         Types::assert([
             $type => [$variable]
         ]);
     }
 
-    public function invalidValues()
+    public static function invalidValues()
     {
         return [
             ['string', 42],

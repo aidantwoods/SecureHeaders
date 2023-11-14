@@ -8,7 +8,7 @@ use PHPUnit\Framework\TestCase;
 
 class CompileHSTSTest extends TestCase
 {
-    public function provideHSTSTestCases()
+    public static function provideHSTSTestCases()
     {
         return [
             [

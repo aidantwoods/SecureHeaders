@@ -7,7 +7,7 @@ use PHPUnit\Framework\TestCase;
 
 class HeaderFactoryTest extends TestCase
 {
-    public function provideCSPHeaders()
+    public static function provideCSPHeaders()
     {
         return [
             ['Content-SECURITY-Policy', "default-src 'none'"],
@@ -32,7 +32,7 @@ class HeaderFactoryTest extends TestCase
         );
     }
 
-    public function provideRegularHeaders()
+    public static function provideRegularHeaders()
     {
         return [
             ['Set-Cookie', 'foo=bar'],

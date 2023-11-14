@@ -9,7 +9,7 @@ use PHPUnit\Framework\TestCase;
 
 class CSPBadFlagsTest extends TestCase
 {
-    public function provideBadFlagTestCases()
+    public static function provideBadFlagTestCases()
     {
         return [
             [

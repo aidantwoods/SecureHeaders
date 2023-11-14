@@ -8,7 +8,7 @@ use PHPUnit\Framework\TestCase;
 
 class CompileExpectCTTest extends TestCase
 {
-    public function provideExpectCTTestCases()
+    public static function provideExpectCTTestCases()
     {
         return [
             [

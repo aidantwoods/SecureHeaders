@@ -1629,7 +1629,7 @@ class SecureHeaders
 
         $operations[] = new CompileHPKP($this->hpkp, $this->hpkpro);
 
-        $operations[] = new RemoveCookies(array_keys($this->removedCookies));
+        $operations[] = new RemoveCookies($this->removedCookies);
 
         # Remove all headers that were configured to be removed
         $operations[] = new RemoveHeaders(array_keys($this->removedHeaders));
@@ -1730,7 +1730,7 @@ class SecureHeaders
         $reportOnly = null
     ) {
         Types::assert(
-            ['string' => [$friendlyDirective, $friendlySource]]
+            ['?string' => [$friendlyDirective, $friendlySource]]
         );
 
         $directive = $this->longDirective($friendlyDirective);
@@ -1749,9 +1749,9 @@ class SecureHeaders
      */
     private function longDirective($friendlyDirective)
     {
-        Types::assert(['string' => [$friendlyDirective]]);
+        Types::assert(['?string' => [$friendlyDirective]]);
 
-        $friendlyDirective = strtolower($friendlyDirective);
+        $friendlyDirective = strtolower((string) $friendlyDirective);
 
         if (isset($this->cspDirectiveShortcuts[$friendlyDirective]))
         {
@@ -1774,7 +1774,7 @@ class SecureHeaders
      */
     private function longSource($friendlySource)
     {
-        Types::assert(['string' => [$friendlySource]]);
+        Types::assert(['?string' => [$friendlySource]]);
 
         $lowerFriendlySource = strtolower((string) $friendlySource);
 

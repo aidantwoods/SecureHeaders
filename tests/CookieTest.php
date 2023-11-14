@@ -22,8 +22,8 @@ class CookieTest extends TestCase
 
         $headersString = $headerStrings->getSentHeaders();
 
-        $this->assertContains('Set-Cookie: normalcookie=value1', $headersString);
-        $this->assertContains('Set-Cookie: authcookie=value2; Secure; HttpOnly; SameSite=Lax', $headersString);
+        $this->assertStringContainsString('Set-Cookie: normalcookie=value1', $headersString);
+        $this->assertStringContainsString('Set-Cookie: authcookie=value2; Secure; HttpOnly; SameSite=Lax', $headersString);
     }
 
     public function testSameSiteCookiesNoSameSite()
@@ -41,7 +41,7 @@ class CookieTest extends TestCase
 
         $headersString = $headerStrings->getSentHeaders();
 
-        $this->assertNotContains('SameSite', $headersString);
+        $this->assertStringNotContainsString('SameSite', $headersString);
     }
 
     public function testSameSiteCookiesStrictModeNoSameSite()
@@ -61,7 +61,7 @@ class CookieTest extends TestCase
 
         $headersString = $headerStrings->getSentHeaders();
 
-        $this->assertNotContains('SameSite', $headersString);
+        $this->assertStringNotContainsString('SameSite', $headersString);
     }
 
     public function testSameSiteCookiesStrictMode()
@@ -79,7 +79,7 @@ class CookieTest extends TestCase
 
         $headersString = $headerStrings->getSentHeaders();
 
-        $this->assertContains('Set-Cookie: authcookie=value; Secure; HttpOnly; SameSite=Strict', $headersString);
+        $this->assertStringContainsString('Set-Cookie: authcookie=value; Secure; HttpOnly; SameSite=Strict', $headersString);
     }
 
     public function testSameSiteCookiesStrictModeExplicitLax()
@@ -98,7 +98,7 @@ class CookieTest extends TestCase
 
         $headersString = $headerStrings->getSentHeaders();
 
-        $this->assertContains('Set-Cookie: authcookie=value; Secure; HttpOnly; SameSite=Lax', $headersString);
+        $this->assertStringContainsString('Set-Cookie: authcookie=value; Secure; HttpOnly; SameSite=Lax', $headersString);
     }
 
     public function testSameSiteCookiesExplicitLax()
@@ -116,7 +116,7 @@ class CookieTest extends TestCase
 
         $headersString = $headerStrings->getSentHeaders();
 
-        $this->assertContains('Set-Cookie: authcookie=value; Secure; HttpOnly; SameSite=Lax', $headersString);
+        $this->assertStringContainsString('Set-Cookie: authcookie=value; Secure; HttpOnly; SameSite=Lax', $headersString);
     }
 
     public function testSameSiteCookiesExplicitStrict()
@@ -134,7 +134,7 @@ class CookieTest extends TestCase
 
         $headersString = $headerStrings->getSentHeaders();
 
-        $this->assertContains('Set-Cookie: authcookie=value; Secure; HttpOnly; SameSite=Strict', $headersString);
+        $this->assertStringContainsString('Set-Cookie: authcookie=value; Secure; HttpOnly; SameSite=Strict', $headersString);
     }
 
     public function testCookiesRemovable()
@@ -154,8 +154,8 @@ class CookieTest extends TestCase
 
         $headersString = $headerStrings->getSentHeaders();
 
-        $this->assertNotContains('Set-Cookie: authcookie', $headersString);
-        $this->assertNotContains('Set-Cookie: regularcookie', $headersString);
-        $this->assertNotContains('Set-Cookie:', $headersString);
+        $this->assertStringNotContainsString('Set-Cookie: authcookie', $headersString);
+        $this->assertStringNotContainsString('Set-Cookie: regularcookie', $headersString);
+        $this->assertStringNotContainsString('Set-Cookie:', $headersString);
     }
 }

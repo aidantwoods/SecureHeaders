@@ -43,8 +43,8 @@
         "aidantwoods/markdownphpdocs": "Install this on its own and add it to your path, to auto-generate documentation if contributing to this repo."
     },
     "require-dev": {
-        "friendsofphp/php-cs-fixer": "dev-feature/braces/position_after_return_type_hint",
-        "phpunit/phpunit": "^4.8.35 || ^5.7 || ^6.4",
+        "friendsofphp/php-cs-fixer": "*",
+        "phpunit/phpunit": "10.4.*",
         "psr/http-message": "^1.0",
         "zendframework/zend-diactoros": "^1.0"
     },

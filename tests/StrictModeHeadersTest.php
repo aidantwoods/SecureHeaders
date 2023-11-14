@@ -9,14 +9,14 @@ use PHPUnit\Framework\TestCase;
 class StrictModeHeadersTest extends TestCase
 {
     private $assertions = [
-        'Contains',
-        'NotContains',
+        'StringContainsString',
+        'StringNotContainsString',
         'Equals',
-        'Regexp',
-        'NotRegExp'
+        'MatchesRegularExpression',
+        'DoesNotMatchRegularExpression'
     ];
 
-    public function dataStrictMode()
+    public static function dataStrictMode()
     {
         return [
             [
@@ -26,7 +26,7 @@ class StrictModeHeadersTest extends TestCase
                         $headers->strictMode();
                     },
                 'assertions' => [
-                    'Contains' =>
+                    'StringContainsString' =>
                         'Strict-Transport-Security: max-age=31536000; includeSubDomains; preload'
                 ]
             ],
@@ -37,7 +37,7 @@ class StrictModeHeadersTest extends TestCase
                         $headers->strictMode();
                     },
                 'assertions' => [
-                    'Contains' =>
+                    'StringContainsString' =>
                         'Expect-CT: max-age=31536000; enforce'
                 ]
             ],
@@ -49,7 +49,7 @@ class StrictModeHeadersTest extends TestCase
                         $headers->cspNonce('script');
                     },
                 'assertions' => [
-                    'Regexp' =>
+                    'MatchesRegularExpression' =>
                         "/Content-Security-Policy: script-src 'nonce-[^']+' 'strict-dynamic'/"
                 ]
             ],
@@ -61,7 +61,7 @@ class StrictModeHeadersTest extends TestCase
                         $headers->cspNonce('default');
                     },
                 'assertions' => [
-                    'Regexp' =>
+                    'MatchesRegularExpression' =>
                         "/Content-Security-Policy: default-src 'nonce-[^']+' 'strict-dynamic'/"
                 ]
             ],
@@ -74,9 +74,9 @@ class StrictModeHeadersTest extends TestCase
                         $headers->cspNonce('script');
                     },
                 'assertions' => [
-                    'Regexp' =>
+                    'MatchesRegularExpression' =>
                         "/script-src 'nonce-[^']+' 'strict-dynamic'/",
-                    'NotRegexp' =>
+                    'DoesNotMatchRegularExpression' =>
                         "/default-src 'nonce-[^']+' 'strict-dynamic'/"
                 ]
             ],
@@ -88,7 +88,7 @@ class StrictModeHeadersTest extends TestCase
                         $headers->cspHash('default', 'abcd');
                     },
                 'assertions' => [
-                    'Regexp' =>
+                    'MatchesRegularExpression' =>
                         "/Content-Security-Policy: default-src 'sha[^']+' 'strict-dynamic'/"
                 ]
             ],
@@ -100,7 +100,7 @@ class StrictModeHeadersTest extends TestCase
                         $headers->cspHash('script', 'abcd');
                     },
                 'assertions' => [
-                    'Regexp' =>
+                    'MatchesRegularExpression' =>
                         "/Content-Security-Policy: script-src 'sha[^']+' 'strict-dynamic'/"
                 ]
             ],
@@ -113,9 +113,9 @@ class StrictModeHeadersTest extends TestCase
                         $headers->cspHash('script', 'abcd');
                     },
                 'assertions' => [
-                    'Regexp' =>
+                    'MatchesRegularExpression' =>
                         "/script-src 'sha[^']+' 'strict-dynamic'/",
-                    'NotRegexp' =>
+                    'DoesNotMatchRegularExpression' =>
                         "/default-src 'sha[^']+' 'strict-dynamic'/"
                 ]
             ],
@@ -128,7 +128,7 @@ class StrictModeHeadersTest extends TestCase
                         $headers->csp('script', 'http://other-cdn.net');
                     },
                 'assertions' => [
-                    'NotContains' =>
+                    'StringNotContainsString' =>
                         "'strict-dynamic'"
                 ]
             ],

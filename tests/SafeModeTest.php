@@ -9,14 +9,14 @@ use PHPUnit\Framework\TestCase;
 class SafeModeTest extends TestCase
 {
     private $assertions = [
-        'Contains',
-        'NotContains',
+        'StringContainsString',
+        'StringNotContainsString',
         'Equals',
-        'Regexp',
-        'NotRegExp'
+        'MatchesRegularExpression',
+        'DoesNotMatchRegularExpression'
     ];
 
-    public function dataSafeMode()
+    public static function dataSafeMode()
     {
         return [
             [
@@ -26,7 +26,7 @@ class SafeModeTest extends TestCase
                         $headers->hsts(31536000, true, true);
                     },
                 'assertions' => [
-                    'Contains' =>
+                    'StringContainsString' =>
                         'Strict-Transport-Security: max-age=31536000; includeSubDomains; preload'
                 ]
             ],
@@ -38,9 +38,9 @@ class SafeModeTest extends TestCase
                         $headers->hsts(31536000, true, true);
                     },
                 'assertions' => [
-                    'NotContains' =>
+                    'StringNotContainsString' =>
                         'Strict-Transport-Security: max-age=31536000; includeSubDomains; preload',
-                    'Contains' =>
+                    'StringContainsString' =>
                         'Strict-Transport-Security: max-age=86400'
                 ]
             ],
@@ -52,9 +52,9 @@ class SafeModeTest extends TestCase
                         $headers->strictMode();
                     },
                 'assertions' => [
-                    'NotContains' =>
+                    'StringNotContainsString' =>
                         'Strict-Transport-Security: max-age=31536000; includeSubDomains; preload',
-                    'Contains' =>
+                    'StringContainsString' =>
                         'Strict-Transport-Security: max-age=86400'
                 ]
             ],
@@ -66,9 +66,9 @@ class SafeModeTest extends TestCase
                         $headers->hpkp('abcd', 31536000, true);
                     },
                 'assertions' => [
-                    'NotContains' =>
+                    'StringNotContainsString' =>
                         'max-age=31536000; pin-sha256="abcd"; includeSubDomains',
-                    'Contains' =>
+                    'StringContainsString' =>
                         'Public-Key-Pins: max-age=10; pin-sha256="abcd"'
                 ]
             ],
@@ -79,7 +79,7 @@ class SafeModeTest extends TestCase
                         $headers->expectCT(31536000, true, 'https://report.exampe.com');
                     },
                 'assertions' => [
-                    'Contains' =>
+                    'StringContainsString' =>
                         'Expect-CT: max-age=31536000; enforce; report-uri="https://report.exampe.com"'
                 ]
             ],
@@ -91,9 +91,9 @@ class SafeModeTest extends TestCase
                         $headers->expectCT(31536000, true, 'https://report.exampe.com');
                     },
                 'assertions' => [
-                    'NotContains' =>
+                    'StringNotContainsString' =>
                         'Expect-CT: max-age=31536000; enforce; report-uri="https://report.exampe.com"',
-                    'Contains' =>
+                    'StringContainsString' =>
                         'Expect-CT: max-age=31536000; report-uri="https://report.exampe.com"'
                 ]
             ],
@@ -105,9 +105,9 @@ class SafeModeTest extends TestCase
                         $headers->strictMode();
                     },
                 'assertions' => [
-                    'NotContains' =>
+                    'StringNotContainsString' =>
                         'Expect-CT: max-age=31536000; enforce',
-                    'Contains' =>
+                    'StringContainsString' =>
                         'Expect-CT: max-age=31536000',
                 ]
             ],

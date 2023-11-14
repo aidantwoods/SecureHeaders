@@ -134,7 +134,7 @@ class InjectStrictDynamicTest extends TestCase
 
         $this->assertCount(2, $HeaderBag->get());
 
-        $this->assertNotContains('strict-dynamic', (string) $HeaderBag->get()[0]);
+        $this->assertStringNotContainsString('strict-dynamic', (string) $HeaderBag->get()[0]);
 
         $headerString = (string) $HeaderBag->get()[1];
 
@@ -153,7 +153,7 @@ class InjectStrictDynamicTest extends TestCase
 
         $this->assertCount(2, $HeaderBag->get());
 
-        $this->assertNotContains('strict-dynamic', (string) $HeaderBag->get()[1]);
+        $this->assertStringNotContainsString('strict-dynamic', (string) $HeaderBag->get()[1]);
 
         $headerString = (string) $HeaderBag->get()[0];
 

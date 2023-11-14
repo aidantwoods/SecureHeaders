@@ -9,7 +9,7 @@ use PHPUnit\Framework\TestCase;
 
 class CSPWildcardsTest extends TestCase
 {
-    public function provideWildcardTestCases()
+    public static function provideWildcardTestCases()
     {
         return [
             [
