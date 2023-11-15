@@ -47,7 +47,8 @@ use Aidantwoods\SecureHeaders\Operations\RemoveHeaders;
 use Aidantwoods\SecureHeaders\Operations\RemoveCookies;
 use Aidantwoods\SecureHeaders\Util\Types;
 
-class SecureHeaders{
+class SecureHeaders
+{
     # ~~
     # Version
 
