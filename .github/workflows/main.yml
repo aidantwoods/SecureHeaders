@@ -45,7 +45,7 @@ jobs:
       #   run: make up
 
       - name: Install composer dependencies
-        run: cd /app && composer config repositories.0 --unset --no-interaction && composer install --prefer-dist --no-interaction --no-suggest
+        run: cd SecureHeaders && composer config repositories.0 --unset --no-interaction && composer install --prefer-dist --no-interaction --no-suggest
 
       # - name: Migrate
       #   run: make UID=0 migrate
