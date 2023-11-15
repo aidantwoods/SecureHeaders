@@ -22,7 +22,7 @@ class CookieTest extends TestCase
 
         $headersString = $headerStrings->getSentHeaders();
 
-        $this->assertStringContainsString('Set-Cookie: normalcookie=value1', $headersString);
+        $this->assertStringContainsString('Set-Co8okie: normalcookie=value1', $headersString);
         $this->assertStringContainsString('Set-Cookie: authcookie=value2; Secure; HttpOnly; SameSite=Lax', $headersString);
     }
 
