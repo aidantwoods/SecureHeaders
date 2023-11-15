@@ -9,7 +9,7 @@ use Aidantwoods\SecureHeaders\Util\Types;
 
 class CSPWildcards implements ValidatorDelegate
 {
-    const CSP_SOURCE_WILDCARD_RE
+    public const CSP_SOURCE_WILDCARD_RE
         = '/(?:[ ]|^)\K
             (?:
             # catch open protocol wildcards
@@ -112,15 +112,14 @@ class CSPWildcards implements ValidatorDelegate
                 $friendlyHeader = $header->getFriendlyName();
 
                 return new Error(
-                    $friendlyHeader . ' ' . (count($matches[0]) > 1 ?
+                    $friendlyHeader.' '.(count($matches[0]) > 1 ?
                         'contains the following wildcards '
                         : 'contains a wildcard ')
-                    . '<b>' . implode(', ', $matches[0]) . '</b> as a
-                        source value in <b>' . $directive . '</b>; this can
+                    .'<b>'.implode(', ', $matches[0]).'</b> as a
+                        source value in <b>'.$directive.'</b>; this can
                         allow anyone to insert elements covered by
-                        the <b>' . $directive . '</b> directive into the
+                        the <b>'.$directive.'</b> directive into the
                         page.',
-
                     E_USER_WARNING
                 );
             }
@@ -150,14 +149,13 @@ class CSPWildcards implements ValidatorDelegate
             $friendlyHeader = $header->getFriendlyName();
 
             return new Error(
-                $friendlyHeader . ' contains the insecure protocol
-                    HTTP in ' . (count($matches[0]) > 1 ?
+                $friendlyHeader.' contains the insecure protocol
+                    HTTP in '.(count($matches[0]) > 1 ?
                     'the following source values '
                     : 'a source value ')
-                . '<b>' . implode(', ', $matches[0]) . '</b>; this can
+                .'<b>'.implode(', ', $matches[0]).'</b>; this can
                     allow anyone to insert elements covered by the
-                    <b>' . $directive . '</b> directive into the page.',
-
+                    <b>'.$directive.'</b> directive into the page.',
                 E_USER_WARNING
             );
         }

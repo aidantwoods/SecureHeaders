@@ -55,12 +55,11 @@ class CSPBadFlags implements ValidatorDelegate
                     $friendlyHeader = $header->getFriendlyName();
 
                     $Errors[] = new Error(
-                        $friendlyHeader . ' contains the <b>'
-                        . $badFlag . '</b> keyword in <b>' . $attributeName
-                        . '</b>, which prevents CSP protecting
+                        $friendlyHeader.' contains the <b>'
+                        .$badFlag.'</b> keyword in <b>'.$attributeName
+                        .'</b>, which prevents CSP protecting
                                 against the injection of arbitrary code
                                 into the page.',
-
                         E_USER_WARNING
                     );
                 }

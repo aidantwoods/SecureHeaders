@@ -1,31 +1,5 @@
 <?php
 
-// use PhpCsFixer\Config;
-// use PhpCsFixer\Finder;
-
-// $finder = Finder::create()->in(__DIR__);
-
-// $rules = [
-//     '@PSR2' => true,
-//     'array_syntax' => [
-//         'syntax' => 'short',
-//     ],
-//     'braces' => [
-//          'position_after_control_structures'   => 'next',
-//          'position_after_return_type_hint'     => 'next',
-//          'position_after_anonymous_constructs' => 'next',
-//     ],
-//     'not_operator_with_space' => true,
-//     'return_type_declaration' => [
-//         'space_before' => 'one',
-//     ],
-// ];
-// return Config::create()
-//     ->setRules($rules)
-//     ->setFinder($finder)
-//     ->setUsingCache(false);
-
-
 $finder = (new \PhpCsFixer\Finder())
     ->in(__DIR__.'/src')
 ;
@@ -38,11 +12,24 @@ return (new \PhpCsFixer\Config())
 
         'braces_position' => [
             'control_structures_opening_brace' => 'next_line_unless_newline_at_signature_end',
-            // 'position_after_control_structures'   => 'next',
-            // 'position_after_functions_and_oop_constructs' => 'next',
-            // 'position_after_return_type_hint'     => 'next',
-            // 'position_after_anonymous_constructs' => 'next',
+            'anonymous_functions_opening_brace' => 'next_line_unless_newline_at_signature_end',
         ],
+        'new_with_parentheses' => [
+            'named_class' => false
+        ],
+        'list_syntax' => [
+            'syntax' => 'long'
+        ],
+        'trailing_comma_in_multiline' => [
+            'elements' => []
+        ],
+        'control_structure_continuation_position' => [
+            'position' => 'next_line'
+        ],
+        'concat_space' => [
+            'spacing' => 'none'
+        ],
+        'single_line_empty_body' => false,
         'not_operator_with_space' => true,
         'return_type_declaration' => [
             'space_before' => 'one',

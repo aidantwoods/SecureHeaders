@@ -81,7 +81,7 @@ class CompileHPKP implements Operation
             return '';
         }
 
-        $maxAge = isset($config['max-age']) ? $config['max-age'] : 10;
+        $maxAge = $config['max-age'] ?? 10;
 
         $pieces = ["max-age=$maxAge"];
 
@@ -99,7 +99,7 @@ class CompileHPKP implements Operation
 
         if ($config['report-uri'])
         {
-            $pieces[] = 'report-uri="' . $config['report-uri'] . '"';
+            $pieces[] = 'report-uri="'.$config['report-uri'].'"';
         }
 
         return implode('; ', $pieces);
