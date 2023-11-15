@@ -1,0 +1,58 @@
+name: SecureHeaders
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+    paths-ignore:
+      - 'docs/**'
+      - '*.md'
+
+jobs:
+  test:
+    if: "!contains(github.event.head_commit.message, 'skip ci') && !contains(github.event.head_commit.message, 'ci skip')"
+    name: SecureHeaders (PHP ${{ matrix.php-versions }})
+    runs-on: ubuntu-latest
+    env:
+      DB_CHARSET: utf8
+    strategy:
+      fail-fast: false
+      matrix:
+        php-versions: ['8.1', '8.2']
+
+
+    steps:
+      # - uses: actions/checkout@v3
+
+      - name: Setup PHP Action
+        uses: shivammathur/setup-php@2.27.1
+
+
+      # - name: Set PHP Version
+        # run: echo "PHP_VERSION=${{ matrix.php-versions }}" > .env
+
+      # Run every tests inside Docker container
+      # - name: Docker Compose Setup
+      #   uses: ndeloof/install-compose-action@v0.0.1
+      #   with:
+      #     # version: v3.5 # defaults to 'latest'
+      #     legacy: true    # will also install in PATH as `docker-compose`
+
+      # - name: Clean
+      #   run: make clean_all
+
+      # - name: docker-compose up
+      #   run: make up
+
+      - name: Install composer dependencies
+        run: composer config repositories.0 --unset --no-interaction && composer install --prefer-dist --no-interaction --no-suggest
+
+      # - name: Migrate
+      #   run: make UID=0 migrate
+
+      # - name: Check style
+      #   if: "!contains(matrix.php-versions, '8.')"
+      #   run: make check-style-from-host
+
+      - name: Run tests
+        run: ./vendor/bin/phpunit
