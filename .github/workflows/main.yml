@@ -13,8 +13,8 @@ jobs:
     if: "!contains(github.event.head_commit.message, 'skip ci') && !contains(github.event.head_commit.message, 'ci skip')"
     name: SecureHeaders (PHP ${{ matrix.php-versions }})
     runs-on: ubuntu-latest
-    env:
-      DB_CHARSET: utf8
+    # env:
+    #   DB_CHARSET: utf8
     strategy:
       fail-fast: false
       matrix:
@@ -29,7 +29,7 @@ jobs:
       - name: Checkout.
         uses: actions/checkout@v4
 
-      - name: Install PHP.
+      - name: Install PHP
         uses: shivammathur/setup-php@v2
 
 
@@ -59,6 +59,9 @@ jobs:
       # - name: Check style
       #   if: "!contains(matrix.php-versions, '8.')"
       #   run: make check-style-from-host
+
+      - name: Run PHP CS Fixer
+        run: ./vendor/bin/php-cs-fixer fix
 
       - name: Run tests
         run: ./vendor/bin/phpunit
