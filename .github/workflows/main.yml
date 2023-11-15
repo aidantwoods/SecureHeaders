@@ -61,7 +61,7 @@ jobs:
       #   run: make check-style-from-host
 
       - name: Run PHP CS Fixer
-        run: ./vendor/bin/php-cs-fixer fix
+        run: ./vendor/bin/php-cs-fixer fix --dry-run --diff
 
       - name: Run tests
         run: ./vendor/bin/phpunit
