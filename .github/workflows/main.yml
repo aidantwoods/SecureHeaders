@@ -45,7 +45,7 @@ jobs:
       #   run: make up
 
       - name: Install composer dependencies
-        run: composer install --prefer-dist --no-interaction --no-suggest
+        run: cd ./../ && composer install --prefer-dist --no-interaction --no-suggest
 
       # - name: Migrate
       #   run: make UID=0 migrate
