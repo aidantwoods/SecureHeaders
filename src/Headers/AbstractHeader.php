@@ -190,7 +190,7 @@ abstract class AbstractHeader implements Header
      */
     public function __toString()
     {
-        return $this->name . ':' .($this->value === '' ? '' : ' ' . $this->value);
+        return $this->name.':'.($this->value === '' ? '' : ' '.$this->value);
     }
 
     /**
@@ -217,7 +217,7 @@ abstract class AbstractHeader implements Header
 
             $this->attributes[$type][] = [
                 'name' => $attrParts[0],
-                'value' => isset($attrParts[1]) ? $attrParts[1] : true
+                'value' => $attrParts[1] ?? true
             ];
         }
     }

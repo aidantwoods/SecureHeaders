@@ -32,21 +32,15 @@
             "Aidantwoods\\SecureHeaders\\": "src/"
         }
     },
-    "repositories": [
-        {
-            "type": "vcs",
-            "url": "https://github.com/aidantwoods/PHP-CS-Fixer"
-        }
-    ],
     "suggest": {
         "psr/http-message": "In case you want to use the PSR-7 adapter",
         "aidantwoods/markdownphpdocs": "Install this on its own and add it to your path, to auto-generate documentation if contributing to this repo."
     },
     "require-dev": {
-        "friendsofphp/php-cs-fixer": "dev-feature/braces/position_after_return_type_hint",
-        "phpunit/phpunit": "^4.8.35 || ^5.7 || ^6.4",
-        "psr/http-message": "^1.0",
-        "zendframework/zend-diactoros": "^1.0"
+        "friendsofphp/php-cs-fixer": "3.38.*",
+        "phpunit/phpunit": "10.4.*",
+        "psr/http-message": "1.1.*",
+        "zendframework/zend-diactoros": "1.3.*"
     },
     "autoload-dev": {
         "psr-4": {

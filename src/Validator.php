@@ -4,10 +4,10 @@ namespace Aidantwoods\SecureHeaders;
 
 abstract class Validator
 {
-    const CSP   = 'content-security-policy';
-    const CSPRO = 'content-security-policy-report-only';
+    public const CSP   = 'content-security-policy';
+    public const CSPRO = 'content-security-policy-report-only';
 
-    const VALIDATOR_NAMESPACE = 'Aidantwoods\SecureHeaders\ValidatorDelegates';
+    public const VALIDATOR_NAMESPACE = 'Aidantwoods\SecureHeaders\ValidatorDelegates';
 
     private static $delegates = [
         'CSPBadFlags'

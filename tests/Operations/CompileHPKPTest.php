@@ -8,7 +8,7 @@ use PHPUnit\Framework\TestCase;
 
 class CompileHPKPTest extends TestCase
 {
-    public function provideHPKPTestCases()
+    public static function provideHPKPTestCases()
     {
         return [
             [
@@ -92,18 +92,18 @@ class CompileHPKPTest extends TestCase
      * @param $compileHPKPConfig
      * @param $expectedHeader
      */
-    public function testHPKPRO(array $compileHPKPConfig, $expectedHeader)
+    public static function testHPKPRO(array $compileHPKPConfig, $expectedHeader)
     {
         $HeaderBag = new HeaderBag;
 
         $CompileHPKP = new CompileHPKP([], $compileHPKPConfig);
         $CompileHPKP->modify($HeaderBag);
 
-        $this->assertCount(1, $HeaderBag->get());
+        static::assertCount(1, $HeaderBag->get());
 
         $headersString = (string) $HeaderBag->get()[0];
 
-        $this->assertSame(
+        static::assertSame(
             "Public-Key-Pins-Report-Only: $expectedHeader",
             $headersString
         );

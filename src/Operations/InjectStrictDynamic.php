@@ -10,8 +10,8 @@ use Aidantwoods\SecureHeaders\Util\Types;
 
 class InjectStrictDynamic extends OperationWithErrors implements Operation, ExposesErrors
 {
-    const ENFORCE = 0b01;
-    const REPORT  = 0b10;
+    public const ENFORCE = 0b01;
+    public const REPORT  = 0b10;
 
     private $allowedCSPHashAlgs;
     private $mode;
@@ -59,8 +59,8 @@ class InjectStrictDynamic extends OperationWithErrors implements Operation, Expo
                 $this->addError(
                     "<b>Strict-Mode</b> is enabled, but
                     <b>'strict-dynamic'</b> could not be added to <b>"
-                    . $Header->getFriendlyName()
-                    . '</b> because no hash or nonce was used.',
+                    .$Header->getFriendlyName()
+                    .'</b> because no hash or nonce was used.',
                     E_USER_WARNING
                 );
             }

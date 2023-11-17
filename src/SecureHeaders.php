@@ -49,11 +49,10 @@ use Aidantwoods\SecureHeaders\Util\Types;
 
 class SecureHeaders
 {
-
     # ~~
     # Version
 
-    const version = '2.0.0';
+    public const version = '2.0.0';
 
     # ~~
     # protected variables: settings
@@ -195,28 +194,28 @@ class SecureHeaders
 
     # auto-headers
 
-    const AUTO_ADD                   = 0b0000001;
-    const AUTO_REMOVE                = 0b0000010;
+    public const AUTO_ADD                   = 0b0000001;
+    public const AUTO_REMOVE                = 0b0000010;
 
     ## cookie attribute injection
-    const AUTO_COOKIE_SECURE         = 0b0000100;
-    const AUTO_COOKIE_HTTPONLY       = 0b0001000;
-    const AUTO_COOKIE_SAMESITE       = 0b0010000;
+    public const AUTO_COOKIE_SECURE         = 0b0000100;
+    public const AUTO_COOKIE_HTTPONLY       = 0b0001000;
+    public const AUTO_COOKIE_SAMESITE       = 0b0010000;
 
     ## opportunistic strict-dynamic injection
-    const AUTO_STRICTDYNAMIC_ENFORCE = 0b0100000;
-    const AUTO_STRICTDYNAMIC_REPORT  = 0b1000000;
-    const AUTO_STRICTDYNAMIC         = 0b1100000;
+    public const AUTO_STRICTDYNAMIC_ENFORCE = 0b0100000;
+    public const AUTO_STRICTDYNAMIC_REPORT  = 0b1000000;
+    public const AUTO_STRICTDYNAMIC         = 0b1100000;
 
-    const AUTO_ALL                   = 0b1111111;
+    public const AUTO_ALL                   = 0b1111111;
 
     # cookie upgrades
 
-    const COOKIE_NAME           = 0b00001;
-    const COOKIE_SUBSTR         = 0b00010;
-    const COOKIE_ALL            = 0b00011; # COOKIE_NAME | COOKIE_SUBSTR
-    const COOKIE_REMOVE         = 0b00100;
-    const COOKIE_DEFAULT        = 0b00010; # ~COOKIE_REMOVE & COOKIE_SUBSTR
+    public const COOKIE_NAME           = 0b00001;
+    public const COOKIE_SUBSTR         = 0b00010;
+    public const COOKIE_ALL            = 0b00011; # COOKIE_NAME | COOKIE_SUBSTR
+    public const COOKIE_REMOVE         = 0b00100;
+    public const COOKIE_DEFAULT        = 0b00010; # ~COOKIE_REMOVE & COOKIE_SUBSTR
 
     # ~~
     # Public Functions
@@ -711,11 +710,11 @@ class SecureHeaders
                 # or null: directive is flag)
                 if (
                     ($i + 1 < $num)
-                    and (is_string($args[$i+1]) or is_null($args[$i+1]))
+                    and (is_string($args[$i + 1]) or is_null($args[$i + 1]))
                 ) {
                     # then use the value we specified, and skip over the next
                     # item in the loop (since we just used it as a source value)
-                    $friendlySource = $args[$i+1];
+                    $friendlySource = $args[$i + 1];
                     $i++;
                 }
                 # if no source is specified (either no more args, or one of
@@ -1494,7 +1493,7 @@ class SecureHeaders
         # which will cause the headers to be sent with PHP's global methods.
         if (is_null($http))
         {
-            $http = new GlobalHttpAdapter();
+            $http = new GlobalHttpAdapter;
         }
 
         $headers = $http->getHeaders();
@@ -1629,7 +1628,7 @@ class SecureHeaders
 
         $operations[] = new CompileHPKP($this->hpkp, $this->hpkpro);
 
-        $operations[] = new RemoveCookies(array_keys($this->removedCookies));
+        $operations[] = new RemoveCookies($this->removedCookies);
 
         # Remove all headers that were configured to be removed
         $operations[] = new RemoveHeaders(array_keys($this->removedHeaders));
@@ -1680,7 +1679,7 @@ class SecureHeaders
         {
             # prepend any errors to the buffer string (any errors that were
             # echoed will have been lost during an ob_start callback)
-            $buffer = $this->errorString . $buffer;
+            $buffer = $this->errorString.$buffer;
         }
 
         # if we were called as part of ob_start, make note of this
@@ -1730,7 +1729,7 @@ class SecureHeaders
         $reportOnly = null
     ) {
         Types::assert(
-            ['string' => [$friendlyDirective, $friendlySource]]
+            ['?string' => [$friendlyDirective, $friendlySource]]
         );
 
         $directive = $this->longDirective($friendlyDirective);
@@ -1749,9 +1748,9 @@ class SecureHeaders
      */
     private function longDirective($friendlyDirective)
     {
-        Types::assert(['string' => [$friendlyDirective]]);
+        Types::assert(['?string' => [$friendlyDirective]]);
 
-        $friendlyDirective = strtolower($friendlyDirective);
+        $friendlyDirective = strtolower((string) $friendlyDirective);
 
         if (isset($this->cspDirectiveShortcuts[$friendlyDirective]))
         {
@@ -1774,9 +1773,9 @@ class SecureHeaders
      */
     private function longSource($friendlySource)
     {
-        Types::assert(['string' => [$friendlySource]]);
+        Types::assert(['?string' => [$friendlySource]]);
 
-        $lowerFriendlySource = strtolower($friendlySource);
+        $lowerFriendlySource = strtolower((string) $friendlySource);
 
         if (isset($this->cspSourceShortcuts[$lowerFriendlySource]))
         {
@@ -1983,7 +1982,7 @@ class SecureHeaders
             {
                 $this->addError(
                     __FUNCTION__.': The specified file '
-                    . "<strong>'$string'</strong>, does not exist"
+                    ."<strong>'$string'</strong>, does not exist"
                 );
 
                 return '';
@@ -2010,7 +2009,6 @@ class SecureHeaders
                 'OpenSSL (openssl_random_pseudo_bytes) reported that it did
                 <strong>not</strong> use a cryptographically strong algorithm
                 to generate the nonce for CSP.',
-
                 E_USER_WARNING
             );
         }
@@ -2135,11 +2133,11 @@ class SecureHeaders
         ) {
             if ($level === E_USER_NOTICE)
             {
-                $error = '<strong>Notice:</strong> ' .$message. "<br><br>\n\n";
+                $error = '<strong>Notice:</strong> '.$message."<br><br>\n\n";
             }
             elseif ($level === E_USER_WARNING)
             {
-                $error = '<strong>Warning:</strong> ' .$message. "<br><br>\n\n";
+                $error = '<strong>Warning:</strong> '.$message."<br><br>\n\n";
             }
 
             if (isset($error))

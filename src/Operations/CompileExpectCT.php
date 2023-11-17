@@ -41,7 +41,7 @@ class CompileExpectCT implements Operation
      */
     private function makeHeaderValue()
     {
-        $pieces = ['max-age=' . (int) $this->config['max-age']];
+        $pieces = ['max-age='.(int) $this->config['max-age']];
 
         if ($this->config['enforce'])
         {
@@ -50,7 +50,7 @@ class CompileExpectCT implements Operation
 
         if ($this->config['report-uri'])
         {
-            $pieces[] = 'report-uri="' . $this->config['report-uri'] . '"';
+            $pieces[] = 'report-uri="'.$this->config['report-uri'].'"';
         }
 
         return implode('; ', $pieces);

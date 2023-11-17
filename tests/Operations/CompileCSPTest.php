@@ -7,7 +7,7 @@ use Aidantwoods\SecureHeaders\SecureHeaders;
 use Aidantwoods\SecureHeaders\Operations\CompileCSP;
 use PHPUnit\Framework\TestCase;
 
-class CSPTest extends TestCase
+class CompileCSPTest extends TestCase
 {
     public function testStrictDynamicInjectableForNonInternalPolicy()
     {

@@ -1,0 +1,39 @@
+name: SecureHeaders
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+    paths-ignore:
+      - 'docs/**'
+      - '*.md'
+
+jobs:
+  test:
+    if: "!contains(github.event.head_commit.message, 'skip ci') && !contains(github.event.head_commit.message, 'ci skip')"
+    name: SecureHeaders (PHP ${{ matrix.php-versions }})
+    runs-on: ubuntu-latest
+    # env:
+    #   DB_CHARSET: utf8
+    strategy:
+      fail-fast: false
+      matrix:
+        php-versions: ['8.1', '8.2']
+
+
+    steps:
+
+      - name: Checkout.
+        uses: actions/checkout@v4
+
+      - name: Install PHP
+        uses: shivammathur/setup-php@v2
+
+      - name: Install composer dependencies
+        run: composer install --prefer-dist --no-interaction
+
+      - name: Run tests
+        run: ./vendor/bin/phpunit
+
+      - name: Run PHP CS Fixer
+        run: ./vendor/bin/php-cs-fixer fix --dry-run --diff

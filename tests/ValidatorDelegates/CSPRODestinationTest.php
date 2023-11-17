@@ -18,7 +18,7 @@ class CSPRODestinationTest extends TestCase
         reporting address to make full use of this header.'
     ;
 
-    public function provideDestinationCases()
+    public static function provideDestinationCases()
     {
         return [
             ["default-src 'unsafe-inline'"],

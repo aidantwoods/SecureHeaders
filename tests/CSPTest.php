@@ -24,8 +24,8 @@ class CSPTest extends TestCase
 
         $headersString = $headerStrings->getSentHeaders();
 
-        $this->assertContains("Content-Security-Policy: script-src 'nonce-abcdefg+123456' 'strict-dynamic'", $headersString);
-        $this->assertContains("Content-Security-Policy-Report-Only: script-src 'nonce-abcdefg+123456' 'strict-dynamic'", $headersString);
+        $this->assertStringContainsString("Content-Security-Policy: script-src 'nonce-abcdefg+123456' 'strict-dynamic'", $headersString);
+        $this->assertStringContainsString("Content-Security-Policy-Report-Only: script-src 'nonce-abcdefg+123456' 'strict-dynamic'", $headersString);
     }
 
     public function testStrictDynamicInjectOnlyEnforced()
@@ -45,8 +45,8 @@ class CSPTest extends TestCase
 
         $headersString = $headerStrings->getSentHeaders();
 
-        $this->assertContains("Content-Security-Policy: script-src 'nonce-abcdefg+123456' 'strict-dynamic'", $headersString);
-        $this->assertNotContains("Content-Security-Policy-Report-Only: script-src 'nonce-abcdefg+123456' 'strict-dynamic'", $headersString);
+        $this->assertStringContainsString("Content-Security-Policy: script-src 'nonce-abcdefg+123456' 'strict-dynamic'", $headersString);
+        $this->assertStringNotContainsString("Content-Security-Policy-Report-Only: script-src 'nonce-abcdefg+123456' 'strict-dynamic'", $headersString);
     }
 
     public function testStrictDynamicInjectOnlyReport()
@@ -66,8 +66,8 @@ class CSPTest extends TestCase
 
         $headersString = $headerStrings->getSentHeaders();
 
-        $this->assertNotContains("Content-Security-Policy: script-src 'nonce-abcdefg+123456' 'strict-dynamic'", $headersString);
-        $this->assertContains("Content-Security-Policy-Report-Only: script-src 'nonce-abcdefg+123456' 'strict-dynamic'", $headersString);
+        $this->assertStringNotContainsString("Content-Security-Policy: script-src 'nonce-abcdefg+123456' 'strict-dynamic'", $headersString);
+        $this->assertStringContainsString("Content-Security-Policy-Report-Only: script-src 'nonce-abcdefg+123456' 'strict-dynamic'", $headersString);
     }
 
     public function testCSPHeaderMerge()
@@ -119,12 +119,12 @@ class CSPTest extends TestCase
                 {
                     $source = preg_quote($source, '/');
 
-                    $this->assertRegexp('/Content-Security-Policy:.*?'.$directive.'[^;]+'.$source.'/', $headersString);
+                    $this->assertMatchesRegularExpression('/Content-Security-Policy:.*?'.$directive.'[^;]+'.$source.'/', $headersString);
                 }
             }
             else
             {
-                $this->assertRegexp('/Content-Security-Policy:.*?'.$directive.';/', $headersString);
+                $this->assertMatchesRegularExpression('/Content-Security-Policy:.*?'.$directive.';/', $headersString);
             }
         }
     }
